@@ -1,20 +1,24 @@
 clear
 
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/')
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/NE_Coastlines/')
+DBstring = '/Users/chorvat/Dropbox (Brown)/Research Projects/'; 
 
-S1_fold_AT = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
+addpath([DBstring 'Plot-Tools/'])
+addpath([DBstring 'Plot-Tools/NE_Coastlines/'])
 
-S1_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/';
+%%
+S1_fold = [DBstring 'Active/Data/Sentinel-1/'];
+S1_file = 'S1A_EW_GRDM_1SSH_20190225T014506_20190225T014611_026079_02E89C_56F1.nc';
 
-S1_filenames = dir([S1_fold '*.nc']);
-S1_file = S1_filenames(2).name;
+S1_fold_KT = [DBstring 'Active/Data/Sentinel-1/Tavri_Classified/'];
+S1_file_KT = 'ThurSAR__corrected_mask_with_latlon.tiff';
 
+PM_fold = [DBstring 'Active/Data/SIC-Data/NSIDC-CDR/'];
+PM_file = 'Daily/SIA_data/seaice_conc_daily_sh_20190225_f17_v04r00.nc'; 
 
+IS2_fold = [DBstring 'Active/Data/ICESat-2/PM-SIC-width/'];
+IS2_file = 'ATL07-02_20190224012038_08800201_005_01.h5';
 
-% S1_file = 'S1A_EW_GRDM_1SSH_20190225T014506_20190225T014611_026079_02E89C_56F1.nc';
-% S1_file = 'S1A_EW_GRDM_1SSH_20190226T022533_20190226T022638_026094_02E936_7558.nc';
-
+%% Pull in S1 image
 lat_S1 = ncread([S1_fold S1_file],'lat'); 
 lon_S1 = ncread([S1_fold S1_file],'lon'); 
 
@@ -24,79 +28,80 @@ S1_lon_span = [min(lon_S1(:)) max(lon_S1(:))];
 Amp = ncread([S1_fold S1_file],'Amplitude_HH'); 
 Int = ncread([S1_fold S1_file],'Intensity_HH'); 
 
-%%
-class_KT = imread([S1_fold_AT 'ThurSAR__corrected_mask_with_latlon.tiff']);
-lat_KT = flipud(fliplr(class_KT(:,:,2))); 
-lon_KT = flipud(fliplr(class_KT(:,:,3)));
-class_KT = flipud(fliplr(class_KT(:,:,1))); 
-amp_KT = flipud(fliplr(imread([S1_fold_AT 'S1A_EW_GRDM_1SSH_20190225_new_manual_binary.tif'])));
+%% Pull in classified S1 Data 
+class_KT = imread([S1_fold_KT S1_file_KT]);
+lat_KT = rot90(class_KT(:,:,2),2); 
+lon_KT = rot90(class_KT(:,:,3),2);
+class_KT = rot90(class_KT(:,:,1),2); 
 
+%% Pull in passive microwave data
+sic_PM = ncread([PM_fold PM_file],'cdr_seaice_conc');
+lat_PM = load([PM_fold 'NSIDC-CDR_monthly'],'lat_SH').lat_SH; 
+lon_PM = load([PM_fold 'NSIDC-CDR_monthly'],'lon_SH').lon_SH;
 
-%% IS-2 track
-mov_window = [12500 12500];
+%% Pull in IS2 data. 
+% Reference IS2 along-track values to the grids of the original S1 image,
+% the classified image of KT, and the passive microwave grid. 
+beamnames = {'/gt1r','/gt1l','/gt2r','/gt2l','/gt3r','/gt3l'};
 
+% track_span = [0 150];
+lat_span = [-70.9188  -69.5810];
+lon_span = [-83.68 -83.1];
 
-IS2_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/ICESAT-2/MIZ-Definitions/Fig_Example_Track/';
-IS2_filenames = dir([IS2_fold '*.h5']); 
-% 
-IS2_file = [IS2_fold '/' IS2_filenames(1).name];
-% IS2_file = 'ATL07-02_20190225005459_08950201_005_01.h5'; 
-beamname = '/gt3l';
-% addpath(IS2_fold);
-IS2_obj = preprocess_single_track(IS2_file,beamname);
-AT_stats = get_AT_variables(IS2_obj);
-
-track_span = [0 150];
-end_span = find(IS2_obj.dist/1000 > max(track_span),1); 
-lat_span = sort([IS2_obj.lat(1) IS2_obj.lat(end_span)]); 
-lon_span = sort([IS2_obj.lon(1) IS2_obj.lon(end_span)]); 
-
-
-%% Find locations of IS2 on the SAR data
-inds = lat_S1(:) < lat_span(2) & lat_S1(:) > lat_span(1) & lon_S1(:) < lon_span(2) & lon_S1(:) > lon_span(1);
-lat_X = lat_S1(inds);  
-lon_X = lon_S1(inds);  
-M = createns([lat_X,lon_X]); 
-
-% Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. Might take a
-% while. 
-ID = knnsearch(M,[IS2_obj.lat IS2_obj.lon],'K',1); 
-
-%% Threshold and plot the S1 image
-Amp2 = Amp;
-Amp_subset = nan(size(Amp2));
-Amp_subset(inds) = Amp2(inds); 
-
-% Amp(Amp > 1000) = 1000; 
-Amp_norm = Amp2 / nanmax(Amp2(:)); 
-Int_norm = Int / nanmax(Int(:));
-ampvals = Amp_norm(ID); 
-T = graythresh(ampvals);
-
-amp_bin = ampvals; 
-amp_bin(ampvals > T) = 1; 
-amp_bin(ampvals <= T) = 0; 
-amp_smooth = movmean(amp_bin,mov_window,'omitnan','samplepoints',IS2_obj.dist);
-
-%% Look at AT-classified image
-
-% Take the indices in the image which are in the right range
+inds_S1 = lat_S1(:) < lat_span(2) & lat_S1(:) > lat_span(1) & lon_S1(:) < lon_span(2) & lon_S1(:) > lon_span(1);
 inds_KT = lat_KT(:) < lat_span(2) & lat_KT(:) > lat_span(1) ... 
     & lon_KT(:) < lon_span(2) & lon_KT(:) > lon_span(1);
+inds_PM = lat_PM(:) < lat_span(2) & lat_PM(:) > lat_span(1) ... 
+    & lon_PM(:) < lon_span(2) & lon_PM(:) > lon_span(1);
 
-usable_class_KT = class_KT(inds_KT); 
+lat_X_S1 = lat_S1(inds_S1);  
+lon_X_S1 = lon_S1(inds_S1);  
+M_S1 = createns([lat_X_S1,lon_X_S1]); 
+
 
 lat_X_KT = lat_KT(inds_KT);  
 lon_X_KT = lon_KT(inds_KT);  
 M_KT = createns([lat_X_KT,lon_X_KT]); 
 
+lat_X_PM = lat_PM(inds_PM);  
+lon_X_PM = lon_PM(inds_PM);  
+M_PM = createns([lat_X_PM,lon_X_PM]); 
 
+for i = 1:length(beamnames)
 
+IS2_obj{i} = preprocess_single_track([IS2_fold IS2_file],beamnames{i});
+AT_stats{i} = get_AT_variables(IS2_obj{i});
 
-%%
 % Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. Might take a
 % while. 
-[ID_KT,D] = knnsearch(M_KT,[IS2_obj.lat IS2_obj.lon],'K',1); 
+ID{i} = knnsearch(M_S1,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+
+
+% Now do the same for the classified KT image
+ID_KT{i} = knnsearch(M_KT,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+
+ID_PM{i} = knnsearch(M_PM,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+
+end
+
+%% Now do some analysis
+
+AT_window = [0 12500]; 
+
+% For each index we 
+
+
+%% Look at AT-classified image
+
+% Take the indices in the image which are in the right range
+
+
+AT_class_KT = class_KT(inds_KT); 
+AT_PM = sic_PM(inds_PM); 
+
+
+% Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. Might take a
+% while. 
 
 found_lats = lat_X_KT(ID_KT);
 found_lons = lon_X_KT(ID_KT); 

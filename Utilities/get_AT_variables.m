@@ -58,7 +58,6 @@ end
 
 moving_en = movmean((height-ssh_interp).^2 .* seg_len,window_50k,'samplepoints',dist);
 
-
 %% Objects interpolated on the 10km moving window
 % Standard deviation of Height
 
@@ -211,19 +210,16 @@ wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,window_25k,'sample
 
 AT_WAF = wave_area_frac_both;
 
-
 %% Calculate along-track coverage
 
 delx = diff(dist); 
 delx = [delx; delx(end)]; 
 
-% coverage = movsum(delx,)
+AT_COV = movsum(seg_len.*is_included,slide_use,'samplepoints',dist) ./ movsum(delx.*is_included,slide_use,'samplepoints',dist);
 
-% AT_COV = movsum(seg_len.*is_included,slide_use,'samplepoints',dist) ./ movsum(delx.*is_included,slide_use,'samplepoints',dist);
+AT_positive = height_adjusted > 0; 
 
-AT_under = height_adjusted > 0; 
-
-AT_LIF_adj = movsum(seg_len.*is_included.*AT_under,slide_use,'samplepoints',dist) ./ movsum(seg_len,slide_use,'samplepoints',dist);
+AT_LIF_adj = movsum(seg_len.*is_included.*AT_positive,slide_use,'samplepoints',dist) ./ movsum(seg_len,slide_use,'samplepoints',dist);
 
 
 %% Along-track LIF, SIC, mean floe size
@@ -241,7 +237,6 @@ AT_stats.LIF_adj = AT_LIF_adj;
 AT_stats.WAF = AT_WAF; 
 AT_stats.SIC = AT_SIC; 
 AT_stats.FSD = AT_RFSD; 
-
-
+AT_stats.COV = AT_COV; 
 AT_stats.height_adj = height_adjusted; 
 
