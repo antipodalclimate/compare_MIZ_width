@@ -1,6 +1,6 @@
 
 % Which IS-2 beam to choose. 
-beam_pickout = 2; 
+beam_pickout = 6; 
 
 close all
 horvat_colors; 
@@ -40,8 +40,8 @@ plotm(IS2_obj{beam_pickout}.lat(IS2_obj{beam_pickout}.is_ice),IS2_obj{beam_picko
 scatterm(lat_CIZ_WAF(beam_pickout),lon_CIZ_WAF(beam_pickout),100,clabs(1,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_LIF(beam_pickout),lon_CIZ_LIF(beam_pickout),100,clabs(2,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_S1(beam_pickout),lon_CIZ_S1(beam_pickout),100,clabs(3,:),'s','linewidth',1.5);
-scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','filled','linewidth',1.5);
-scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','filled','linewidth',1.5);
+scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','linewidth',1.5);
 
 %%
 
@@ -121,8 +121,6 @@ end
 pos = [6.5 3.25]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-
-
-print('/Users/chorvat/Dropbox (Brown)/Apps/Overleaf/IS2-Waves-PM/Figures/SAR-Comp','-dpdf','-r600');
-% print('/Users/chorvat/Dropbox (Brown)/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/SAR-Comp','-dpdf','-r600');
+print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/SAR-Comp','-dpdf','-r600');
+print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/SAR-Comp','-dpdf','-r600');
 

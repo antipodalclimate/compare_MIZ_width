@@ -25,8 +25,8 @@ lon_S1 = ncread([S1_fold S1_file],'lon');
 S1_lat_span = [min(lat_S1(:)) max(lat_S1(:))];
 S1_lon_span = [min(lon_S1(:)) max(lon_S1(:))];
 
-Amp = ncread([S1_fold S1_file],'Amplitude_HH'); 
-Int = ncread([S1_fold S1_file],'Intensity_HH'); 
+Amp_S1 = ncread([S1_fold S1_file],'Amplitude_HH'); 
+Int_S1 = ncread([S1_fold S1_file],'Intensity_HH'); 
 
 %% Pull in classified S1 Data 
 class_KT = imread([S1_fold_KT S1_file_KT]);
@@ -44,254 +44,188 @@ lon_PM = load([PM_fold 'NSIDC-CDR_monthly'],'lon_SH').lon_SH;
 % the classified image of KT, and the passive microwave grid. 
 beamnames = {'/gt1r','/gt1l','/gt2r','/gt2l','/gt3r','/gt3l'};
 
+% track_span = [0 150];
 lat_span = [-70.9188  -69.5810];
-% lon_span = [-83.
+lon_span = [-83.68 -83.1];
+
+inds_S1 = lat_S1(:) < lat_span(2) & lat_S1(:) > lat_span(1) & lon_S1(:) < lon_span(2) & lon_S1(:) > lon_span(1);
+inds_KT = lat_KT(:) < lat_span(2) & lat_KT(:) > lat_span(1) ... 
+    & lon_KT(:) < lon_span(2) & lon_KT(:) > lon_span(1);
+inds_PM = lat_PM(:) < lat_span(2) & lat_PM(:) > lat_span(1) ... 
+    & lon_PM(:) < lon_span(2) & lon_PM(:) > lon_span(1);
+
+lat_X_S1 = lat_S1(inds_S1);  
+lon_X_S1 = lon_S1(inds_S1);  
+S1_Amp_subset = Amp_S1(inds_S1); 
+
+M_S1 = createns([lat_X_S1,lon_X_S1]); 
+
+lat_X_KT = lat_KT(inds_KT);  
+lon_X_KT = lon_KT(inds_KT);  
+KT_subset = class_KT(inds_KT); 
+
+M_KT = createns([lat_X_KT,lon_X_KT]); 
+
+lat_X_PM = lat_PM(inds_PM);  
+lon_X_PM = lon_PM(inds_PM);  
+PM_subset = sic_PM(inds_PM); 
+
+M_PM = createns([lat_X_PM,lon_X_PM]); 
+
+%% Calculate the along-track stats from IS2 as well as the along-track values from PM and SAR
+ 
+AT_window = [0 12500]; 
 
 for i = 1:length(beamnames)
 
 IS2_obj{i} = preprocess_single_track([IS2_fold IS2_file],beamnames{i});
-AT_stats{i} = get_AT_variables(IS2_obj{i});
+AT_stats{i} = get_AT_variables(IS2_obj{i},AT_window);
 
-track_span = [0 150];
-end_span = find(IS2_obj{i}.dist/1000 > max(track_span),1); 
-lon_span = sort([IS2_obj{i}.lon(1) IS2_obj{i}.lon(end_span)])
-
-% Search within the S1 image for locational indices. 
-inds_S1 = lat_S1(:) < lat_span(2) & lat_S1(:) > lat_span(1) & lon_S1(:) < lon_span(2) & lon_S1(:) > lon_span(1);
-lat_X = lat_S1(inds_S1);  
-lon_X = lon_S1(inds_S1);  
-M = createns([lat_X,lon_X]); 
-
-% Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. Might take a
-% while. 
-ID{i} = knnsearch(M,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
-
+% Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. 
+ID_S1{i} = knnsearch(M_S1,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+S1_lats{i} = lat_X_S1(ID_S1{i}); 
+S1_lons{i} = lon_X_S1(ID_S1{i}); 
+AT_amp_S1{i} = S1_Amp_subset(ID_S1{i}); 
 
 % Now do the same for the classified KT image
-
-inds_KT = lat_KT(:) < lat_span(2) & lat_KT(:) > lat_span(1) ... 
-    & lon_KT(:) < lon_span(2) & lon_KT(:) > lon_span(1);
-
-lat_X_KT = lat_KT(inds_KT);  
-lon_X_KT = lon_KT(inds_KT);  
-M_KT = createns([lat_X_KT,lon_X_KT]); 
-
 ID_KT{i} = knnsearch(M_KT,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+KT_lats{i} = lat_X_KT(ID_KT{i});
+KT_lons{i} = lon_X_KT(ID_KT{i});
+AT_class_KT{i} = KT_subset(ID_KT{i}); 
 
-inds_PM = lat_PM(:) < lat_span(2) & lat_PM(:) > lat_span(1) ... 
-    & lon_PM(:) < lon_span(2) & lon_PM(:) > lon_span(1);
-
-lat_X_PM = lat_PM(inds_PM);  
-lon_X_PM = lon_PM(inds_PM);  
-M_PM = createns([lat_X_PM,lon_X_PM]); 
 
 ID_PM{i} = knnsearch(M_PM,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
+PM_lats{i} = lat_X_PM(ID_PM{i});
+PM_lons{i} = lon_X_PM(ID_PM{i});
+AT_sic_PM{i} = PM_subset(ID_PM{i}); 
 
 end
 
-%% Now do some analysis
 
-AT_window = [0 12500]; 
+%% Do along-track smoothing of non-IS2 fields. 
+% All others should be using the same AT_window as specified above. 
+for i = 1:length(beamnames)
 
-% For each index we 
+AT_S1_LIF{i} = movmean(AT_class_KT{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
+AT_PM_SIC{i} = movmean(AT_sic_PM{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
 
-
-%% Look at AT-classified image
-
-% Take the indices in the image which are in the right range
-
-
-AT_class_KT = class_KT(inds_KT); 
-AT_PM = sic_PM(inds_PM); 
-
-
-% Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. Might take a
-% while. 
-
-found_lats = lat_X_KT(ID_KT);
-found_lons = lon_X_KT(ID_KT); 
-
-
-class_AT_AT = usable_class_KT(ID_KT); 
-
-
-S1_LIF = movmean(class_AT_AT,mov_window,'omitnan','samplepoints',IS2_obj.dist);
-
+end
 
 %%
-
+% The AT height is not smoothed to the same window, so we do that here. 
 
 % Remove outlier values
 AT_stats.height_adj(AT_stats.height_adj > 1.5) = nan; 
 
-height_smooth = movsum(AT_stats.height_adj(IS2_obj.is_ice).*IS2_obj.seg_len(IS2_obj.is_ice),mov_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice)) ...
-    ./ movsum(IS2_obj.seg_len(IS2_obj.is_ice),mov_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice));
+height_smooth = movsum(AT_stats.height_adj(IS2_obj.is_ice).*IS2_obj.seg_len(IS2_obj.is_ice),AT_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice)) ...
+    ./ movsum(IS2_obj.seg_len(IS2_obj.is_ice),AT_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice));
 
-height_var = movsum((AT_stats.height_adj(IS2_obj.is_ice) - height_smooth).^2 .* IS2_obj.seg_len(IS2_obj.is_ice),mov_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice)) ...
-    ./ movsum(IS2_obj.seg_len(IS2_obj.is_ice),mov_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice));
+height_var = movsum((AT_stats.height_adj(IS2_obj.is_ice) - height_smooth).^2 .* IS2_obj.seg_len(IS2_obj.is_ice),AT_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice)) ...
+    ./ movsum(IS2_obj.seg_len(IS2_obj.is_ice),AT_window,'omitnan','samplepoints',IS2_obj.dist(IS2_obj.is_ice));
 
 height_std = sqrt(height_var); 
 
-%
-xvals = IS2_obj.dist(IS2_obj.is_ice)/1000; 
-latice = IS2_obj.lat(IS2_obj.is_ice); 
-lonice = IS2_obj.lon(IS2_obj.is_ice); 
+%% Now compute the distance between MIZ and not. 
 
-[X_WAF,X_PM,X_S1,X_AT,X_S1_KT,X_AT_adj] = deal(0); 
+% Compact ice zone start
+[X_CIZ_WAF,X_CIZ_LIF,X_CIZ_PM,X_CIZ_S1] = deal(nan(1,length(beamnames)));
+[lat_CIZ_WAF,lat_CIZ_LIF,lat_CIZ_PM,lat_CIZ_S1] = deal(nan(1,length(beamnames)));
+[lon_CIZ_WAF,lon_CIZ_LIF,lon_CIZ_PM,lon_CIZ_S1] = deal(nan(1,length(beamnames)));
 
-ind_WAF = find(AT_stats.WAF(IS2_obj.is_ice) < 0.075,1);
-if ~isempty(ind_WAF)
-X_WAF= xvals(ind_WAF);
-end
-ind_PM = find(AT_stats.SIC(IS2_obj.is_ice) > .8,1);
-if ~isempty(ind_PM)
-X_PM = xvals(ind_PM);
-end
-ind_S1 = find(amp_smooth(IS2_obj.is_ice) > .8,1);
-if ~isempty(ind_S1)
-X_S1 = xvals(ind_S1);
-end
+% Marginal ice zone start
+[X_MIZ_WAF,X_MIZ_LIF,X_MIZ_PM,X_MIZ_S1] = deal(nan(1,length(beamnames)));
+[lat_MIZ_WAF,lat_MIZ_LIF,lat_MIZ_PM,lat_MIZ_S1] = deal(nan(1,length(beamnames)));
+[lon_MIZ_WAF,lon_MIZ_LIF,lon_MIZ_PM,lon_MIZ_S1] = deal(nan(1,length(beamnames)));
 
-ind_S1_KT = find(S1_LIF(IS2_obj.is_ice) > .8,1);
-if ~isempty(ind_S1_KT)
-X_S1_KT = xvals(ind_S1_KT);
-end
+for i = 1:length(beamnames)
+%% 
+% Take the first point where WAF drops below 0.075
+ind_MIZ_WAF = find(AT_stats{i}.WAF(IS2_obj{i}.is_ice) > 0.075,1);
+ind_CIZ_WAF = find(AT_stats{i}.WAF(IS2_obj{i}.is_ice) < 0.075,1);
 
-ind_AT = find(AT_stats.LIF(IS2_obj.is_ice) > .8,1);
-if ~isempty(ind_AT)
-X_AT = xvals(ind_AT);
+if ~isempty(ind_MIZ_WAF)
+    X_MIZ_WAF(i)= IS2_obj{i}.dist(ind_MIZ_WAF)/1000;
+    lat_MIZ_WAF(i)= IS2_obj{i}.lat(ind_MIZ_WAF);
+    lon_MIZ_WAF(i)= IS2_obj{i}.lon(ind_MIZ_WAF);
 end
 
-ind_AT_adj = find(AT_stats.LIF_adj(IS2_obj.is_ice) > .8,1);
-if ~isempty(ind_AT_adj)
-X_AT = xvals(ind_AT_adj);
+if ~isempty(ind_CIZ_WAF)
+    X_CIZ_WAF(i)= IS2_obj{i}.dist(ind_CIZ_WAF)/1000;
+    lat_CIZ_WAF(i)= IS2_obj{i}.lat(ind_CIZ_WAF);
+    lon_CIZ_WAF(i)= IS2_obj{i}.lon(ind_CIZ_WAF);
 end
 
-%
-close all
-addpath('Plot-Tools')
-horvat_colors; 
-Ax{1} = subplot('position',[.05 .455 .45 .5]);
+% Take the first point where IS2 LIF reaches above 15% or 80%
+ind_MIZ_LIF = find(AT_stats{i}.LIF_adj(IS2_obj{i}.is_ice) > 0.15,1);
+ind_CIZ_LIF = find(AT_stats{i}.LIF_adj(IS2_obj{i}.is_ice) > 0.8,1);
 
-latlim = sort([0.5 .25] + sort([IS2_obj.lat(1) IS2_obj.lat(end_span)]));
+if ~isempty(ind_MIZ_WAF)
+    X_MIZ_LIF(i)= IS2_obj{i}.dist(ind_MIZ_LIF)/1000;
+    lat_MIZ_LIF(i)= IS2_obj{i}.lat(ind_MIZ_LIF);
+    lon_MIZ_LIF(i)= IS2_obj{i}.lon(ind_MIZ_LIF);
+end
 
-lonlim = sort([-1.75 2.25] + sort([IS2_obj.lon(1) IS2_obj.lon(end_span)]));
+if ~isempty(ind_CIZ_WAF)
+    X_CIZ_LIF(i)= IS2_obj{i}.dist(ind_CIZ_LIF)/1000;
+    lat_CIZ_LIF(i)= IS2_obj{i}.lat(ind_CIZ_LIF);
+    lon_CIZ_LIF(i)= IS2_obj{i}.lon(ind_CIZ_LIF);
+end
 
-% if lonlim(2) > max(lon_S1(:))
-%     lonlim(2) = max(lon_S1(:))
-% end
+% Take the first point where S1 LIF reaches above 15% or 80%
+ind_MIZ_S1 = find(AT_S1_LIF{i} > 0.15,1);
+ind_CIZ_S1 = find(AT_S1_LIF{i} > 0.80,1);
 
-worldmap((latlim),(lonlim)); 
-setm(gca,'PlabelLocation',-70,'PlineLocation',-70,'PLabelRound',0);
-setm(gca,'MLabelLocation',[-84 -82],'MLineLocation',[-84 -82],'MLabelRound',0,'MLabelParallel','south');
-setm(gca,'grid','on','GLineWidth',0.5,'GLineStyle','--','GColor','w','fontsize',8);
+if ~isempty(ind_MIZ_WAF)
+    X_MIZ_S1(i)= IS2_obj{i}.dist(ind_MIZ_S1)/1000;
+    lat_MIZ_S1(i)= IS2_obj{i}.lat(ind_MIZ_S1);
+    lon_MIZ_S1(i)= IS2_obj{i}.lon(ind_MIZ_S1);
+end
 
-% setm(gca,'maplatlimit',latlim,'parallellabel','off','meridianlabel','off');
-% setm(gca,'plinevisible','off','mlinevisible','off'); 
-% rgbmat = zeros([size(Amp) 3]);
-% rgbmat(:,:,1) = Amp; 
-% rgbmat(:,:,2) = Int; 
+if ~isempty(ind_CIZ_S1)
+    X_CIZ_S1(i)= IS2_obj{i}.dist(ind_CIZ_S1)/1000;
+    lat_CIZ_S1(i)= IS2_obj{i}.lat(ind_CIZ_S1);
+    lon_CIZ_S1(i)= IS2_obj{i}.lon(ind_CIZ_S1);
+end
 
-skipper = 4; 
+% Take the first point where PM reaches above 15% or 80%
+ind_MIZ_PM = find(AT_PM_SIC{i} > 0.15,1);
+ind_CIZ_PM = find(AT_PM_SIC{i} > 0.80,1);
 
-inds_plot = lat_S1(:) < latlim(2) & lat_S1(:) > latlim(1) & lon_S1(:) < lonlim(2) & lon_S1(:) > lonlim(1);
-Amp_plot = nan*Amp2; 
-Amp_plot(inds_plot) = Amp2(inds_plot); 
-Amp_plot(Amp_plot > 1000) = 1000; 
-Amp_plot = Amp_plot / 1000; 
+if ~isempty(ind_MIZ_PM)
+    X_MIZ_PM(i)= IS2_obj{i}.dist(ind_MIZ_PM)/1000;
+    lat_MIZ_PM(i)= IS2_obj{i}.lat(ind_MIZ_PM);
+    lon_MIZ_PM(i)= IS2_obj{i}.lon(ind_MIZ_PM);
+end
 
-[a,b] = ind2sub(size(Amp),find(inds_plot));
-l1 = min(a):skipper:max(a); 
-l2 = min(b):skipper:max(b); 
+if ~isempty(ind_CIZ_PM)
+    X_CIZ_PM(i)= IS2_obj{i}.dist(ind_CIZ_PM)/1000;
+    lat_CIZ_PM(i)= IS2_obj{i}.lat(ind_CIZ_PM);
+    lon_CIZ_PM(i)= IS2_obj{i}.lon(ind_CIZ_PM);
+end
 
-pcolorm(lat_S1(l1,l2),lon_S1(l1,l2),Amp_plot(l1,l2));
-set(gca,'clim',[0.5 1])
-colormap((brewermap(9,'-greys')))
-plotm(latice,lonice,'--r','linewidth',1)
+% Take the first point where PM reaches above 15% or 80%
+ind_MIZ_PM = find(AT_PM_SIC{i} > 0.15,1);
+ind_CIZ_PM = find(AT_PM_SIC{i} > 0.80,1);
 
-s= scatterm(latice(1),lonice(1),20,'k','s','linewidth',3);
-scatterm(latice(ind_WAF),lonice(ind_WAF),100,clabs(1,:),'s','linewidth',1.5);
-scatterm(latice(ind_AT),lonice(ind_AT),100,clabs(2,:),'s','linewidth',1.5);
-scatterm(latice(ind_PM),lonice(ind_PM),100,clabs(3,:),'s','linewidth',1.5);
+if ~isempty(ind_MIZ_WAF)
+    X_MIZ_PM(i)= IS2_obj{i}.dist(ind_MIZ_PM)/1000;
+    lat_MIZ_PM(i)= IS2_obj{i}.lat(ind_MIZ_PM);
+    lon_MIZ_PM(i)= IS2_obj{i}.lon(ind_MIZ_PM);
+end
 
-% scatterm(latice(ind_S1),lonice(ind_S1),100,clabs(4,:),'s','linewidth',1.5);
-scatterm(latice(ind_S1_KT),lonice(ind_S1_KT),100,clabs(4,:),'s','linewidth',1.5);
+if ~isempty(ind_CIZ_WAF)
+    X_CIZ_PM(i)= IS2_obj{i}.dist(ind_CIZ_PM)/1000;
+    lat_CIZ_PM(i)= IS2_obj{i}.lat(ind_CIZ_PM);
+    lon_CIZ_PM(i)= IS2_obj{i}.lon(ind_CIZ_PM);
+end
 
-
-% add_coastlines; 
-%
-Ax{2} = subplot('position',[.1 .15 .8 .2],'replace');
-plot(xvals,100*AT_stats.height_adj(IS2_obj.is_ice),'--','linewidth',0.05,'color',[.7 .7 .7])
-hold on
-plot(xvals,100*height_smooth,'k','linewidth',1)
-plot(xvals,100*height_smooth + 100*height_std,'--k','linewidth',1)
-plot(xvals,100*height_smooth - 100*height_std,'--k','linewidth',1)
-
-ylim([-.2 .5]*100)
-xlim([0 100]); 
-
-xline(X_WAF,'color',clabs(1,:),'linewidth',3)
-xline(X_AT,'color',clabs(2,:),'linewidth',3)
-xline(X_PM,'color',clabs(3,:),'linewidth',3)
-% xline(X_S1,'color',clabs(4,:),'linewidth',3)
-xline(X_S1_KT,'color',clabs(4,:),'linewidth',3)
-
-grid on; box on; 
-ylabel('cm','interpreter','latex');
-xlabel('Distance from 1st ice segment','interpreter','latex');
-
-%
-Ax{3} = subplot('position',[.525 .5 .35 .45],'replace');
-
-
-plot(xvals,AT_stats.WAF(IS2_obj.is_ice),'linewidth',1,'color',clabs(1,:))
-hold on
-plot(xvals,AT_stats.LIF_adj(IS2_obj.is_ice),'linewidth',1,'color',clabs(2,:))
-% plot(xvals,AT_stats.LIF(IS2_obj.is_ice),'linewidth',1,'color',clabs(2,:))
-plot(xvals,AT_stats.SIC(IS2_obj.is_ice),'linewidth',1,'color',clabs(3,:))
-
-% plot(xvals,amp_smooth(IS2_obj.is_ice),'linewidth',1,'color',clabs(4,:))
-plot(xvals,S1_LIF(IS2_obj.is_ice),'linewidth',1,'color',clabs(4,:))
-
-
-xlim(track_span); 
-grid on; box on; 
-xlabel('Distance from 1st ice segment','interpreter','latex');
-
-% yyaxis right
-% set(gca,'ycolor','k')
-% plot(xvals,100*height_smooth,'k','linewidth',1)
-xlim([0 100]); 
-grid on; box on; 
-ylabel('cm','interpreter','latex');
-% plot(xvals,100*height_smooth + 100*height_std,'--k','linewidth',1)
-% plot(xvals,100*height_smooth - 100*height_std,'--k','linewidth',1)
-xline(X_WAF,'color',clabs(1,:),'linewidth',3)
-xline(X_AT,'color',clabs(2,:),'linewidth',3)
-xline(X_PM,'color',clabs(3,:),'linewidth',3)
-% xline(X_S1_,'color',clabs(4,:),'linewidth',3)
-xline(X_S1_KT,'color',clabs(4,:),'linewidth',3)
-h = legend('AT-WAF','AT-LIF','PM-SIC','SAR-SIC','location','southeast');
-set(h,'ItemTokenSize',[20 20]);
-%
-
-letter = {'(A)','(C)','(B)','(d)','(e)','(f)','(g)','(e)','(c)'};
-
-delete(findall(gcf,'Tag','legtag'))
-
-for i = 1:length(Ax)
-    set(Ax{i},'fontname','helvetica','fontsize',9,'xminortick','on','yminortick','on')
-    posy = get(Ax{i},'position');
-    annotation('textbox',[posy(1)-.04 posy(2)+posy(4)+.04 .025 .025], ...
-        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
-        'FontSize',8,'Tag','legtag');
     
 end
 
+W_PM = X_CIZ_PM - X_MIZ_PM; 
+W_S1 = X_CIZ_S1 - X_MIZ_S1; 
+W_LIF = X_CIZ_LIF - X_MIZ_LIF; 
+W_WAF = X_CIZ_WAF - X_MIZ_WAF; 
 
-pos = [6.5 3.25]; 
-set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/SAR-Comp','-dpdf','-r600');
-print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/SAR-Comp','-dpdf','-r600');
+%%
 
