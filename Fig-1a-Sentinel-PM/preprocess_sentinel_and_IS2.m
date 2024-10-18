@@ -13,7 +13,7 @@ S1_fold_KT = [DBstring 'Active/Data/Sentinel-1/Tavri_Classified/'];
 S1_file_KT = 'ThurSAR__corrected_mask_with_latlon.tiff';
 
 PM_fold = [DBstring 'Active/Data/SIC-Data/NSIDC-CDR/'];
-PM_file = 'Daily/SIA_data/seaice_conc_daily_sh_20190225_f17_v04r00.nc'; 
+PM_file = 'Daily/SIA_data/seaice_conc_daily_sh_20190224_f17_v04r00.nc'; 
 
 IS2_fold = [DBstring 'Active/Data/ICESat-2/PM-SIC-width/'];
 IS2_file = 'ATL07-02_20190224012038_08800201_005_01.h5';
