@@ -6,8 +6,19 @@ OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Pr
 % Updatable name of input
 OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/';
 
+
+savename = 'AT_stats_Brouwer_v6'; 
+
 % Updatable name of output. 
-OPTS.output_str = [OPTS.output_folder 'AT_stats_Brouwer_v6'];
+OPTS.output_str = [OPTS.output_folder savename];
+
+disp('-----')
+disp('Creating Along-Track Output Files')
+fprintf('Using IS2 tracks located at: %s \n',OPTS.track_folder); 
+fprintf('Saving to %s \n',OPTS.output_folder); 
+fprintf('Filename: %s \n',savename); 
+disp('-----')
+
 
 %%
 % Location of this code. 
