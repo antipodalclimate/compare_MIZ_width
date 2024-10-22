@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH -t 4:00:00
-#SBATCH -n 8
+#SBATCH -t 8:00:00
+#SBATCH -n 1
 #SBATCH --mem=0
 #SBATCH --account=epscor-condo
 #SBATCH --mail-user=bndnchrs@gmail.com 
@@ -10,7 +10,8 @@
 # #SBATCH --constraint=skylake
 # #SBATCH --exclusive
 
-matlab-threaded -r drive_AT_stats_par
+module load matlab
+matlab-threaded -r drive_MIZ_width
 
 
 

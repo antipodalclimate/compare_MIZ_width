@@ -16,6 +16,10 @@ AT_stats = cell(OPTS.nfiles,6);
 
 for i = 1:OPTS.nfiles % for each individual track
 
+    if mod(i,100) == 1
+	    fprintf('Number %d of %d \n',i,OPTS.nfiles); 
+    end
+
     for j = 1:6 % for either all beams or just strong
 
         trackname = [OPTS.filenames(i).folder '/' OPTS.filenames(i).name];

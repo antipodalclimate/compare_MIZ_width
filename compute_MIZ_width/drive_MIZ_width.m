@@ -1,18 +1,21 @@
 clear
 
 % Location of the overall data
-OPTS.data_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/';
+OPTS.track_folder = '/gpfs/data/epscor/chorvat/IS2/Data/All_Track_Data/v6/SH/'
+% OPTS.track_folder = '/gpfs/data/epscor/chorvat/IS2/Along_Track_Statistics/Backup/Brouwer_Tracks/'
+OPTS.code_folder = '~/Code/compare_MIZ_width/'; 
+OPTS.output_folder = '/gpfs/data/epscor/chorvat/IS2/Along_Track_Statistics/'
+
+% OPTS.data_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/';
 
 % Location of this code. 
-OPTS.code_folder = '/Users/chorvat/Code/compare_MIZ_width/'; 
+% OPTS.code_folder = '/Users/chorvat/Code/compare_MIZ_width/'; 
 
 % Location of utility files, output directory, and tracks. 
 OPTS.utils_folder = [OPTS.code_folder 'Utilities']; % Location of util files
-OPTS.output_folder = [OPTS.data_folder 'Compiled_Stats/']; 
-OPTS.track_folder = [OPTS.data_folder 'Raw_Tracks_v6/'];
 
 % Updatable name of output. 
-OPTS.output_str = [OPTS.output_folder 'AT_stats_SH_remake_v6'];  
+OPTS.output_str = [OPTS.output_folder 'AT_stats_SH_v6'];  
 
 OPTS.do_weak = 0; % Don't use the weak beams
 OPTS.AT_resolution = 6250; % The resolution of the along-track data
