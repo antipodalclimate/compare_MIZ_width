@@ -4,10 +4,10 @@ clear
 OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/Raw_Tracks_v6/';
 
 % Updatable name of input
-OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/Compiled_Stats/';
+OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/';
 
 % Updatable name of output. 
-OPTS.output_str = [OPTS.output_folder 'AT_stats_SH_v6'];
+OPTS.output_str = [OPTS.output_folder 'AT_stats_Brouwer_v6'];
 
 %%
 % Location of this code. 
@@ -16,7 +16,7 @@ OPTS.code_folder = '~/Code/compare_MIZ_width/';
 OPTS.utils_folder = [OPTS.code_folder 'Utilities']; % Location of util files
 
 
-OPTS.do_weak = 0; % Don't use the weak beams
+OPTS.do_weak = 1; % Use the weak beams
 OPTS.AT_resolution = 6250; % The resolution of the along-track data
 OPTS.beamnames = {'/gt1r','/gt1l','/gt2r','/gt2l','/gt3r','/gt3l'};
 
