@@ -77,6 +77,16 @@ for i = 1:size(IS2_DATA.AT_stats,1)
                     % PM Sea ice concentration
                     MIZ_DATA.SIC{i,offset+beamct} =  IS2_DATA.AT_stats{i,j}.SIC(indices);
 
+                    % PM Sea ice concentration
+                    MIZ_DATA.SIC{i,offset+beamct} =  IS2_DATA.AT_stats{i,j}.SIC(indices);
+
+                    if IS2_DATA.v6 == 1
+
+                    % PM Sea ice concentration
+                    MIZ_DATA.SIC_amsr{i,offset+beamct} =  IS2_DATA.AT_stats{i,j}.SIC_amsr(indices);
+
+                    end
+
                     % Look for the location of the MIZ edge. Search from
                     % the front if lat is declining, search from the back
                     % if lat is increasing

@@ -20,6 +20,11 @@ is_ocean = IS2_obj.is_ocean;
 seg_len = IS2_obj.seg_len;
 conc = IS2_obj.conc;
 
+if IS2_obj.v6
+    conc_amsr = IS2_obj.conc_amsr;
+end
+
+
 %%
 
 % Identify local moving average
@@ -212,7 +217,7 @@ is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_can
 
 
 %% BELOW ALL ALONG-TRACK MOVING AVERAGE OUTPUT FIELDS ARE CALCULATED
-% These all use the AT_window that is specified above. 
+% These all use the AT_window that is specified above.
 
 %% Along-track WAF
 
@@ -227,8 +232,13 @@ AT_WAF = wave_area_frac_both;
 
 %% Calculate along-track coverage
 
-delx = diff(dist);
-delx = [delx; delx(end)];
+if ~isempty(dist)
+    delx = diff(dist);
+    delx = [delx; delx(end)];
+
+else
+    delx = dist;
+end
 
 AT_COV = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(delx.*is_included,AT_window,'samplepoints',dist);
 
@@ -243,6 +253,13 @@ AT_LIF = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(se
 % SIC is segment length weighted mean
 AT_SIC = (1/100)*movsum(seg_len.*conc,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
+if IS2_obj.v6
+
+    % SIC is segment length weighted mean
+    AT_SIC_AMSR = (1/100)*movsum(seg_len.*conc_amsr,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
+
+end
+
 % FSD is segment length ratio
 AT_RFSD = movsum(seg_len.^3,AT_window,'samplepoints',dist) ./ movsum(seg_len.^2,AT_window,'samplepoints',dist);
 
@@ -254,9 +271,13 @@ AT_stats.SIC = AT_SIC;
 AT_stats.FSD = AT_RFSD;
 AT_stats.COV = AT_COV;
 
-% This field is not on the same moving window as the others. 
+if IS2_obj.v6
+    AT_stats.SIC_amsr = AT_SIC_AMSR;
+end
+
+% This field is not on the same moving window as the others.
 AT_stats.height_adj = height_adjusted;
 % Remove outlier values
-AT_stats.height_adj(AT_stats.height_adj > 10) = nan; 
+AT_stats.height_adj(AT_stats.height_adj > 10) = nan;
 
 

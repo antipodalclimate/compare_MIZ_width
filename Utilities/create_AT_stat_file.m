@@ -21,7 +21,7 @@ for i = 1:OPTS.nfiles % for each individual track
         trackname = [OPTS.filenames(i).folder '/' OPTS.filenames(i).name];
 
         % Is this strong or weak beam
-        beamtype = h5readatt(trackname,OPTS.beamnames{j},'atlas_beam_type');
+        beamtype = char(h5readatt(trackname,OPTS.beamnames{j},'atlas_beam_type'));
         IS2_DATA.is_strong(i,j) = strcmp(beamtype(1:3),'str');
 
 
@@ -46,5 +46,6 @@ for i = 1:OPTS.nfiles % for each individual track
 end
 
 IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
+IS2_DATA.v6 = IS2_obj.v6; 
 
 save(OPTS.output_str,'OPTS','IS2_DATA');

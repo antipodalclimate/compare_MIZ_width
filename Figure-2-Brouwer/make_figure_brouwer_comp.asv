@@ -62,7 +62,7 @@ WAFvals = vertcat(MIZ_DATA.WAF{:});
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000); 
 
-Dbins = -12.5*1000:25:12.5*1000; 
+Dbins = -10062.5:25:10000; 
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1); 
 
@@ -112,7 +112,7 @@ WAFvec = accumarray(binval,WAFvals,[length(Dbins) 1],@nanmean);
 WAFup = accumarray(binval,WAFvals,[length(Dbins) 1],upval); 
 WAFdn = accumarray(binval,WAFvals,[length(Dbins) 1],dnval); 
 
-Hvec = accumarray(binval,Hvals,[length(Dbins) 1],@nanmedian); 
+Hvec = accumarray(binval,Hvals,[length(Dbins) 1],@nanmean); 
 Hup = accumarray(binval,Hvals,[length(Dbins) 1],upval); 
 Hdn = accumarray(binval,Hvals,[length(Dbins) 1],dnval); 
 
@@ -122,6 +122,7 @@ LIFup = accumarray(binval,LIFvals,[length(Dbins) 1],upval);
 LIFdn = accumarray(binval,LIFvals,[length(Dbins) 1],dnval); 
 
 
+Hvec = accumarray(binval,Hvals,[length(Dbins) 1],@nanmean); 
 Hvar = accumarray(binval,Hvals,[length(Dbins) 1],@nanstd); 
 
 Evec = accumarray(binval,Evals,[length(Dbins) 1],@nanmean); 
@@ -201,14 +202,14 @@ legend([p1 p2 p3],{'PM-SIC','LIF','Number'},'location','best')
 subplot('position',[.1 .1 .8 .25])
 
 
-% jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
+jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
 
-jbfill(Bincent,WAFup',WAFdn',[.4 .4 .4],[1 1 1],1,.3)
+% jbfill(Bincent,WAFup',WAFdn',[.4 .4 .4],[1 1 1],1,.3)
 hold on
-r1 = plot(Bincent,WAFvec,'k','linewidth',2); 
+r1 = plot(Bincent,Hvec,'k','linewidth',2); 
 
-plot(Bincent,WAFup,'--k'); 
-plot(Bincent,WAFdn,'--k'); 
+plot(Bincent,Hup,'--k'); 
+plot(Bincent,Hdn,'--k'); 
 xlim(xlimmer)
 % ylim([0 .5]); 
 set(gca,'ylim',[0 max(get(gca,'ylim'))])
@@ -217,9 +218,7 @@ ylabel('Wave Affected Fraction','interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
 xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
-% legend([r1 r2],{'Wave Affected Fraction','WMIZ Threshold'})
-%% SECTION TITLE
-% DESCRIPTIVE TEXT
+legend([r1 r2],{'Wave Affected Fraction','WMIZ Threshold'})
 
 %%
 allAxesInFigure = findall(gcf,'type','axes');
@@ -240,5 +239,5 @@ end
 pos = [6.5 5]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-% print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/MIZ-SIC-comp','-dpdf','-r600');
+print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/MIZ-SIC-comp','-dpdf','-r600');
 %%

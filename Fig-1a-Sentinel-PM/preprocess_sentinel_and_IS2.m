@@ -4,6 +4,8 @@ DBstring = '/Users/chorvat/Dropbox (Brown)/Research Projects/';
 
 addpath([DBstring 'Plot-Tools/'])
 addpath([DBstring 'Plot-Tools/NE_Coastlines/'])
+% addpath('Figure-2-Brouwer/')
+addpath('../Utilities/')
 
 %%
 S1_fold = [DBstring 'Active/Data/Sentinel-1/'];
@@ -16,7 +18,7 @@ PM_fold = [DBstring 'Active/Data/SIC-Data/NSIDC-CDR/'];
 PM_file = 'Daily/SIA_data/seaice_conc_daily_sh_20190224_f17_v04r00.nc'; 
 
 IS2_fold = [DBstring 'Active/Data/ICESat-2/PM-SIC-width/'];
-IS2_file = 'ATL07-02_20190224012038_08800201_005_01.h5';
+IS2_file = 'ATL07-02_20190224012038_08800201_006_02.h5';
 
 %% Pull in S1 image
 lat_S1 = ncread([S1_fold S1_file],'lat'); 

@@ -8,7 +8,17 @@ lon = h5read(fieldname,[beamname '/sea_ice_segments/longitude']);
 photon_rate = h5read(fieldname,[beamname '/sea_ice_segments/stats/photon_rate']); %    'freeboard_beam_segment/beam_freeboard/beam_fb_height']);
 is_ice = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_type']);
 ssh_flag = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_ssh_flag']);
-conc = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc']);
+
+if ~contains(fieldname,'_006_')
+    v6 = 0; 
+    conc = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc']);
+else
+    v6 = 1; 
+    conc = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc_ssmi']);
+    conc_amsr = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc_amsr2']);
+end
+
+
 % quality_flag = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_fit_quality_flag']);
 % quality = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_quality']);
 
@@ -58,8 +68,14 @@ dist(unusable) = [];
 % Find duplicate values
 dupes = find(diff(dist)<0.5)+1; % Find the duplicate points
 dist(dupes) = []; % Those with such a distance get cut
+
 [dist,b] = sort(dist); % Sort the distance to be increasing.
+
+if ~isempty(dist)
+
 dist = dist - dist(1); % Start distance at zero. 
+
+end
 
 % Dedupe and sort ice vector
 is_ice(unusable) = [];
@@ -84,6 +100,13 @@ seg_len = seg_len(b);
 conc(unusable) = [];
 conc(dupes) = [];
 conc = conc(b);
+
+if v6
+% Dedupe and sort concentration vector
+conc_amsr(unusable) = [];
+conc_amsr(dupes) = [];
+conc_amsr = conc_amsr(b);
+end
 
 lat(unusable) = [];
 lat(dupes) = [];
@@ -128,10 +151,17 @@ IS2_obj.is_ice = is_ice;
 IS2_obj.is_ocean = is_ocean; 
 IS2_obj.ssh_flag = ssh_flag; 
 IS2_obj.conc = conc; 
+
+if v6
+    IS2_obj.conc_amsr = conc_amsr; 
+end
+
 % IS2_obj.exmax_1 = exmax_1; 
 % IS2_obj.exmax_2 = exmax_2; 
 % IS2_obj.quality = quality; 
 % IS2_obj.quality_flag = quality_flag; 
 IS2_obj.timer = timer; 
+
+IS2_obj.v6 = v6; 
 
 end

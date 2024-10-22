@@ -69,6 +69,9 @@ for i = 1:size(AT_stats,1)
                 % PM Sea ice concentration
                 SIC{i,beamcount} =  AT_stats{i,j}.SIC(front_side);
 
+                % PM Sea ice concentration
+                SIC_amsr{i,beamcount} =  AT_stats{i,j}.SIC_amsr(front_side);
+
                 MIZ_edge = find(SIC{i,beamcount} > 0.8,1);
 
                 if ~isempty(MIZ_edge)

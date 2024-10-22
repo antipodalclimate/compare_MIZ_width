@@ -18,6 +18,12 @@ lon = IS2_obj.lon;
 timer = IS2_obj.timer;
 conc = IS2_obj.conc;
 
+if IS2_obj.v6
+
+conc_amsr = IS2_obj.conc_amsr; 
+
+end
+
 %%
 % Identify local moving average
 window_1k = 1000;
@@ -226,6 +232,13 @@ AT_LIF = movsum(seg_len.*is_ice,slide_25k,'samplepoints',dist) ./ movsum(seg_len
 % SIC is segment length weighted mean
 AT_SIC = (1/100)*movsum(seg_len.*conc,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
 
+if IS2_obj.v6
+
+% SIC is segment length weighted mean
+AT_SIC_amsr = (1/100)*movsum(seg_len.*conc_amsr,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
+
+end
+
 % FSD is segment length ratio
 AT_RFSD = movsum(floe_length.^3,slide_25k,'samplepoints',dist(floeind)) ./ movsum(floe_length.^2,slide_25k,'samplepoints',dist(floeind));
 
@@ -255,6 +268,12 @@ AT_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],
 AT_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@sum)./AT_stats.N;
 AT_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@sum)./AT_stats.N;
 AT_stats.SIC = accumarray(ind_mapper,AT_SIC,[length(downscale_inds) 1],@sum)./AT_stats.N;
+
+if IS2_obj.v6
+
+    AT_stats.SIC_amsr = accumarray(ind_mapper,AT_SIC_amsr,[length(downscale_inds) 1],@sum)./AT_stats.N;
+
+end
 
 % Along-track statistics
 AT_stats.E = accumarray(ind_mapper,AT_E,[length(downscale_inds) 1],@sum)./AT_stats.N;

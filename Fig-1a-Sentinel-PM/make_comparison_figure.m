@@ -1,6 +1,6 @@
 
 % Which IS-2 beam to choose. 
-beam_pickout = 2; 
+beam_pickout = 6; 
 
 close all
 horvat_colors; 
@@ -40,8 +40,8 @@ plotm(IS2_obj{beam_pickout}.lat(IS2_obj{beam_pickout}.is_ice),IS2_obj{beam_picko
 scatterm(lat_CIZ_WAF(beam_pickout),lon_CIZ_WAF(beam_pickout),100,clabs(1,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_LIF(beam_pickout),lon_CIZ_LIF(beam_pickout),100,clabs(2,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_S1(beam_pickout),lon_CIZ_S1(beam_pickout),100,clabs(3,:),'s','linewidth',1.5);
-scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','filled','linewidth',1.5);
-scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','filled','linewidth',1.5);
+scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','linewidth',1.5);
 
 %%
 
@@ -79,7 +79,9 @@ hold on
 plot(AT_dist,AT_stats{beam_pickout}.LIF,'linewidth',1,'color',clabs(2,:))
 plot(AT_dist,AT_S1_LIF{beam_pickout},'linewidth',1,'color',clabs(3,:))
 plot(AT_dist,AT_stats{beam_pickout}.SIC,'linewidth',1,'color',clabs(5,:))
+plot(AT_dist,AT_stats{beam_pickout}.SIC_amsr,'--','linewidth',1,'color',clabs(5,:))
 plot(AT_dist,AT_sic_PM{beam_pickout},'linewidth',1,'color',clabs(7,:))
+
 
 xlim([0 150]); 
 ylim([0 1])
@@ -100,11 +102,11 @@ xline(X_CIZ_S1(beam_pickout),'color',clabs(3,:),'linewidth',3)
 xline(X_CIZ_ISPM(beam_pickout),'color',clabs(5,:),'linewidth',3)
 xline(X_CIZ_PM(beam_pickout),'color',clabs(7,:),'linewidth',3)
 
-h = legend('AT-WAF','AT-LIF','SAR-SIC','IS2-CDR','CDR','location','southeast');
+h = legend('AT-WAF','AT-LIF','SAR-SIC','IS2-AMSR','IS2-SSMI','CDR','location','southeast');
 set(h,'ItemTokenSize',[20 20]);
 %
 
-letter = {'(A)','(C)','(B)','(d)','(e)','(f)','(g)','(e)','(c)'};
+letter = {'(a)','(c)','(b)','(d)','(e)','(f)','(g)','(e)','(c)'};
 
 delete(findall(gcf,'Tag','legtag'))
 
