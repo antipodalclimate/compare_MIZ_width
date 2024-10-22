@@ -14,7 +14,10 @@ addpath(OPTS.code_folder)
 % Each file has 6 beams
 AT_stats = cell(OPTS.nfiles,6);
 
-for i = 1:OPTS.nfiles % for each individual track
+is_strong = nan(OPTS.nfiles,6); 
+
+
+parfor i = 1:OPTS.nfiles % for each individual track
 
     for j = 1:6 % for either all beams or just strong
 
@@ -22,12 +25,12 @@ for i = 1:OPTS.nfiles % for each individual track
 
         % Is this strong or weak beam
         beamtype = char(h5readatt(trackname,OPTS.beamnames{j},'atlas_beam_type'));
-        IS2_DATA.is_strong(i,j) = strcmp(beamtype(1:3),'str');
+        is_strong(i,j) = strcmp(beamtype(1:3),'str');
 
 
         % Process this if we don't care about the beam
         % Or if we do care about the 
-        if OPTS.do_weak == 1 || IS2_DATA.is_strong(i,j)
+        if OPTS.do_weak == 1 || is_strong(i,j)
 
             % This pulls out the data from each track. It orders the data
             % and removes poor-quality segments from the ATL07 data. 
@@ -35,7 +38,7 @@ for i = 1:OPTS.nfiles % for each individual track
 
             % This now calculates along-track statistics by binning to the
             % appropriate along-track resolution
-            IS2_DATA.AT_stats{i,j} = downscale_AT_statistics(IS2_obj,OPTS.AT_resolution);
+            AT_stats{i,j} = downscale_AT_statistics(IS2_obj,OPTS.AT_resolution);
 
         end
 
@@ -45,7 +48,18 @@ for i = 1:OPTS.nfiles % for each individual track
 
 end
 
+fieldname = [OPTS.filenames(1).folder '/' OPTS.filenames(1).name];
+
+if ~contains(fieldname,'_006_')
+    IS2_DATA.v6 = 0; 
+else
+    IS2_DATA.v6 = 1;
+end
+
+IS2_DATA.AT_stats = AT_stats; 
+IS2_DATA.is_strong = is_strong; 
 IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
-IS2_DATA.v6 = IS2_obj.v6; 
+
+% IS2_DATA.v6 = IS2_obj.v6; 
 
 save(OPTS.output_str,'OPTS','IS2_DATA');
