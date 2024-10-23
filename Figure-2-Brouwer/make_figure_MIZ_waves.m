@@ -3,7 +3,7 @@ function make_figure_MIZ_waves(MIZ_DATA,IS2_DATA)
 load_MIZ_waves; 
 
 % Criteria for selection
-usable_all = (Nvals > 100) & ~isnan(Dvals) &~isinf(SICvals) & Dvals < max(Dbins) & Dvals > min(Dbins); 
+usable_all = (Nvals > 1) & ~isnan(Dvals) &~isinf(SICvals) & Dvals < max(Dbins) & Dvals > min(Dbins); 
 usable_all = usable_all; % & (timeval > 7 & timeval < 10); 
 usable_all = usable_all & npoints > 1; 
 

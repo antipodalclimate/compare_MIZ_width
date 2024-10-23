@@ -12,7 +12,7 @@ D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
 height = IS2_obj.height;
 is_ice = IS2_obj.is_ice;
 is_ocean = IS2_obj.is_ocean;
-is_spec = IS2_obj.is_spec; 
+is_dark = IS2_obj.is_dark; 
 seg_len = IS2_obj.seg_len;
 lat = IS2_obj.lat;
 lon = IS2_obj.lon;
@@ -174,7 +174,7 @@ both_cutoff_height = max(wave_cutoff_ssh,wave_cutoff_height);
 
 
 is_ice = is_ice == 1;
-is_not_spec = is_ice & (is_ocean &~is_spec); 
+is_not_spec = is_ice | is_dark; 
 
 
 % adjust for deviation from local ssh

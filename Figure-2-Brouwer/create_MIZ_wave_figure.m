@@ -14,6 +14,7 @@ end
 Nvals = Nvals(usable); 
 SICvals = SICvals(usable); 
 LIFvals = LIFvals(usable); 
+LIF_spec_vals = LIF_spec_vals(usable); 
 Dvals = Dvals(usable); 
 Hvals = Hvals(usable); 
 Evals = Evals(usable); 
@@ -67,6 +68,11 @@ LIFvec = accumarray(binval,LIFvals,[length(Dbins) 1],@nanmedian);
 LIFup = accumarray(binval,LIFvals,[length(Dbins) 1],upval); 
 LIFdn = accumarray(binval,LIFvals,[length(Dbins) 1],dnval); 
 
+LIF_spec_vec = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],@nanmedian); 
+LIF_spec_up = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],upval); 
+LIF_spec_dn = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],dnval); 
+
+
 
 Hvar = accumarray(binval,Hvals,[length(Dbins) 1],@nanstd); 
 
@@ -106,6 +112,7 @@ end
 
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
+p5 = plot(Bincent,LIF_spec_vec,'color',[.4 .4 .8],'linewidth',2); 
 
 
 

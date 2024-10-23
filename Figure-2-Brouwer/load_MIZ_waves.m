@@ -83,6 +83,7 @@ end
 
 SICvals = vertcat(MIZ_DATA.SIC{:}); 
 LIFvals = vertcat(MIZ_DATA.LIF{:}); 
+LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:}); 
 Hvals = vertcat(MIZ_DATA.H{:}); 
 Evals = vertcat(MIZ_DATA.E{:}); 
 WAFvals = vertcat(MIZ_DATA.WAF{:}); 
