@@ -15,9 +15,9 @@ OPTS.output_folder = '/gpfs/data/epscor/chorvat/IS2/Along_Track_Statistics/'
 OPTS.utils_folder = [OPTS.code_folder 'Utilities']; % Location of util files
 
 % Updatable name of output. 
-OPTS.output_str = [OPTS.output_folder 'AT_stats_SH_v6'];  
+OPTS.output_str = [OPTS.output_folder 'AT_stats_SH_v6_all'];  
 
-OPTS.do_weak = 0; % Don't use the weak beams
+OPTS.do_weak = 1; % Don't use the weak beams
 OPTS.AT_resolution = 6250; % The resolution of the along-track data
 OPTS.beamnames = {'/gt1r','/gt1l','/gt2r','/gt2l','/gt3r','/gt3l'};
 
