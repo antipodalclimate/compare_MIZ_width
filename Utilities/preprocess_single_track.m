@@ -23,7 +23,8 @@ end
 % quality = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_quality']);
 
 [~,filestr,~] = fileparts(fieldname); 
-timer = datenum(filestr(10:17),'yyyymmdd'); 
+time_str = h5readatt(fieldname,'/','time_coverage_start');
+time_str = datenum(time_str(1:10)); 
 
 % if mean(diff(lat)) > 0
 %     height = flipud(height); 
@@ -160,7 +161,7 @@ end
 % IS2_obj.exmax_2 = exmax_2; 
 % IS2_obj.quality = quality; 
 % IS2_obj.quality_flag = quality_flag; 
-IS2_obj.timer = timer; 
+IS2_obj.timer = time_str; 
 
 IS2_obj.v6 = v6; 
 
