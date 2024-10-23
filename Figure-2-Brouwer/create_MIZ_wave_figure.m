@@ -15,6 +15,7 @@ Nvals = Nvals(usable);
 SICvals = SICvals(usable); 
 LIFvals = LIFvals(usable); 
 LIF_spec_vals = LIF_spec_vals(usable); 
+LIF_dark_vals = LIF_dark_vals(usable); 
 Dvals = Dvals(usable); 
 Hvals = Hvals(usable); 
 Evals = Evals(usable); 
@@ -72,6 +73,10 @@ LIF_spec_vec = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],@nanmedian);
 LIF_spec_up = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],upval); 
 LIF_spec_dn = accumarray(binval,LIF_spec_vals,[length(Dbins) 1],dnval); 
 
+LIF_dark_vec = accumarray(binval,LIF_dark_vals,[length(Dbins) 1],@nanmedian); 
+LIF_dark_up = accumarray(binval,LIF_dark_vals,[length(Dbins) 1],upval); 
+LIF_dark_dn = accumarray(binval,LIF_dark_vals,[length(Dbins) 1],dnval); 
+
 
 
 Hvar = accumarray(binval,Hvals,[length(Dbins) 1],@nanstd); 
@@ -112,7 +117,8 @@ end
 
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
-p5 = plot(Bincent,LIF_spec_vec,'color',[.4 .4 .8],'linewidth',2); 
+p5 = plot(Bincent,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2); 
+p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
 
@@ -135,11 +141,11 @@ xlim(xlimmer)
 
 if IS2_DATA.v6
 
-legend([p1 p2 p3 p4],{'CDR','LIF','AMSR2','Number'},'location','best')
+legend([p1 p2 p3 p4 p5 p6],{'CDR','LIF','AMSR2','Number','Spec','Dark'},'location','best')
 
 else
 
-    legend([p1 p2 p4],{'CDR','LIF','Number'},'location','best')
+    legend([p1 p2 p4 p5 p6],{'CDR','LIF','Number','Spec','Dark'},'location','best')
 
 end
 

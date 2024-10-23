@@ -234,8 +234,8 @@ AT_WAF = wave_area_frac_both;
 
 %% Along-track LIF, SIC, mean floe size
 AT_LIF = movsum(seg_len.*is_ice,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
-AT_LIF_spec = movsum(seg_len.*is_not_dark,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
-AT_LIF_dark = movsum(seg_len.*is_not_spec,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
+AT_LIF_spec = movsum(seg_len.*is_not_spec,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
+AT_LIF_dark = movsum(seg_len.*is_not_dark,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
 
 % SIC is segment length weighted mean
 AT_SIC = (1/100)*movsum(seg_len.*conc,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
