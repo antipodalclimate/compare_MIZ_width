@@ -1,31 +1,32 @@
-function AT_stats = downscale_AT_statistics(IS2_obj,window_output)
+function AT_stats = get_AT_variables(IS2_obj,varargin)
 
-%% Pull out details from the object
-dist = IS2_obj.dist;
-revdist = max(dist) - dist;
+% Allow for variable mean window
+if ~isempty(varargin)
 
-swap_ind = find(revdist < dist,1);
+    AT_window = varargin{1};
 
-D_to_edge = min(dist,revdist);
-D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
+else
 
-height = IS2_obj.height;
-is_ice = IS2_obj.is_ice;
-is_ocean = IS2_obj.is_ocean;
-is_spec = IS2_obj.is_spec; 
-seg_len = IS2_obj.seg_len;
-lat = IS2_obj.lat;
-lon = IS2_obj.lon;
-timer = IS2_obj.timer;
-conc = IS2_obj.conc;
-
-if IS2_obj.v6
-
-conc_amsr = IS2_obj.conc_amsr; 
+    AT_window = [0 12500];
 
 end
 
+
+%% Pull out details from the object
+dist = IS2_obj.dist;
+height = IS2_obj.height;
+is_ice = IS2_obj.is_ice;
+is_ocean = IS2_obj.is_ocean;
+seg_len = IS2_obj.seg_len;
+conc = IS2_obj.conc;
+
+if IS2_obj.v6
+    conc_amsr = IS2_obj.conc_amsr;
+end
+
+
 %%
+
 % Identify local moving average
 window_1k = 1000;
 window_10k = 10000; % meters - size of moving window
@@ -35,10 +36,11 @@ slide_25k = [0 25000];
 % slide_10k = [0 10000];
 % slide_50k = [0 50000];
 %
+window_50k = 50000;
+max_seg_size = 2000; % Maximum size for individual segments
+earthellipsoid = referenceSphere('earth','m');
 
-max_seg_size = 200; % Maximum size for individual segments
-% earthellipsoid = referenceSphere('earth','m');
-% exmax_diff_threshold = 1; % meters - difference in two surfaces tracked by the ex-max algorithm.
+
 
 %% Now worry about SSH points
 
@@ -70,8 +72,7 @@ end
 % Moving average wave energy
 % Number of SSH points within that window
 
-% moving_en = movmean((height-ssh_interp).^2 .* seg_len,window_50k,'samplepoints',dist);
-
+moving_en = movmean((height-ssh_interp).^2 .* seg_len,window_50k,'samplepoints',dist);
 
 %% Objects interpolated on the 10km moving window
 % Standard deviation of Height
@@ -171,11 +172,7 @@ both_cutoff_height = max(wave_cutoff_ssh,wave_cutoff_height);
 
 % ice if tagged as sea ice by ATL07
 % surf_type = is_ice;
-
-
 is_ice = is_ice == 1;
-is_not_spec = is_ice & (is_ocean &~is_spec); 
-
 
 % adjust for deviation from local ssh
 height_adjusted = height - ssh_interp;
@@ -218,86 +215,69 @@ is_wave_candidate = logical(is_included .*close_to_ssh.* ...
 % is_under_both_ex = logical((height_adjusted < -both_cutoff_height).*is_single_candidate);
 is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_candidate);
 
+
+%% BELOW ALL ALONG-TRACK MOVING AVERAGE OUTPUT FIELDS ARE CALCULATED
+% These all use the AT_window that is specified above.
+
 %% Along-track WAF
 
 % wave_area_frac_naive = 2 * movsum(seg_len .* naive_under,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 % wave_area_frac = 2 * movsum(seg_len .* is_under,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 % wave_area_frac_ssh = 2 * movsum(seg_len .* is_under_ssh_var,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 % wave_area_frac_height = 2 * movsum(seg_len .* is_under_height_var,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
-wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
+wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,AT_window,'samplepoints',dist) ./ movsum(seg_len .* is_ice,AT_window,'samplepoints',dist);
 % wave_area_frac_both_ex = 2 * movsum(seg_len .* is_under_both_ex,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 
 AT_WAF = wave_area_frac_both;
 
+%% Calculate along-track coverage
+
+if ~isempty(dist)
+    delx = diff(dist);
+    delx = [delx; delx(end)];
+
+else
+    delx = dist;
+end
+
+AT_COV = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(delx.*is_included,AT_window,'samplepoints',dist);
+
+AT_positive = height_adjusted > 0;
+
+AT_LIF_adj = movsum(seg_len.*is_included.*AT_positive,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
 
 %% Along-track LIF, SIC, mean floe size
-AT_LIF = movsum(seg_len.*is_ice,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
-
-AT_LIF_spec = movsum(seg_len.*is_not_spec,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
+AT_LIF = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
 % SIC is segment length weighted mean
-AT_SIC = (1/100)*movsum(seg_len.*conc,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
+AT_SIC = (1/100)*movsum(seg_len.*conc,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
 if IS2_obj.v6
 
-% SIC is segment length weighted mean
-AT_SIC_amsr = (1/100)*movsum(seg_len.*conc_amsr,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
+    % SIC is segment length weighted mean
+    AT_SIC_AMSR = (1/100)*movsum(seg_len.*conc_amsr,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
 end
 
 % FSD is segment length ratio
-AT_RFSD = movsum(floe_length.^3,slide_25k,'samplepoints',dist(floeind)) ./ movsum(floe_length.^2,slide_25k,'samplepoints',dist(floeind));
-
-% FSD is mean floe length
-AT_MFSD = movsum(floe_length,slide_25k,'samplepoints',dist(floeind)) ./ movsum(floe_length.^0,slide_25k,'samplepoints',dist(floeind));
+AT_RFSD = movsum(seg_len.^3,AT_window,'samplepoints',dist) ./ movsum(seg_len.^2,AT_window,'samplepoints',dist);
 
 %%
-AT_E = movsum(seg_len.*height_adjusted.^2,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
-
-%% Downsample to smaller grid
-
-dist_ind = floor(dist/window_output/2)+1;
-
-[downscale_inds,~,ind_mapper] = unique(dist_ind);
-ninds = length(downscale_inds);
-
-floe_mapper = ind_mapper(floeind);
-
-
-AT_stats.timer = timer;
-AT_stats.N = accumarray(ind_mapper,1,[length(downscale_inds) 1],@sum);
-AT_stats.lat = accumarray(ind_mapper,lat,[length(downscale_inds) 1],@sum)./AT_stats.N;
-AT_stats.lon = accumarray(ind_mapper,lon,[length(downscale_inds) 1],@sum)./AT_stats.N;
-AT_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],@sum)./AT_stats.N;
-
-% CH-derived statistics
-AT_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@sum)./AT_stats.N;
-AT_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@sum)./AT_stats.N;
-AT_stats.LIF_spec = accumarray(ind_mapper,AT_LIF_spec,[length(downscale_inds) 1],@sum)./AT_stats.N;
-
-AT_stats.SIC = accumarray(ind_mapper,AT_SIC,[length(downscale_inds) 1],@sum)./AT_stats.N;
+AT_stats.LIF = AT_LIF;
+AT_stats.LIF_adj = AT_LIF_adj;
+AT_stats.WAF = AT_WAF;
+AT_stats.SIC = AT_SIC;
+AT_stats.FSD = AT_RFSD;
+AT_stats.COV = AT_COV;
 
 if IS2_obj.v6
-
-    AT_stats.SIC_amsr = accumarray(ind_mapper,AT_SIC_amsr,[length(downscale_inds) 1],@sum)./AT_stats.N;
-
+    AT_stats.SIC_amsr = AT_SIC_AMSR;
 end
 
-% Along-track statistics
-AT_stats.E = accumarray(ind_mapper,AT_E,[length(downscale_inds) 1],@sum)./AT_stats.N;
-AT_stats.H = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@sum)./AT_stats.N;
-
-if ~isempty(floe_mapper)
-
-    AT_stats.Nfloe = accumarray(floe_mapper,1,[length(downscale_inds) 1],@sum);
-    AT_stats.MFSD = accumarray(floe_mapper,AT_MFSD,[length(downscale_inds) 1],@sum)./AT_stats.Nfloe;
-    AT_stats.RFSD = accumarray(floe_mapper,AT_RFSD,[length(downscale_inds) 1],@sum)./AT_stats.Nfloe;
-
-else
-    AT_stats.Nfloe = nan*AT_stats.H;
-    AT_stats.MFSD = nan*AT_stats.H;
-    AT_stats.RFSD = nan*AT_stats.H;
-end
+% This field is not on the same moving window as the others.
+AT_stats.height_adj = height_adjusted;
+% Remove outlier values
+AT_stats.height_adj(AT_stats.height_adj > 10) = nan;
 
 

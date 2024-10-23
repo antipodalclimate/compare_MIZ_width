@@ -63,6 +63,7 @@ for i = 1:size(IS2_DATA.AT_stats,1)
 
                     % Horvat-derived quantities
                     MIZ_DATA.LIF{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.LIF(indices);
+                    MIZ_DATA.LIF_spec{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.LIF_spec(indices);
                     MIZ_DATA.WAF{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.WAF(indices);
 
                     % Estimate of floe size distribution
