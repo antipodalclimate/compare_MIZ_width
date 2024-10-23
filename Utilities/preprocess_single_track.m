@@ -23,8 +23,7 @@ end
 % quality = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_quality']);
 
 [~,filestr,~] = fileparts(fieldname); 
-timer = h5readatt(fieldname,'/','time_coverage_start');
-timer = datenum(timer(1:10)); 
+timer = datenum(filestr(10:17),'yyyymmdd'); 
 
 % if mean(diff(lat)) > 0
 %     height = flipud(height); 

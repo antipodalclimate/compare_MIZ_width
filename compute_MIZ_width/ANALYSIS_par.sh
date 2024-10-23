@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #SBATCH -t 8:00:00
-#SBATCH -n 1
+#SBATCH -n 16
+#SBATCH -N 2
 #SBATCH --mem=0
 #SBATCH --account=epscor-condo
 #SBATCH --mail-user=bndnchrs@gmail.com 
