@@ -6,4 +6,4 @@ OPTS.output_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Proj
 %%
 load(OPTS.output_str);
 %%
-make_figure_brouwer_comp(OPTS,MIZ_DATA,IS2_DATA)
+make_figure_brouwer_comp(MIZ_DATA,IS2_DATA)

@@ -1,4 +1,4 @@
-function make_figure_brouwer_comp(OPTS,MIZ_DATA,IS2_DATA)
+function make_figure_brouwer_comp(MIZ_DATA,IS2_DATA)
 % Load in the segmented statistics. Each is an array of stats which is
 % indexed by
 % nT - number of tracks
@@ -60,20 +60,22 @@ WAFvals = vertcat(MIZ_DATA.WAF{:});
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000); 
 
-Dbins = -12.5*1000:25:12.5*1000; 
+Dbins = -1000:25:1000; 
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1); 
 
 usable = (Nvals > 5) & ~isnan(Dvals) &~isinf(SICvals); 
 
-Nvals = Nvals(usable); 
 
 if IS2_DATA.v6
+
+usable = usable & ~isnan(SICvals_amsr); 
 
 SICvals_amsr = SICvals_amsr(usable); 
 
 end
 
+Nvals = Nvals(usable); 
 SICvals = SICvals(usable); 
 LIFvals = LIFvals(usable); 
 Dvals = Dvals(usable); 
@@ -174,11 +176,20 @@ ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 
 yyaxis right
-p3 = plot(Bincent,Nvec,'color',[.8 .4 .4],'LineWidth',2);
+p4 = plot(Bincent,Nvec,'color',[.8 .4 .4],'LineWidth',2);
 set(gca,'ycolor','k')
 ylabel('Number of Samples','interpreter','latex')
 xlim(xlimmer)
-legend([p1 p2 p3],{'PM-SIC','LIF','Number'},'location','best')
+
+if IS2_DATA.v6
+
+legend([p1 p2 p3 p4],{'CDR','LIF','AMSR2','Number'},'location','best')
+
+else
+
+    legend([p1 p2 p4],{'CDR','LIF','Number'},'location','best')
+
+end
 
 %%
 % subplot('position',[.1 .1 .8 .25])
