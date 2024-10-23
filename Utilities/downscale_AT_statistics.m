@@ -13,6 +13,7 @@ height = IS2_obj.height;
 is_ice = IS2_obj.is_ice;
 is_ocean = IS2_obj.is_ocean;
 is_dark = IS2_obj.is_dark; 
+is_spec = IS2_obj.is_spec; 
 seg_len = IS2_obj.seg_len;
 lat = IS2_obj.lat;
 lon = IS2_obj.lon;
@@ -175,7 +176,7 @@ both_cutoff_height = max(wave_cutoff_ssh,wave_cutoff_height);
 
 is_ice = is_ice == 1;
 is_not_spec = is_ice | is_dark; 
-
+is_not_dark = is_ice | is_spec; 
 
 % adjust for deviation from local ssh
 height_adjusted = height - ssh_interp;
@@ -233,8 +234,8 @@ AT_WAF = wave_area_frac_both;
 
 %% Along-track LIF, SIC, mean floe size
 AT_LIF = movsum(seg_len.*is_ice,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
-
-AT_LIF_spec = movsum(seg_len.*is_not_spec,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
+AT_LIF_spec = movsum(seg_len.*is_not_dark,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
+AT_LIF_dark = movsum(seg_len.*is_not_spec,slide_25k,'samplepoints',dist) ./ movsum(seg_len.*(is_ice + is_ocean),slide_25k,'samplepoints',dist);
 
 % SIC is segment length weighted mean
 AT_SIC = (1/100)*movsum(seg_len.*conc,slide_25k,'samplepoints',dist) ./ movsum(seg_len,slide_25k,'samplepoints',dist);
@@ -275,6 +276,7 @@ AT_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],
 AT_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@sum)./AT_stats.N;
 AT_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@sum)./AT_stats.N;
 AT_stats.LIF_spec = accumarray(ind_mapper,AT_LIF_spec,[length(downscale_inds) 1],@sum)./AT_stats.N;
+AT_stats.LIF_dark = accumarray(ind_mapper,AT_LIF_dark,[length(downscale_inds) 1],@sum)./AT_stats.N;
 
 AT_stats.SIC = accumarray(ind_mapper,AT_SIC,[length(downscale_inds) 1],@sum)./AT_stats.N;
 

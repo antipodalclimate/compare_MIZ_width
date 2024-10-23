@@ -88,6 +88,7 @@ is_ocean = is_ice > 1;
 
 % Specular returns are those in surface category 2-4. 
 is_dark = is_ice > 5; 
+is_spec = is_ice > 1 & is_ice < 6; 
 
 % Is ice
 is_ice = is_ice == 1; 
@@ -157,6 +158,7 @@ IS2_obj.photon_rate = photon_rate;
 IS2_obj.is_ice = is_ice; 
 IS2_obj.is_ocean = is_ocean; 
 IS2_obj.is_dark = is_dark; 
+IS2_obj.is_spec = is_spec; 
 IS2_obj.ssh_flag = ssh_flag; 
 IS2_obj.conc = conc; 
 

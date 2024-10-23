@@ -1,13 +1,13 @@
 clear
 
 % Location of the overall data
-OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/Raw_Tracks_v5/';
+OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Brouwer-Tracks/Raw_Tracks_v6/';
 
 % Updatable name of input
 OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/';
 
 
-savename = 'AT_stats_Brouwer_v5'; 
+savename = 'AT_stats_Brouwer_v6'; 
 
 % Updatable name of output. 
 OPTS.output_str = [OPTS.output_folder savename];
