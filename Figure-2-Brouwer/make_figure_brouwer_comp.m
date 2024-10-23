@@ -1,12 +1,10 @@
-function make_figure_brouwer_comp(OPTS)
+function make_figure_brouwer_comp(OPTS,MIZ_DATA,IS2_DATA)
 % Load in the segmented statistics. Each is an array of stats which is
 % indexed by
 % nT - number of tracks
 % nB - number of beams (this is frequently double the actual number of
 % beams because we count Northward and Southward halves of a single track
 % the same way
-
-load(OPTS.output_str);
 
 nT = size(MIZ_DATA.timer,1);
 nB = size(MIZ_DATA.timer,2);
@@ -66,7 +64,7 @@ Dbins = -12.5*1000:25:12.5*1000;
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1); 
 
-usable = (Nvals > 5) & ~isnan(Dvals); 
+usable = (Nvals > 5) & ~isnan(Dvals) &~isinf(SICvals); 
 
 Nvals = Nvals(usable); 
 
@@ -98,6 +96,7 @@ Nsegvar = accumarray(binval,Nvals,[length(Dbins) 1],@std);
 
 SICvec = accumarray(binval,SICvals,[length(Dbins) 1],@nanmedian); 
 SICup = accumarray(binval,SICvals,[length(Dbins) 1],upval); 
+SICup(isinf(SICup)) = 1; 
 SICdn = accumarray(binval,SICvals,[length(Dbins) 1],dnval); 
 
 if IS2_DATA.v6
@@ -108,7 +107,7 @@ SICdn_amsr = accumarray(binval,SICvals_amsr,[length(Dbins) 1],dnval);
 
 end
 
-WAFvec = accumarray(binval,WAFvals,[length(Dbins) 1],@nanmean); 
+WAFvec = accumarray(binval,WAFvals,[length(Dbins) 1],@nanmedian); 
 WAFup = accumarray(binval,WAFvals,[length(Dbins) 1],upval); 
 WAFdn = accumarray(binval,WAFvals,[length(Dbins) 1],dnval); 
 
@@ -128,6 +127,12 @@ Evec = accumarray(binval,Evals,[length(Dbins) 1],@nanmean);
 Evar = accumarray(binval,Evals,[length(Dbins) 1],@nanstd); 
 
 %
+xfirst = find(Nvec > 100,1,'first');
+
+dum = find(Nvec > 100,2,'last');
+
+xlast = dum(1); 
+
 close
 
 subplot('position',[.1 .4 .8 .5])
@@ -155,11 +160,7 @@ end
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
 
-xfirst = find(Nvec > 10,1,'first');
 
-dum = find(Nvec > 10,2,'last');
-
-xlast = dum(1); 
 
 xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 xlimmer = min(abs(xlimmer))*[-1 1];
