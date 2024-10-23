@@ -23,7 +23,7 @@ end
 % quality = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_quality']);
 
 [~,filestr,~] = fileparts(fieldname); 
-time_str = h5readatt(fieldname,'/','time_coverage_start');
+time_str = char(h5readatt(fieldname,'/','time_coverage_start'));
 time_str = datenum(time_str(1:10)); 
 
 % if mean(diff(lat)) > 0
