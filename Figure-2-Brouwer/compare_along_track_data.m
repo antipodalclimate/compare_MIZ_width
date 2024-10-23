@@ -6,7 +6,12 @@ OPTS.output_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Proj
 %%
 load(OPTS.output_str);
 %%
+close all
+
 make_figure_MIZ_waves(MIZ_DATA,IS2_DATA)
 
-%%
+%
+make_figure_MIZ_somewaves(MIZ_DATA,IS2_DATA)
+
+%
 make_figure_MIZ_nowaves(MIZ_DATA,IS2_DATA)
