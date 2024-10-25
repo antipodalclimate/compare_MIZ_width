@@ -1,16 +1,14 @@
 clear
 
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/')
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/NE_Coastlines/')
+addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/')
+addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/NE_Coastlines/')
 
-S1_fold_AT = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
+S1_fold_AT = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
 
-S1_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/';
+S1_fold = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/';
 
 S1_filenames = dir([S1_fold '*.nc']);
 S1_file = S1_filenames(2).name;
-
-
 
 % S1_file = 'S1A_EW_GRDM_1SSH_20190225T014506_20190225T014611_026079_02E89C_56F1.nc';
 % S1_file = 'S1A_EW_GRDM_1SSH_20190226T022533_20190226T022638_026094_02E936_7558.nc';
@@ -36,7 +34,7 @@ amp_KT = flipud(fliplr(imread([S1_fold_AT 'S1A_EW_GRDM_1SSH_20190225_new_manual_
 mov_window = [12500 12500];
 
 
-IS2_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/ICESAT-2/MIZ-Definitions/Fig_Example_Track/';
+IS2_fold = '~/Dropbox (Brown)/Research Projects/Active/ICESAT-2/MIZ-Definitions/Fig_Example_Track/';
 IS2_filenames = dir([IS2_fold '*.h5']); 
 % 
 IS2_file = [IS2_fold '/' IS2_filenames(1).name];
