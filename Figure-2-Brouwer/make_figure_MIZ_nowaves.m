@@ -1,13 +1,12 @@
-function make_figure_MIZ_nowaves(MIZ_DATA,IS2_DATA)
-
 load_MIZ_waves; 
 
-
-usable_all = (Nvals > 100) & ~isnan(Dvals) &~isinf(SICvals) & Dvals < max(Dbins) & Dvals > min(Dbins); 
+usable_all = (Nvals > 10) & usable_all; 
+usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
 usable_all = usable_all; %  & (timeval > 7 & timeval < 10); 
+usable_all = usable_all; % & (isstrong == 1); 
 usable_all = usable_all & npoints > 1; 
 
-usable = usable_all & wavytracks == 0;
+usable = usable_all & wavytracks == 0; 
 
 create_MIZ_wave_figure; 
 
