@@ -93,9 +93,9 @@ Evec = accumarray(binval,Evals,[length(Dbins) - 1 1],@mean);
 Evar = accumarray(binval,Evals,[length(Dbins) - 1 1],@std); 
 
 %
-xfirst = find(Nvec > 100,1,'first');
+xfirst = find(Nvec > 1,1,'first');
 
-dum = find(Nvec > 100,2,'last');
+dum = find(Nvec > 1,2,'last');
 
 xlast = dum(1); 
 
@@ -131,7 +131,7 @@ p5 = plot(Bincent,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2);
 % p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
-xlimmer = [-500 500];
+xlimmer = [-50 50];
  
 % xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 % xlimmer = min(abs(xlimmer))*[-1 1];

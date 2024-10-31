@@ -9,8 +9,8 @@ photon_rate = h5read(fieldname,[beamname '/sea_ice_segments/stats/photon_rate'])
 is_ice = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_type']);
 ssh_flag = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_ssh_flag']);
 
-seg_time = h5read(fieldname,[beamname '/sea_ice_segments/delta_time']); 
-seg_time = datetime('01-Jan-2018 00:00:00') + seg_time/86400; 
+% seg_time = h5read(fieldname,[beamname '/sea_ice_segments/delta_time']); 
+% seg_time = datetime('01-Jan-2018 00:00:00') + seg_time/86400; 
 
 if ~contains(fieldname,'_006_')
     v6 = 0; 
@@ -137,9 +137,9 @@ ssh_flag(unusable) = [];
 ssh_flag(dupes) = [];
 ssh_flag = ssh_flag(b);
 
-seg_time(unusable) = []; 
-seg_time(dupes) = []; 
-seg_time = seg_time(b); 
+% seg_time(unusable) = []; 
+% seg_time(dupes) = []; 
+% seg_time = seg_time(b); 
 
 % exmax_1(unusable) = [];
 % exmax_1(dupes) = [];
@@ -180,7 +180,7 @@ end
 % IS2_obj.quality = quality; 
 % IS2_obj.quality_flag = quality_flag; 
 IS2_obj.timer = time_str; 
-IS2_obj.seg_time = seg_time; 
+% IS2_obj.seg_time = seg_time; 
 IS2_obj.v6 = v6; 
 
 end
