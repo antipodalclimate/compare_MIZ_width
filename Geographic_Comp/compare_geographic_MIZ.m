@@ -4,19 +4,22 @@ close all
 
 AMSR_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-NT/AMSR2_SIC_daily.mat'; 
 SSMI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/NSIDC-CDR/Daily/NSIDC-CDR_daily.mat'; 
+% ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat'; 
 
 load(AMSR_loc,'AMSR_datenum','AMSR_NT_SH','AMSR_BS_SH');
 load(SSMI_loc,'CDR_SIC_SH','lat_SH','lon_SH','CDR_time_SH','BS_SIC_SH','NT_SIC_SH','area_SH');
+% load(ASI_loc,'AMSR_ASI_SH','ASI_time_SH','lat_ASI_SH','lon_ASI_SH','area_ASI_SH');
 
 load('dist_to_coast'); 
-
-
 
 %% Ignore close-to-coast 
 
 coastmask = 1*(dist_to_coast > 25); 
 coastmask(coastmask == 0) = nan; 
 
+% coastmask_ASI = 1*(dist_to_coast_ASI > 25); 
+% coastmask_ASI(coastmask_ASI == 0) = nan; 
+% 
 %%
 
 % Same dates in the IS2 period. 
@@ -24,6 +27,7 @@ IS2_datenum = datenum('01-Oct-2018'):datenum('31-Dec-2024');
 
 [mutual_datenum,ia,ib] = intersect(AMSR_datenum,CDR_time_SH);
 [IS2_mutual,ic,~] = intersect(mutual_datenum,IS2_datenum);
+% [ASI_mutual,id,ie] = intersect(IS2_mutual,ASI_time_SH); 
 
 % NASATEAM2 AMSR value
 AMSR_NT_SH = bsxfun(@times,AMSR_NT_SH(:,:,ia(ic)),coastmask);
@@ -32,27 +36,31 @@ CDR_SIC_SH = bsxfun(@times,CDR_SIC_SH(:,:,ib(ic)),coastmask);
 SSMI_BS_SH = bsxfun(@times,BS_SIC_SH(:,:,ib(ic)),coastmask);
 SSMI_NT_SH = bsxfun(@times,NT_SIC_SH(:,:,ib(ic)),coastmask);
 
+% AMSR_ASI_SH = bsxfun(@times,AMSR_ASI_SH(:,:,ie),coastmask_ASI');
+
 clear BS_SIC_SH NT_SIC_SH
 
 % BOOTSTRAP AMSR values
 AMSR_BS_SH =  bsxfun(@times,AMSR_BS_SH(:,:,ia(ic)),coastmask);
 
-%%
-
 AMSR_NT_SH(AMSR_NT_SH > 1) = nan; 
 AMSR_BS_SH(AMSR_BS_SH > 1) = nan; 
+
+%% Now build more fields from the gridded data
 
 MIZ_AMSR_NT = AMSR_NT_SH > 0.15 & AMSR_NT_SH < 0.8; 
 MIZ_AMSR_BS = AMSR_BS_SH > 0.15 & AMSR_BS_SH < 0.8; 
 MIZ_CDR = CDR_SIC_SH > 0.15 & CDR_SIC_SH < 0.8; 
 MIZ_SSMI_NT = SSMI_NT_SH > 0.15 & SSMI_NT_SH < 0.8; 
 MIZ_SSMI_BS = SSMI_BS_SH > 0.15 & SSMI_BS_SH < 0.8; 
+% MIZ_ASI = AMSR_ASI_SH > 0.15 & AMSR_ASI_SH < 0.8; 
 
 ICE_AMSR_NT = AMSR_NT_SH > 0.15; 
 ICE_AMSR_BS = AMSR_BS_SH > 0.15; 
 ICE_CDR = CDR_SIC_SH > 0.15; 
 ICE_SSMI_NT = SSMI_NT_SH > 0.15; 
 ICE_SSMI_BS = SSMI_BS_SH > 0.15; 
+% ICE_ASI = AMSR_ASI_SH > 0.15; 
 
 prefac = 1/1e6; 
 
@@ -61,6 +69,7 @@ AMIZ_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_AMSR_NT),[1 2],'omit
 AMIZ_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_CDR),[1 2],'omitnan')); 
 AMIZ_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_NT),[1 2],'omitnan'));
 AMIZ_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_BS),[1 2],'omitnan'));
+% AMIZ_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,MIZ_ASI),[1 2],'omitnan')); 
 
 
 SIA_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_NT_SH),[1 2],'omitnan'));
@@ -68,16 +77,21 @@ SIA_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_BS_SH),[1 2],'omitna
 SIA_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,CDR_SIC_SH),[1 2],'omitnan'));
 SIA_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_NT_SH),[1 2],'omitnan'));
 SIA_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_BS_SH),[1 2],'omitnan'));
+% SIA_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,AMSR_ASI_SH),[1 2],'omitnan'));
 
 SIE_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_NT),[1 2],'omitnan'));
 SIE_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_BS),[1 2],'omitnan'));
 SIE_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_CDR),[1 2],'omitnan')); 
 SIE_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_NT),[1 2],'omitnan'));
 SIE_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_BS),[1 2],'omitnan'));
+% SIE_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,ICE_ASI),[1 2],'omitnan')); 
 
-% Five products
+
+%%
+% Six products
 % AMSR2 - NT
 % AMSR2 - BS
+% AMSR2 - ASI
 % SSMI - CDR
 % SSMI - BS
 % SSMI - NT
@@ -106,52 +120,9 @@ dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
 xax = datetime(datestr(IS2_mutual)); 
 
 %%
-
-delvals = AMSR_NT_SH - AMSR_;
-delvals_MIZ = delvals; 
-delvals_CIZ = delvals; 
-
-delvals_MIZ(CDR_SIC_SH > 0.8) = nan; 
-delvals_CIZ(CDR_SIC_SH < 0.8) = nan; 
-
-delvals_MIZ = reshape(delvals_MIZ,[],length(IS2_mutual)); 
-delvals_CIZ = reshape(delvals_CIZ,[],length(IS2_mutual)); 
-
-yr0 = 2018; 
-
-[r,upper,lower] = deal([]);
-
-for yrind = 1:3
-    for moind = 1:12
-        
-    data = delvals_MIZ(:,month(xax) == moind & year(xax) == yrind + yr0); 
-    data(isnan(data)) = []; 
-
-    r(1,moind,yrind) = median(data); 
-    upper(moind,yrind,1) = prctile(data,75);
-    lower(moind,yrind,1)= prctile(data,25); 
-
-    data = delvals_CIZ(:,month(xax) == moind & year(xax) == yrind + yr0); 
-    data(isnan(data)) = []; 
-
-    r(2,moind,yrind) = median(data); 
-    upper(moind,yrind,2) = prctile(data,75);
-    lower(moind,yrind,2)= prctile(data,25); 
-
-
-
-
-    end
-end
-
-upper = reshape(upper,36,2);
-lower = reshape(lower,36,2);
-
-%%
 close all
 xlimmer = [-5 5];
 bins = -5:.2:5; 
-%%
 
 subplot('position',[.075 .65 .65 .225])
 plot(xax,SIE_CDR,'k','linewidth',1); 
@@ -159,6 +130,7 @@ hold on
 plot(xax,SIE_AMSR_NT,'r','linewidth',1)
 % plot(xax,SIE_SSMI_BS,'--b','linewidth',1); 
 plot(xax,SIE_AMSR_BS,'b','linewidth',1); 
+% plot(xax,SIE_ASI,'m','linewidth',1); 
 
 grid on; box on; 
 title('Sea Ice Extent','interpreter','latex')
@@ -173,7 +145,7 @@ subplot('position',[.8 .65 .125 .225])
 
 histogram(SIE_AMSR_NT-SIE_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
-% histogram(SIE_CDR - SIE_SSMI_BS,bins,'FaceColor','b','Normalization','pdf')
+% histogram(SIE_ASI - SIE_CDR,bins,'FaceColor','m','Normalization','pdf')
 histogram(SIE_AMSR_BS - SIE_CDR,bins,'Facecolor','b','Normalization','pdf')
 xlim(xlimmer)
 grid on; box on; 
@@ -181,11 +153,14 @@ view(90,-90)
 title('$\Delta$ from CDR','interpreter','latex')
 set(gca,'yticklabel','')
 
+% 
+
 subplot('position',[.075 .3625 .65 .225])
 plot(xax,SIA_CDR,'k','linewidth',1); 
 hold on
 plot(xax,SIA_AMSR_NT,'r','linewidth',1)
 plot(xax,SIA_AMSR_BS,'--b','linewidth',1); 
+% plot(xax,SIA_ASI,'-m','linewidth',1); 
 
 
 hold off
@@ -201,6 +176,7 @@ subplot('position',[.8 .3625 .125 .225])
 histogram(SIA_AMSR_NT - SIA_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
 histogram(SIA_AMSR_BS - SIA_CDR,bins,'Facecolor','b','Normalization','pdf')
+% histogram(SIA_ASI - SIA_CDR,bins,'Facecolor','m','Normalization','pdf')
 xlim(xlimmer)
 % 
 % xline(median(SIA_AMSR_NT - SIA_CDR),'r','linewidth',2)
@@ -217,6 +193,7 @@ plot(xax,AMIZ_CDR,'k','linewidth',1);
 hold on
 plot(xax,AMIZ_AMSR_NT,'r','linewidth',1)
 plot(xax,AMIZ_AMSR_BS,'--b','linewidth',1); 
+% plot(xax,AMIZ_ASI,'--m','linewidth',1); 
 hold off
 grid on; box on; 
 title('MIZ Extent','interpreter','latex')
@@ -232,6 +209,7 @@ subplot('position',[.8 .075 .125 .225])
 histogram(AMIZ_AMSR_NT-AMIZ_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
 histogram(AMIZ_AMSR_BS-AMIZ_CDR,bins,'Facecolor','b','Normalization','pdf')
+% histogram(AMIZ_ASI-AMIZ_CDR,bins,'Facecolor','m','Normalization','pdf')
 xlim(xlimmer)
 view(90,-90)
 hold off
@@ -260,14 +238,14 @@ print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-P
 % hold on
 % plot(xax',r,'r')
 
-%%
-
 
 %%
 
 
 close 
 
+figure(1); 
+clf; 
 
 climmer = [-.1 .3];
 
@@ -363,7 +341,7 @@ hold on
 plot(Bincent,meanval,'-k','linewidth',2)
 xline(.8,'linewidth',1,'label','MIZ')
 yline(.8,'linewidth',1,'label','MIZ')
-line([0 1],[0 1],'Color',[.9 .9 .9],'linestyle','--')
+line([0 1],[0 1],'Color',[.3 .3 .3],'linestyle','--')
 title('SIC Comparison','interpreter','latex');
 
 xlim([.15 1]);
@@ -396,11 +374,12 @@ plot(Bincent,meanval,'-k','linewidth',2)
 xline(.8,'linewidth',1,'label','MIZ');
 yline(0,'--k','linewidth',1)
 xlim([.15 1]);
-ylim([-.2 .3]);
+ylim([-.3 .4]);
 
-line([0 1],[0 1],'Color',[1 .4 .4],'linestyle','--')
+% line([0 1],[0 1],'Color',[1 .4 .4],'linestyle','--')
 
-plot(Bincent,1 - Bincent,'--r','linewidth',1,'label','maximum')
+plot(Bincent,1 - Bincent,'--r','linewidth',1)
+plot(Bincent,-Bincent,'--r','linewidth',1)
 
 ylabel('Bias','interpreter','latex');
 

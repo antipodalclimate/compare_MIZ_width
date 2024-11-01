@@ -131,7 +131,7 @@ p5 = plot(Bincent,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2);
 % p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
-xlimmer = [-50 50];
+xlimmer = [-500 500];
  
 % xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 % xlimmer = min(abs(xlimmer))*[-1 1];

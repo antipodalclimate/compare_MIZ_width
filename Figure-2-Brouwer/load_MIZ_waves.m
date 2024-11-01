@@ -17,6 +17,7 @@ iswavy = MIZ_DATA.WAF;
 timeval = MIZ_DATA.WAF;
 npoints = MIZ_DATA.WAF;
 isstrong = MIZ_DATA.WAF;
+nameid = MIZ_DATA.WAF; 
 
 num_beams = size(IS2_DATA.is_strong,2);
 
@@ -80,6 +81,8 @@ for i = 1:nT
             timeval{i,j} = month(MIZ_DATA.timer{i,j}) + 0*WAF;
             npoints{i,j} = sum(D<=0) + 0*WAF;
 
+            nameid{i,j} = i + 0*WAF; 
+
         end
         %     if ~isempty(MIZ_DATA.SIC{i,j})
         %
@@ -124,6 +127,8 @@ if IS2_DATA.v6
 end
 
 
+namevals = vertcat(MIZ_DATA.names(:));
+
 LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
 LIF_dark_vals = vertcat(MIZ_DATA.LIF_dark{:});
@@ -136,10 +141,11 @@ wavytracks = vertcat(iswavy{:});
 timeval = vertcat(timeval{:});
 npoints = vertcat(npoints{:});
 isstrong = vertcat(isstrong{:});
+nameid = vertcat(nameid{:});
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000);
 
-Dbins = -1000+6.25:12.5:1000;
+Dbins = -1000+12.5:25:1000;
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 % Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1);
 
