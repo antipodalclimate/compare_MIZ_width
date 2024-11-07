@@ -77,11 +77,12 @@ M_PM = createns([lat_X_PM,lon_X_PM]);
 %% Calculate the along-track stats from IS2 as well as the along-track values from PM and SAR
  
 AT_window = [6250 6250]; 
+AT_resolution = 6250; 
 
 for i = 1:length(beamnames)
 
 IS2_obj{i} = preprocess_single_track([IS2_fold IS2_file],beamnames{i});
-AT_stats{i} = get_AT_variables(IS2_obj{i},AT_window);
+[~,AT_stats{i}] = generate_AT_statistics(IS2_obj{i},AT_window,AT_resolution,0,1);
 
 % Nearest neighbor of the IS2 lat/lon on the S1 lat/lon. 
 ID_S1{i} = knnsearch(M_S1,[IS2_obj{i}.lat IS2_obj{i}.lon],'K',1); 
