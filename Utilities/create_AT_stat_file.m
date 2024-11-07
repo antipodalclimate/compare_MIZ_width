@@ -42,7 +42,7 @@ parfor i = 1:OPTS.nfiles % for each individual track
 
             % This now calculates along-track statistics by binning to the
             % appropriate along-track resolution
-            AT_stats{i,j} = downscale_AT_statistics(IS2_obj,OPTS.AT_resolution);
+            AT_stats{i,j} = downscale_AT_statistics(IS2_obj,OPTS.AT_window,OPTS.AT_resolution);
 
         end
 

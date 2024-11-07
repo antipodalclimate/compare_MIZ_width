@@ -1,15 +1,21 @@
-function make_figure_MIZ_waves(MIZ_DATA,IS2_DATA)
+% function make_figure_MIZ_waves(MIZ_DATA,IS2_DATA)
 
 load_MIZ_waves; 
 
+%%
 % Criteria for selection
-usable_all = (Nvals > 100) & ~isnan(Dvals) &~isinf(SICvals) & Dvals < max(Dbins) & Dvals > min(Dbins); 
-usable_all = usable_all; % & (timeval > 7 & timeval < 10); 
+
+usable_all = (Nsegvals > 1000) & usable_all; 
+usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
 usable_all = usable_all & npoints > 1; 
 
-usable = usable_all & wavytracks == 1; 
+%%
+usable = usable_all; %
+usable = usable & wavytracks == 1; 
 
 create_MIZ_wave_figure; 
+
+used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
 
 %%
 pos = [6.5 6]; 

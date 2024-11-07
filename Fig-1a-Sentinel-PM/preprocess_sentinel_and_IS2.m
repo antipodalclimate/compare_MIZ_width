@@ -17,7 +17,7 @@ S1_file_KT = 'ThurSAR__corrected_mask_with_latlon.tiff';
 PM_fold = [DBstring 'Active/Data/SIC-Data/NSIDC-CDR/'];
 PM_file = 'Daily/SIA_data/seaice_conc_daily_sh_20190224_f17_v04r00.nc'; 
 
-IS2_fold = [DBstring 'Active/Data/ICESat-2/PM-SIC-width/'];
+IS2_fold = [DBstring 'Active/Data/ICESat-2/PM-SIC-width/SAR-comp-tracks/'];
 IS2_file = 'ATL07-02_20190224012038_08800201_006_02.h5';
 
 %% Pull in S1 image
@@ -76,7 +76,7 @@ M_PM = createns([lat_X_PM,lon_X_PM]);
 
 %% Calculate the along-track stats from IS2 as well as the along-track values from PM and SAR
  
-AT_window = [0 12500]; 
+AT_window = [6250 6250]; 
 
 for i = 1:length(beamnames)
 
@@ -108,31 +108,31 @@ end
 % All others should be using the same AT_window as specified above. 
 for i = 1:length(beamnames)
 
-AT_S1_LIF{i} = movmean(AT_class_KT{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
-AT_PM_SIC{i} = movmean(AT_sic_PM{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
+AT_S1_LIF{i} = AT_stats{i}.use_AT.*movmean(AT_class_KT{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
+AT_PM_SIC{i} = AT_stats{i}.use_AT.*movmean(AT_sic_PM{i},AT_window,'omitnan','samplepoints',IS2_obj{i}.dist);
 
-height_smooth{i} = movsum(AT_stats{i}.height_adj(IS2_obj{i}.is_ice).*IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice)) ...
-    ./ movsum(IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice));
-
-height_var{i} = movsum((AT_stats{i}.height_adj(IS2_obj{i}.is_ice) - height_smooth{i}).^2 .* IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice)) ...
-    ./ movsum(IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice));
-
-height_std{i} = sqrt(height_var{i}); 
-
-
+% height_smooth{i} = movsum(AT_stats{i}.height_adj(IS2_obj{i}.is_ice).*IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice)) ...
+%     ./ movsum(IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice));
+% 
+% height_var{i} = movsum((AT_stats{i}.height_adj(IS2_obj{i}.is_ice) - height_smooth{i}).^2 .* IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice)) ...
+%     ./ movsum(IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice));
+% 
+% height_std{i} = sqrt(height_var{i}); 
+% 
+% 
 end
 
 %% Now compute the distance between MIZ and not. 
 
 % Compact ice zone start
-[X_CIZ_WAF,X_CIZ_LIF,X_CIZ_PM,X_CIZ_S1,X_CIZ_ISPM] = deal(nan(1,length(beamnames)));
-[lat_CIZ_WAF,lat_CIZ_LIF,lat_CIZ_PM,lat_CIZ_S1,lat_CIZ_ISPM] = deal(nan(1,length(beamnames)));
-[lon_CIZ_WAF,lon_CIZ_LIF,lon_CIZ_PM,lon_CIZ_S1,lon_CIZ_ISPM] = deal(nan(1,length(beamnames)));
+[X_CIZ_WAF,X_CIZ_LIF,X_CIZ_PM,X_CIZ_S1,X_CIZ_ISPM,X_CIZ_AMSR] = deal(nan(1,length(beamnames)));
+[lat_CIZ_WAF,lat_CIZ_LIF,lat_CIZ_PM,lat_CIZ_S1,lat_CIZ_ISPM,lat_CIZ_AMSR] = deal(nan(1,length(beamnames)));
+[lon_CIZ_WAF,lon_CIZ_LIF,lon_CIZ_PM,lon_CIZ_S1,lon_CIZ_ISPM,lon_CIZ_AMSR] = deal(nan(1,length(beamnames)));
 
 % Marginal ice zone start
-[X_MIZ_WAF,X_MIZ_LIF,X_MIZ_PM,X_MIZ_S1,X_MIZ_ISPM] = deal(nan(1,length(beamnames)));
-[lat_MIZ_WAF,lat_MIZ_LIF,lat_MIZ_PM,lat_MIZ_S1,lat_MIZ_ISPM] = deal(nan(1,length(beamnames)));
-[lon_MIZ_WAF,lon_MIZ_LIF,lon_MIZ_PM,lon_MIZ_S1,lon_MIZ_ISPM] = deal(nan(1,length(beamnames)));
+[X_MIZ_WAF,X_MIZ_LIF,X_MIZ_PM,X_MIZ_S1,X_MIZ_ISPM,X_MIZ_AMSR] = deal(nan(1,length(beamnames)));
+[lat_MIZ_WAF,lat_MIZ_LIF,lat_MIZ_PM,lat_MIZ_S1,lat_MIZ_ISPM,lat_MIZ_AMSR] = deal(nan(1,length(beamnames)));
+[lon_MIZ_WAF,lon_MIZ_LIF,lon_MIZ_PM,lon_MIZ_S1,lon_MIZ_ISPM,lon_MIZ_AMSR] = deal(nan(1,length(beamnames)));
 
 for i = 1:length(beamnames)
 %% 
@@ -217,6 +217,23 @@ if ~isempty(ind_CIZ_ISPM)
     lon_CIZ_ISPM(i)= IS2_obj{i}.lon(ind_CIZ_ISPM);
 end
 
+% Take the first point where AMSR2 reaches above 15% or 80%
+ind_MIZ_AMSR = find(AT_stats{i}.SIC_amsr > 0.15,1);
+ind_CIZ_AMSR = find(AT_stats{i}.SIC_amsr > 0.80,1);
+
+if ~isempty(ind_MIZ_AMSR)
+    X_MIZ_AMSR(i)= IS2_obj{i}.dist(ind_MIZ_AMSR)/1000;
+    lat_MIZ_AMSR(i)= IS2_obj{i}.lat(ind_MIZ_AMSR);
+    lon_MIZ_AMSR(i)= IS2_obj{i}.lon(ind_MIZ_AMSR);
+end
+
+if ~isempty(ind_CIZ_AMSR)
+    X_CIZ_AMSR(i)= IS2_obj{i}.dist(ind_CIZ_AMSR)/1000;
+    lat_CIZ_AMSR(i)= IS2_obj{i}.lat(ind_CIZ_AMSR);
+    lon_CIZ_AMSR(i)= IS2_obj{i}.lon(ind_CIZ_AMSR);
+end
+
+
     
 end
 
@@ -224,7 +241,8 @@ W_PM = X_CIZ_PM - X_MIZ_PM;
 W_S1 = X_CIZ_S1 - X_MIZ_S1; 
 W_LIF = X_CIZ_LIF - X_MIZ_LIF; 
 W_WAF = X_CIZ_WAF - X_MIZ_WAF; 
-W_ISPN = X_CIZ_ISPM - X_MIZ_ISPM; 
+W_ISPM = X_CIZ_ISPM - X_MIZ_ISPM; 
+W_AMSR = X_CIZ_AMSR - X_MIZ_AMSR; 
 
 %%
 

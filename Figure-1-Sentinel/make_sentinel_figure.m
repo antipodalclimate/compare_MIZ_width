@@ -1,16 +1,14 @@
 clear
 
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/')
-addpath('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/NE_Coastlines/')
+addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/')
+addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/NE_Coastlines/')
 
-S1_fold_AT = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
+S1_fold_AT = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
 
-S1_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/Sentinel-1/';
+S1_fold = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/';
 
 S1_filenames = dir([S1_fold '*.nc']);
 S1_file = S1_filenames(2).name;
-
-
 
 % S1_file = 'S1A_EW_GRDM_1SSH_20190225T014506_20190225T014611_026079_02E89C_56F1.nc';
 % S1_file = 'S1A_EW_GRDM_1SSH_20190226T022533_20190226T022638_026094_02E936_7558.nc';
@@ -36,7 +34,7 @@ amp_KT = flipud(fliplr(imread([S1_fold_AT 'S1A_EW_GRDM_1SSH_20190225_new_manual_
 mov_window = [12500 12500];
 
 
-IS2_fold = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Research Projects/Active/ICESAT-2/MIZ-Definitions/Fig_Example_Track/';
+IS2_fold = '~/Dropbox (Brown)/Research Projects/Active/ICESAT-2/MIZ-Definitions/Fig_Example_Track/';
 IS2_filenames = dir([IS2_fold '*.h5']); 
 % 
 IS2_file = [IS2_fold '/' IS2_filenames(1).name];
@@ -161,7 +159,7 @@ end
 close all
 addpath('Plot-Tools')
 horvat_colors; 
-Ax{1} = subplot('position',[.05 .455 .45 .5]);
+Ax{1} = subplot('position',[.05 .6 .7 .35]);
 
 latlim = sort([0.5 .25] + sort([IS2_obj.lat(1) IS2_obj.lat(end_span)]));
 
@@ -210,7 +208,7 @@ scatterm(latice(ind_S1_KT),lonice(ind_S1_KT),100,clabs(4,:),'s','linewidth',1.5)
 
 % add_coastlines; 
 %
-Ax{2} = subplot('position',[.1 .15 .8 .2],'replace');
+Ax{2} = subplot('position',[.1 .1 .8 .2],'replace');
 plot(xvals,100*AT_stats.height_adj(IS2_obj.is_ice),'--','linewidth',0.05,'color',[.7 .7 .7])
 hold on
 plot(xvals,100*height_smooth,'k','linewidth',1)
@@ -231,7 +229,7 @@ ylabel('cm','interpreter','latex');
 xlabel('Distance from 1st ice segment','interpreter','latex');
 
 %
-Ax{3} = subplot('position',[.525 .5 .35 .45],'replace');
+Ax{3} = subplot('position',[.1 .35 .8 .2],'replace');
 
 
 plot(xvals,AT_stats.WAF(IS2_obj.is_ice),'linewidth',1,'color',clabs(1,:))
