@@ -226,6 +226,20 @@ is_wave_candidate = logical(is_included .*close_to_ssh.* ...
 % is_under_both_ex = logical((height_adjusted < -both_cutoff_height).*is_single_candidate);
 is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_candidate);
 
+%% Along-track number of points in each window. 
+
+AT_N_all = movsum(is_included_all,AT_window,'SamplePoints',dist);
+
+% Need at least a density of 1/50 meters for us to consider including one of the variables computed on the moving average window. 
+
+use_AT = 1*(AT_N_all > sum(AT_window) / 30);
+use_AT(use_AT == 0) = nan;
+use_AT(dist < AT_window(1)) = nan;
+use_AT(abs(max(dist) - dist) < AT_window(2)) = nan;
+
+% This is now the number along-track in appropriate windows. 
+AT_N = use_AT.*AT_N_all; 
+
 %% Along-track WAF
 
 % wave_area_frac_naive = 2 * movsum(seg_len .* naive_under,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
@@ -235,61 +249,63 @@ is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_can
 wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,AT_window,'samplepoints',dist) ./ movsum(seg_len .* is_ice,AT_window,'samplepoints',dist);
 % wave_area_frac_both_ex = 2 * movsum(seg_len .* is_under_both_ex,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 
-AT_WAF = wave_area_frac_both;
+AT_WAF = use_AT.*wave_area_frac_both;
 
 
-
-%% Along-track LIF, SIC, mean floe size, and number of points
-AT_N = movsum((is_ice + is_ocean),AT_window,'SamplePoints',dist);
-
-% Need at least a density of 1/50 meters.
-use_AT = 1*(AT_N > sum(AT_window) / 30);
-use_AT(use_AT == 0) = nan;
-use_AT(dist < AT_window(1)) = nan;
-use_AT(abs(max(dist) - dist) < AT_window(2)) = nan;
 
 %% Collecting data at each segment of the IS2 track. 
 % This can be saved into AT_stats 
 % Or it will be binned for DS_stats. 
 
+% Linear ice fraction. Ignore any along-track values where we don't have
+% enough point density. 
 AT_LIF = use_AT.*movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ ...
     movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
+% Also an "adjusted" LIF where negative heights go to zero. 
 AT_positive = height_adjusted > 0;
-AT_LIF_adj = movsum(seg_len.*is_included.*AT_positive,AT_window,'samplepoints',dist) ...
+AT_LIF_adj = use_AT.*movsum(seg_len.*is_included.*AT_positive,AT_window,'samplepoints',dist) ...
     ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
-
+% LIF computed by setting specular returns to ocean or dark leads to ocean,
+% only. 
 AT_LIF_spec = use_AT.*movsum(seg_len.*is_not_spec.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 AT_LIF_dark = use_AT.* movsum(seg_len.*is_not_dark.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 % SIC is segment length weighted mean
-AT_SIC =  use_AT.* (1/100).*movsum(seg_len.*conc,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
+AT_SIC =  use_AT.* (1/100).*movsum(seg_len.*conc.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 if IS2_obj.v6
 
     % SIC is segment length weighted mean
-    AT_SIC_amsr =  use_AT.*(1/100).*movsum(seg_len.*conc_amsr,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
+    AT_SIC_amsr =  use_AT.*(1/100).*movsum(seg_len.*conc_amsr.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 end
 
-% FSD is segment length ratio
+% FSD is segment length ratio. Ignore floes on the boundaries that wouldn't
+% have enough points to make them. 
 AT_RFSD = use_AT(floeind).*movsum(floe_length.^3,AT_window,'samplepoints',dist(floeind)) ./ movsum(floe_length.^2,AT_window,'samplepoints',dist(floeind));
 
 % FSD is mean floe length
 AT_MFSD =  use_AT(floeind).*movsum(floe_length,AT_window,'samplepoints',dist(floeind)) ./ movsum(floe_length.^0,AT_window,'samplepoints',dist(floeind));
 
-%%
-AT_E =  use_AT.*movsum(seg_len.*height_adjusted.^2,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
+% Along-track variance. Again ignore those points without enough segments
+% in them. 
+AT_E =  use_AT.*movsum(seg_len.*height_adjusted.^2.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
-%% Along-track height
+%% Along-track averaged height
+% Exclude points where there isn't enough segments to make the moving
+% average work. 
 
-AT_height = movsum(height_adjusted.*seg_len.*is_included,AT_window,'omitnan','samplepoints',dist) ...
+AT_height = use_AT.*movsum(height_adjusted.*seg_len.*is_included,AT_window,'omitnan','samplepoints',dist) ...
     ./ movsum(seg_len.*is_included,AT_window,'omitnan','samplepoints',dist);
 
+% Exclude locations where there's a big deviation for the purposes of
+% computing along-track variance. 
 include_variance = (height_adjusted - AT_height < 1); 
 
-AT_var = movsum((height_adjusted - AT_height).^2 .* seg_len .* is_included.*include_variance,AT_window,'omitnan','samplepoints',dist) ...
+% Along-track variance. Ditto for points. 
+AT_var = use_AT.*movsum((height_adjusted - AT_height).^2 .* seg_len .* is_included.*include_variance,AT_window,'omitnan','samplepoints',dist) ...
     ./ movsum(seg_len.*is_included.*include_variance,AT_window,'omitnan','samplepoints',dist);
 
 
@@ -298,25 +314,26 @@ AT_var = movsum((height_adjusted - AT_height).^2 .* seg_len .* is_included.*incl
 if do_fullsample
 
     AT_stats.timer = timer;
-    AT_stats.use_AT = use_AT;
 
     AT_stats.use_AT = use_AT;
-    AT_stats.LIF = AT_LIF.*use_AT;
-    AT_stats.LIF_adj = AT_LIF_adj.*use_AT;
-    AT_stats.WAF = AT_WAF.*use_AT;
+    AT_stats.LIF = AT_LIF;
+    AT_stats.LIF_adj = AT_LIF_adj;
+    AT_stats.WAF = AT_WAF;
     AT_stats.SIC = AT_SIC;
     AT_stats.FSD = AT_RFSD;
 
-    AT_stats.N = AT_N.*use_AT;
-    AT_stats.H = AT_height.*use_AT;
-    AT_stats.H_var = AT_var.*use_AT;
+    AT_stats.N = AT_N; 
+    AT_stats.N_all = AT_N_all;
+    AT_stats.H = AT_height;
+    AT_stats.H_var = AT_var;
 
     if IS2_obj.v6
-        AT_stats.SIC_amsr = AT_SIC_amsr.*use_AT;
+        AT_stats.SIC_amsr = AT_SIC_amsr;
     end
 
-    % This field is not on the same moving window as the others.
-    AT_stats.height_adj = height_adjusted.*use_AT;
+    % This field is not on the same moving window as the others. Therefore
+    % we don't need to remove any adjustments. 
+    AT_stats.height_adj = height_adjusted;
     % Remove outlier values
     AT_stats.height_adj(AT_stats.height_adj > 10) = nan;
 
@@ -328,7 +345,6 @@ end
 
 if do_downsample
 
-
     dist_ind = floor(dist/AT_resolution/2)+1;
 
     [downscale_inds,~,ind_mapper] = unique(dist_ind);
@@ -338,14 +354,35 @@ if do_downsample
 
     DS_stats.timer = timer;
 
-
     % Take mean number of segments used to produce an along-track grid.
+
+    % Have to be careful here. AT_N is the number of points used in each
+    % moving window. It can be too small and so we exclude it from other
+    % computations. 
+
+    % Then we compute the number of segments that go into other products,
+    % which we call Nseg. 
     DS_stats.Nseg = accumarray(ind_mapper,AT_N,[length(downscale_inds) 1],@mean);
-    DS_stats.lat = accumarray(ind_mapper,lat,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.lon = accumarray(ind_mapper,lon,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
+
+    % The strict number that fall into each bin. Whether for non-ice or for ice. 
+    % This is for fields that are being collected into each bin,
+    % and don't involve moving average fields. 
+    DS_stats.N_strict = accumarray(ind_mapper,1,[length(downscale_inds) 1],@sum); 
+    DS_stats.N_strict_ice = accumarray(ind_mapper,is_included_all,[length(downscale_inds) 1],@sum); 
+
+    DS_stats.lat = accumarray(ind_mapper,lat,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
+    DS_stats.lon = accumarray(ind_mapper,lon,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
+    DS_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
+
+    % The following are of ice fields and therefore need to include the
+    % number of included segments. 
+    DS_stats.H = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@sum)./DS_stats.N_strict_ice;
+    DS_stats.H_var = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@std);
 
     % CH-derived statistics
+    % Since these include fields derived on moving averages, we need to
+    % appropriately weight the fact that each value includes an estimate of
+    % a certain number.
     DS_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
     DS_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
     DS_stats.LIF_spec = accumarray(ind_mapper,AT_LIF_spec,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
@@ -362,12 +399,10 @@ if do_downsample
     % Along-track statistics
 
     DS_stats.E = accumarray(ind_mapper,AT_E,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.H = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.H_var = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@std);
 
     if ~isempty(floe_mapper)
 
-        DS_stats.Nfloe = accumarray(floe_mapper,1,[length(downscale_inds) 1],@sum);
+        DS_stats.Nfloe = accumarray(floe_mapper,use_AT(floeind),[length(downscale_inds) 1],@sum);
         DS_stats.MFSD = accumarray(floe_mapper,AT_MFSD,[length(downscale_inds) 1],@sum)./DS_stats.Nfloe;
         DS_stats.RFSD = accumarray(floe_mapper,AT_RFSD,[length(downscale_inds) 1],@sum)./DS_stats.Nfloe;
 

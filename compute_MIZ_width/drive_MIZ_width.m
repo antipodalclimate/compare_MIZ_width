@@ -1,13 +1,12 @@
 clear
 
 % Location of the overall data
-OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/';
+OPTS.track_folder = '~/Dropbox (Brown)/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/'
 
 % Updatable name of input
-OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/';
+OPTS.output_folder = '~/Dropbox (Brown)/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/'
 
-
-savename = 'AT_stats_KM_v6'; 
+savename = 'AT_stats_KM_v6_all'; 
 
 % Updatable name of output. 
 OPTS.output_str = [OPTS.output_folder savename];
