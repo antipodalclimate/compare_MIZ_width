@@ -12,8 +12,7 @@ biasvals = biasvals(usable);
 
 end
 
-
-Nvals = Nvals(usable); 
+Nsegvals = Nsegvals(usable); 
 SICvals = SICvals(usable); 
 LIFvals = LIFvals(usable); 
 LIF_spec_vals = LIF_spec_vals(usable); 
@@ -40,10 +39,10 @@ upval = @(x) prctile(x,75);
 dnval = @(x) prctile(x,25); 
 
 Nvec = accumarray(binval,1,[length(Dbins)-1 1],@sum); 
+%%
 
-
-Nsegvec = accumarray(binval,Nvals,[length(Dbins)-1 1],@mean); 
-Nsegvar = accumarray(binval,Nvals,[length(Dbins)-1 1],@std); 
+Nsegvec = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@mean); 
+Nsegvar = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@std); 
 
 SICvec = accumarray(binval,SICvals,[length(Dbins)-1 1],@median); 
 
@@ -127,7 +126,7 @@ end
 
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
-p5 = plot(Bincent,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2); 
+% p5 = plot(Bincent,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2); 
 % p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
@@ -144,6 +143,12 @@ ylim([0 1])
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 
+
+fitted = @(c) -1.604*(c-.6138).^2 + 0.229; 
+
+p5 = plot(Bincent,fitted(SICvec),'--b','linewidth',1);
+
+
 yyaxis right
 p4 = plot(Bincent,Nvec,'color',[.8 .4 .8],'LineWidth',2);
 set(gca,'ycolor','k')
@@ -152,13 +157,14 @@ xlim(xlimmer)
 
 if IS2_DATA.v6
 
-legend([p1 p2 p3 p4 p5 p6],{'CDR','LIF','AMSR2','Number','Spec','Bias'},'location','best')
+legend([p1 p2 p3 p4 p5 p6],{'CDR','LIF','AMSR2','Number','Fit','Bias'},'location','best')
 
 else
 
     legend([p1 p2 p4 p5],{'CDR','LIF','Number','Spec'},'location','best')
 
 end
+
 
 %%
 % subplot('position',[.1 .1 .8 .25])

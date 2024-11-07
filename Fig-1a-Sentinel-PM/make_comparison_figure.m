@@ -1,15 +1,25 @@
 
+preprocess_sentinel_and_IS2; 
+
+%%
 % Which IS-2 beam to choose. 
 beam_pickout = 6; 
+
+xlimmer = [0 100];
 
 close all
 horvat_colors; 
 
-Ax{1} = subplot('position',[.05 .455 .45 .5]);
+Ax{1} = subplot('position',[0.05 0.55 .35 .4]);
 
 % Make the map. 
 latlim = sort([0.5 .25] + lat_span); 
+
 lonlim = sort([-1.75 2.25] + lon_span);
+
+latlim = [-70.25 -69.5]
+lonlim = [-84.5 -82]; 
+
 worldmap((latlim),(lonlim)); 
 
 setm(gca,'PlabelLocation',-70,'PlineLocation',-70,'PLabelRound',0);
@@ -41,7 +51,31 @@ scatterm(lat_CIZ_WAF(beam_pickout),lon_CIZ_WAF(beam_pickout),100,clabs(1,:),'s',
 scatterm(lat_CIZ_LIF(beam_pickout),lon_CIZ_LIF(beam_pickout),100,clabs(2,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_S1(beam_pickout),lon_CIZ_S1(beam_pickout),100,clabs(3,:),'s','linewidth',1.5);
 scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','linewidth',1.5);
-scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_AMSR(beam_pickout),lon_CIZ_AMSR(beam_pickout),100,clabs(7,:),'s','linewidth',1.5);
+
+Ax{2} = subplot('position',[0.05 0.1 .35 .4]);
+worldmap((latlim),(lonlim)); 
+setm(gca,'PlabelLocation',-70,'PlineLocation',-70,'PLabelRound',0);
+setm(gca,'MLabelLocation',[-84 -82],'MLineLocation',[-84 -82],'MLabelRound',0,'MLabelParallel','south');
+setm(gca,'grid','on','GLineWidth',0.5,'GLineStyle','--','GColor','w','fontsize',8);
+
+
+inds_plot = lat_KT(:) < latlim(2) & lat_KT(:) > latlim(1) & lon_KT(:) < lonlim(2) & lon_KT(:) > lonlim(1);
+[a,b] = ind2sub(size(class_KT),find(inds_plot));
+l1 = min(a):skipper:max(a); 
+l2 = min(b):skipper:max(b); 
+
+
+pcolorm(lat_KT(l1,l2),lon_KT(l1,l2),class_KT(l1,l2));
+hold on
+
+colormap((brewermap(9,'-greys')))
+plotm(IS2_obj{beam_pickout}.lat(IS2_obj{beam_pickout}.is_ice),IS2_obj{beam_pickout}.lon(IS2_obj{beam_pickout}.is_ice),'--r','linewidth',1)
+scatterm(lat_CIZ_WAF(beam_pickout),lon_CIZ_WAF(beam_pickout),100,clabs(1,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_LIF(beam_pickout),lon_CIZ_LIF(beam_pickout),100,clabs(2,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_S1(beam_pickout),lon_CIZ_S1(beam_pickout),100,clabs(3,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_ISPM(beam_pickout),lon_CIZ_ISPM(beam_pickout),100,clabs(5,:),'s','linewidth',1.5);
+scatterm(lat_CIZ_AMSR(beam_pickout),lon_CIZ_AMSR(beam_pickout),100,clabs(7,:),'s','linewidth',1.5);
 
 %%
 
@@ -50,66 +84,69 @@ scatterm(lat_CIZ_PM(beam_pickout),lon_CIZ_PM(beam_pickout),100,clabs(7,:),'s','l
 AT_dist = IS2_obj{beam_pickout}.dist/1000; 
 AT_isice = IS2_obj{beam_pickout}.is_ice; 
 
-Ax{2} = subplot('position',[.1 .15 .8 .2],'replace');
-plot(AT_dist(AT_isice),100*AT_stats{beam_pickout}.height_adj(AT_isice),'--','linewidth',0.05,'color',[.7 .7 .7])
-hold on
-plot(AT_dist(AT_isice),100*height_smooth{beam_pickout},'k','linewidth',1)
-plot(AT_dist(AT_isice),100*height_smooth{beam_pickout} + 100*height_std{beam_pickout},'--k','linewidth',1)
-plot(AT_dist(AT_isice),100*height_smooth{beam_pickout} - 100*height_std{beam_pickout},'--k','linewidth',1)
-
-ylim([-.2 .5]*100)
-xlim([0 100]); 
-
-xline(X_CIZ_WAF(beam_pickout),'color',clabs(1,:),'linewidth',3)
-xline(X_CIZ_LIF(beam_pickout),'color',clabs(2,:),'linewidth',3)
-xline(X_CIZ_S1(beam_pickout),'color',clabs(3,:),'linewidth',3)
-xline(X_CIZ_ISPM(beam_pickout),'color',clabs(5,:),'linewidth',3)
-xline(X_CIZ_PM(beam_pickout),'color',clabs(7,:),'linewidth',3)
-
-grid on; box on; 
-ylabel('cm','interpreter','latex');
-xlabel('Distance from 1st ice segment','interpreter','latex');
-
-%
-Ax{3} = subplot('position',[.525 .5 .35 .45],'replace');
-
-
+Ax{3} =subplot('position',[.5 .6 .45 .35],'replace'); 
 plot(AT_dist,AT_stats{beam_pickout}.WAF,'linewidth',1,'color',clabs(1,:))
 hold on
 plot(AT_dist,AT_stats{beam_pickout}.LIF,'linewidth',1,'color',clabs(2,:))
 plot(AT_dist,AT_S1_LIF{beam_pickout},'linewidth',1,'color',clabs(3,:))
 plot(AT_dist,AT_stats{beam_pickout}.SIC,'linewidth',1,'color',clabs(5,:))
-plot(AT_dist,AT_stats{beam_pickout}.SIC_amsr,'--','linewidth',1,'color',clabs(5,:))
-plot(AT_dist,AT_sic_PM{beam_pickout},'linewidth',1,'color',clabs(7,:))
+plot(AT_dist,AT_stats{beam_pickout}.SIC_amsr,'-','linewidth',1,'color',clabs(7,:))
+% plot(AT_dist,AT_sic_PM{beam_pickout},'linewidth',1,'color',clabs(7,:))
 
 
-xlim([0 150]); 
 ylim([0 1])
 grid on; box on; 
-xlabel('Distance from 1st ice segment','interpreter','latex');
+% xlabel('Distance from 1st ice segment','interpreter','latex');
 
-% yyaxis right
-% set(gca,'ycolor','k')
-% plot(xvals,100*height_smooth,'k','linewidth',1)
-xlim([0 100]); 
-grid on; box on; 
-ylabel('cm','interpreter','latex');
+% ylabel('cm','interpreter','latex');
 % plot(xvals,100*height_smooth + 100*height_std,'--k','linewidth',1)
 % plot(xvals,100*height_smooth - 100*height_std,'--k','linewidth',1)
 xline(X_CIZ_WAF(beam_pickout),'color',clabs(1,:),'linewidth',3)
 xline(X_CIZ_LIF(beam_pickout),'color',clabs(2,:),'linewidth',3)
 xline(X_CIZ_S1(beam_pickout),'color',clabs(3,:),'linewidth',3)
 xline(X_CIZ_ISPM(beam_pickout),'color',clabs(5,:),'linewidth',3)
-xline(X_CIZ_PM(beam_pickout),'color',clabs(7,:),'linewidth',3)
+xline(X_CIZ_AMSR(beam_pickout),'color',clabs(7,:),'linewidth',3)
 
-h = legend('AT-WAF','AT-LIF','SAR-SIC','IS2-AMSR','IS2-SSMI','CDR','location','southeast');
+xlim(xlimmer); 
+yline(0.8,'--k','label','MIZ','linewidth',2)
+
+h = legend('AT-WAF','AT-LIF','SAR-SIC','SSMI','AMSR2','location','southeast');
 set(h,'ItemTokenSize',[20 20]);
+
+%% 
+%
+Ax{4} = subplot('position',[.5 .1 .45 .4],'replace');
+
+plot(AT_dist,100*AT_stats{beam_pickout}.height_adj,'--','linewidth',0.05,'color',[.7 .7 .7])
+hold on
+plot(AT_dist,100*AT_stats{beam_pickout}.H,'k','linewidth',1)
+plot(AT_dist,100*AT_stats{beam_pickout}.H + 100*AT_stats{beam_pickout}.H_var.^(1/2),'--k','linewidth',1)
+plot(AT_dist,100*AT_stats{beam_pickout}.H - 100*AT_stats{beam_pickout}.H_var.^(1/2),'--k','linewidth',1)
+
+ylim([-.2 .5]*100)
+xlim(xlimmer);
+
+xline(X_CIZ_WAF(beam_pickout),'color',clabs(1,:),'linewidth',3)
+xline(X_CIZ_LIF(beam_pickout),'color',clabs(2,:),'linewidth',3)
+xline(X_CIZ_S1(beam_pickout),'color',clabs(3,:),'linewidth',3)
+xline(X_CIZ_ISPM(beam_pickout),'color',clabs(5,:),'linewidth',3)
+xline(X_CIZ_AMSR(beam_pickout),'color',clabs(7,:),'linewidth',3)
+% xline(X_CIZ_PM(beam_pickout),'color',clabs(7,:),'linewidth',3)
+
+grid on; box on; 
+ylabel('cm','interpreter','latex');
+xlabel('Distance from 1st ice segment','interpreter','latex');
+
+
+
+
 %
 
-letter = {'(a)','(c)','(b)','(d)','(e)','(f)','(g)','(e)','(c)'};
+letter = {'(a)','(b)','(c)','(d)','(e)','(f)','(g)','(e)','(c)'};
 
 delete(findall(gcf,'Tag','legtag'))
 
+%%
 for i = 1:length(Ax)
     set(Ax{i},'fontname','helvetica','fontsize',9,'xminortick','on','yminortick','on')
     posy = get(Ax{i},'position');
@@ -120,7 +157,7 @@ for i = 1:length(Ax)
 end
 
 
-pos = [6.5 3.25]; 
+pos = [6 4]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 

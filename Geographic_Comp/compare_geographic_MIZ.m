@@ -218,106 +218,16 @@ title('$\Delta$ from CDR','interpreter','latex')
 set(gca,'yticklabel','')
 
 
-pos = [6.5 4.5]; 
+pos = [6.5 3.75]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/SIE-SIA-comp','-dpdf','-r600');
 
-% 
-% %%
-% jbfill(1:36,upper(:,1)',lower(:,1)',[.8 .4 .4]); 
-% hold on
-% 
-% jbfill(1:36,upper(:,2)',lower(:,2)',[.4 .4 .8]); 
-% hold off
-% 
-% %%
-% figure(3);
-% jbfill(1:12,upper,lower,[.5 .5 .5])
-% 
-% hold on
-% plot(xax',r,'r')
-
-
 %%
-
-
-close 
-
-figure(1); 
-clf; 
-
 climmer = [-.1 .3];
 
-% plotter = AMSR_NT_SH - AMSR_BS_SH; 
-% % Eliminate Bootstrap MIZ
-% plotter(ICE_AMSR_BS & MIZ_AMSR_BS) = nan; 
-% plotter(ICE_AMSR_NT == 0) = nan; 
-% plotter(ICE_AMSR_BS == 0) = nan; 
-% 
-% subplot('position',[0 .5 .3 .4]); 
-% worldmap([-90 -55],[-180 180]); 
-% pcolorm(lat_SH,lon_SH,mean(plotter,3,'omitnan'))
-% make_HR_coastlines([.6 .6 .6]);
-% set(gca,'clim',climmer)
-% % colorbar
-% title('Bias: Bootstrap CIZ','interpreter','latex')
-
-% Eliminate Bootstrap CIZ
-
-subplot('position',[0 .5 .275 .5]); 
-
-plotter = AMSR_NT_SH - AMSR_BS_SH; 
-plotter(ICE_AMSR_NT == 0) = nan; 
-plotter(ICE_AMSR_BS == 0) = nan; 
-
-worldmap([-90 -55],[-180 180]); 
-pcolorm(lat_SH,lon_SH,median(plotter,3,'omitnan'))
-make_HR_coastlines([.6 .6 .6]);
-set(gca,'clim',climmer)
-% set(gca,'clim',[-.2 .2])
-colorbar('position',[.55 .55 .025 .4]); 
-title('Bias: All','interpreter','latex')
-
-subplot('position',[.275 .5 .25 .5]); 
-
-plotter = AMSR_NT_SH - AMSR_BS_SH; 
-plotter(MIZ_AMSR_BS ~= 1) = nan; 
-plotter(ICE_AMSR_NT == 0) = nan; 
-plotter(ICE_AMSR_BS == 0) = nan; 
-
-plotter(repmat(sum(MIZ_AMSR_NT,3) < 6,[1 1 size(ICE_AMSR_BS,3)])) = nan; 
-
-worldmap([-90 -55],[-180 180]); 
-pcolorm(lat_SH,lon_SH,median(plotter,3,'omitnan'))
-make_HR_coastlines([.6 .6 .6]);
-set(gca,'clim',climmer)
-% set(gca,'clim',[-.2 .2])
-% colorbar
-title('Bias: Bootstrap MIZ','interpreter','latex')
-
-cmapper = cmocean('curl','pivot',0);
-
-nc = 33; 
-cmapper = brewermap(nc,'PuOr');
-cmapper(1:11,:) = [];
-colormap(cmapper); 
-
-subplot('position',[.625 .5 .25 .5]); 
-worldmap([-90 -55],[-180 180]); 
-
-pcolorm(lat_SH,lon_SH,iqr(plotter,3)./median(plotter,3,'omitnan'))
-make_HR_coastlines([.6 .6 .6]);
-
-set(gca,'clim',[0 2])
-colorbar('position',[.9 .55 .025 .4]); 
-title('IQR/Bias','interpreter','latex')
-colormap(gca,brewermap(11,'paired'));
-%
 SICbins = linspace(0,1,51);
 Bincent = 0.5*(SICbins(1:end-1) + SICbins(2:end));
-
-
 
 
 sic_1 = AMSR_NT_SH(ICE_AMSR_BS);
@@ -334,7 +244,83 @@ plot_up = accumarray(c,sic_1,[length(SICbins)-1 1],upval);
 plot_dn = accumarray(c,sic_1,[length(SICbins)-1 1],dnval);
 
 
-subplot('position',[.075 .1 .4 .4])
+meanval_del= accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],@nanmedian);
+plot_up_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],upval);
+plot_dn_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],dnval);
+
+overmean_del = accumarray(c,(sic_1 - sic_2)./(1-sic_2),[length(SICbins)-1 1],@nanmedian);
+overmean_del(isinf(overmean_del)) = 1; 
+
+% myfit = fittype("-a*(c-d)^2 + b",...
+%             dependent = "y", ...
+%             coefficients=["a","b","d"],...
+%             independent="c");
+% 
+% fitval = fit(Bincent(meanval_del > 0)',meanval_del(meanval_del > 0),myfit); 
+% 
+% usesic = sic_2 > 0.15 & ~(isnan(sic_2) | isnan(sic_1)); 
+% 
+% [fitval2,gof,fitinfo] = fit(sic_2(usesic),sic_1(usesic) - sic_2(usesic),myfit,'Startpoint',[1.62,.229,.6151]); 
+
+fitted = @(c) -1.604*(c-.6138).^2 + 0.229; 
+
+plotter = AMSR_NT_SH - AMSR_BS_SH; 
+plotter(ICE_AMSR_NT == 0) = nan; 
+plotter(ICE_AMSR_BS == 0) = nan; 
+
+plotter_MIZ = AMSR_NT_SH - AMSR_BS_SH; 
+plotter_MIZ(MIZ_AMSR_BS ~= 1) = nan; 
+plotter_MIZ(ICE_AMSR_NT == 0) = nan; 
+plotter_MIZ(ICE_AMSR_BS == 0) = nan; 
+
+plotter_MIZ(repmat(sum(MIZ_AMSR_NT,3) < 6,[1 1 size(ICE_AMSR_BS,3)])) = nan; 
+
+%%
+
+
+close 
+
+figure(1); 
+clf; 
+
+subplot('position',[0 .5 .25 .45]); 
+
+worldmap([-90 -55],[-180 180]); 
+pcolorm(lat_SH,lon_SH,median(plotter,3,'omitnan'))
+make_HR_coastlines([.6 .6 .6]);
+set(gca,'clim',climmer)
+% set(gca,'clim',[-.2 .2])
+colorbar('position',[.55 .55 .025 .35]); 
+title('Bias: All','interpreter','latex')
+
+subplot('position',[.275 .5 .25 .45]); 
+
+worldmap([-90 -55],[-180 180]); 
+pcolorm(lat_SH,lon_SH,median(plotter_MIZ,3,'omitnan'))
+make_HR_coastlines([.6 .6 .6]);
+set(gca,'clim',climmer)
+% set(gca,'clim',[-.2 .2])
+% colorbar
+title('Bias: Bootstrap MIZ','interpreter','latex')
+
+nc = 33; 
+cmapper = brewermap(nc,'PuOr');
+cmapper(1:11,:) = [];
+colormap(cmapper); 
+
+subplot('position',[.625 .5 .25 .45]); 
+worldmap([-90 -55],[-180 180]); 
+
+pcolorm(lat_SH,lon_SH,iqr(plotter_MIZ,3)./median(plotter_MIZ,3,'omitnan'))
+make_HR_coastlines([.6 .6 .6]);
+
+set(gca,'clim',[0 2])
+colorbar('position',[.9 .55 .025 .35]); 
+title('IQR/Bias','interpreter','latex')
+colormap(gca,brewermap(11,'paired'));
+%
+
+subplot('position',[.075 .1 .375 .35])
 
 jbfill(Bincent,plot_up',plot_dn',[.4 .4 .4],[1 1 1],1,.3);
 hold on
@@ -358,21 +344,17 @@ bar(Bincent,a/sum(a),1,'FaceColor',[.4 .4 .8],'FaceAlpha',.5,'EdgeColor','none')
 xlim([.15 1]);
 % ylim([.15 1]);
 
-meanval = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],@nanmedian);
-plot_up = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],upval);
-plot_dn = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],dnval);
-
-overmean = accumarray(c,(sic_1 - sic_2)./(1-sic_2),[length(SICbins)-1 1],@nanmedian);
-overmean(isinf(overmean)) = 1; 
-
-subplot('position',[.55 .1 .4 .4])
+subplot('position',[.575 .1 .375 .35])
 cla
 
-jbfill(Bincent,plot_up',plot_dn',[.4 .4 .4],[1 1 1],1,.3);
+jbfill(Bincent,plot_up_del',plot_dn_del',[.4 .4 .4],[1 1 1],1,.3);
 hold on
-plot(Bincent,meanval,'-k','linewidth',2)
+plot(Bincent,meanval_del,'-k','linewidth',2)
+plot(Bincent(Bincent > 0.15),fitted(Bincent(Bincent > 0.15)),'--b','linewidth',1);
+
+
 xline(.8,'linewidth',1,'label','MIZ');
-yline(0,'--k','linewidth',1)
+yline(0,'--','linewidth',1)
 xlim([.15 1]);
 ylim([-.3 .4]);
 
@@ -387,7 +369,7 @@ xlabel('AMSR2-BS SIC','interpreter','latex')
 title('Algorithmic Bias','interpreter','latex');
 grid on; box on; 
 %%
-pos = [6.5 4.5]; 
+pos = [6.5 3.75]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/Bias-BS','-dpdf','-r600');

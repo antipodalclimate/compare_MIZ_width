@@ -189,6 +189,7 @@ close_to_negative = moving_neg >= 2;
 % identified as ice. Criteria I1-I2.
 is_included = logical(not_too_long .* is_ice .* close_to_positive);
 
+
 % Included points have positive points nearby, and aren't too long. Criteria I1.
 % is_included_lead = logical(not_too_long .* close_to_positive);
 
@@ -240,6 +241,20 @@ else
     delx = dist;
 end
 
+AT_height = movsum(height_adjusted.*seg_len.*is_included,AT_window,'omitnan','samplepoints',dist) ...
+    ./ movsum(seg_len.*is_included,AT_window,'omitnan','samplepoints',dist);
+
+include_variance = (height_adjusted - AT_height < 1); 
+
+AT_var = movsum((height_adjusted - AT_height).^2 .* seg_len .* is_included.*include_variance,AT_window,'omitnan','samplepoints',dist) ...
+    ./ movsum(seg_len.*is_included.*include_variance,AT_window,'omitnan','samplepoints',dist);
+% 
+% 
+% movsum((AT_stats{i}.height_adj(IS2_obj{i}.is_ice) - height_smooth{i}).^2 .* IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice)) ...
+%     ./ movsum(IS2_obj{i}.seg_len(IS2_obj{i}.is_ice),AT_window,'omitnan','samplepoints',IS2_obj{i}.dist(IS2_obj{i}.is_ice));
+% 
+
+
 AT_COV = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(delx.*is_included,AT_window,'samplepoints',dist);
 
 AT_positive = height_adjusted > 0;
@@ -248,6 +263,8 @@ AT_LIF_adj = movsum(seg_len.*is_included.*AT_positive,AT_window,'samplepoints',d
 
 
 %% Along-track LIF, SIC, mean floe size
+AT_N = movsum(is_included,AT_window,'samplepoints',dist);
+
 AT_LIF = movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ movsum(seg_len,AT_window,'samplepoints',dist);
 
 % SIC is segment length weighted mean
@@ -263,20 +280,33 @@ end
 % FSD is segment length ratio
 AT_RFSD = movsum(seg_len.^3,AT_window,'samplepoints',dist) ./ movsum(seg_len.^2,AT_window,'samplepoints',dist);
 
+%% Keep only with reasonably sized numbers in each bin.
+
+% Need at least a density of 1/50 meters. 
+use_AT = 1*(AT_N > sum(AT_window) / 30);
+use_AT(use_AT == 0) = nan;
+use_AT(dist < AT_window(1)) = nan; 
+use_AT(abs(max(dist) - dist) < AT_window(2)) = nan; 
+
+
 %%
-AT_stats.LIF = AT_LIF;
-AT_stats.LIF_adj = AT_LIF_adj;
-AT_stats.WAF = AT_WAF;
-AT_stats.SIC = AT_SIC;
-AT_stats.FSD = AT_RFSD;
-AT_stats.COV = AT_COV;
+AT_stats.use_AT = use_AT;
+AT_stats.LIF = AT_LIF.*use_AT;
+AT_stats.LIF_adj = AT_LIF_adj.*use_AT;
+AT_stats.WAF = AT_WAF.*use_AT;
+AT_stats.SIC = AT_SIC.*use_AT;
+AT_stats.FSD = AT_RFSD.*use_AT;
+AT_stats.COV = AT_COV.*use_AT;
+AT_stats.N = AT_N.*use_AT;
+AT_stats.H = AT_height.*use_AT; 
+AT_stats.H_var = AT_var.*use_AT; 
 
 if IS2_obj.v6
-    AT_stats.SIC_amsr = AT_SIC_AMSR;
+    AT_stats.SIC_amsr = AT_SIC_AMSR.*use_AT;
 end
 
 % This field is not on the same moving window as the others.
-AT_stats.height_adj = height_adjusted;
+AT_stats.height_adj = height_adjusted.*use_AT;
 % Remove outlier values
 AT_stats.height_adj(AT_stats.height_adj > 10) = nan;
 

@@ -52,8 +52,8 @@ for i = 1:size(IS2_DATA.AT_stats,1)
                     
                     MIZ_DATA.D_to_edge{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.D_to_edge(indices);
 
-                    % Number of segments
-                    MIZ_DATA.N{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.N(indices);
+                    % Number of grids
+                    MIZ_DATA.Nseg{i,offset+beamct} = IS2_DATA.AT_stats{i,j}.Nseg(indices);
 
                     % Mean height of record
                     MIZ_DATA.H{i,offset+beamct} =  IS2_DATA.AT_stats{i,j}.H(indices);

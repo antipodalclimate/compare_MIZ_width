@@ -28,6 +28,7 @@ OPTS.utils_folder = [OPTS.code_folder 'Utilities']; % Location of util files
 
 
 OPTS.do_weak = 1; % Use the weak beams
+OPTS.AT_window = [6250 6250];
 OPTS.AT_resolution = 6250; % The resolution of the along-track data
 OPTS.beamnames = {'/gt1r','/gt1l','/gt2r','/gt2l','/gt3r','/gt3l'};
 

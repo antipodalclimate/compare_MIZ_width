@@ -1,6 +1,6 @@
 load_MIZ_waves; 
 
-usable_all = (Nvals > 0) & usable_all; 
+usable_all = (Nsegvals > 100) & usable_all; 
 usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
 usable_all = usable_all; %  & (timeval > 7 & timeval < 10); 
 usable_all = usable_all; %  & (isstrong == 1); 

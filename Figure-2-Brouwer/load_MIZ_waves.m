@@ -40,7 +40,7 @@ for i = 1:nT
 
             WAF = MIZ_DATA.WAF{i,j};
             D = MIZ_DATA.D_to_MIZ{i,j};
-            N = MIZ_DATA.N{i,j};
+            N = MIZ_DATA.Nseg{i,j};
 
             MIZ_width(i,j) = sum(MIZ_DATA.SIC{i,j} < 0.8 & MIZ_DATA.D_to_MIZ{i,j} <= 0);
 
@@ -66,7 +66,7 @@ for i = 1:nT
             end
 
 
-            if haswaves_MIZ > 2
+            if haswaves_MIZ > 1
                 iswavy{i,j} = 1 + 0*WAF;
             else
                 if haswaves > 0
@@ -112,7 +112,7 @@ for i = 1:nT
 end
 
 %%
-Nvals = vertcat(MIZ_DATA.N{:});
+Nsegvals = vertcat(MIZ_DATA.Nseg{:});
 
 
 
@@ -127,7 +127,7 @@ if IS2_DATA.v6
 end
 
 
-namevals = vertcat(MIZ_DATA.names(:));
+% namevals = vertcat(MIZ_DATA.names(:));
 
 LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
