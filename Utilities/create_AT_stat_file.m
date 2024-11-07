@@ -12,9 +12,15 @@ function create_AT_stat_file(OPTS)
 addpath(OPTS.code_folder)
 
 % Each file has 6 beams
-AT_stats = cell(OPTS.nfiles,6);
+DS_stats = cell(OPTS.nfiles,6);
+AT_stats = DS_stats; 
 
 is_strong = nan(OPTS.nfiles,6); 
+
+% We want to downsample data
+do_downsample = true; 
+% We don't want to get all of the per-segment data back
+do_fullsample = false; 
 
 
 parfor i = 1:OPTS.nfiles % for each individual track
@@ -42,11 +48,9 @@ parfor i = 1:OPTS.nfiles % for each individual track
 
             % This now calculates along-track statistics by binning to the
             % appropriate along-track resolution
-            AT_stats{i,j} = downscale_AT_statistics(IS2_obj,OPTS.AT_window,OPTS.AT_resolution);
+            [DS_stats{i,j},AT_stats{i,j}] = generate_AT_statistics(IS2_obj,OPTS.AT_window,OPTS.AT_resolution,do_downsample,do_fullsample);
 
         end
-
-
 
     end
 
@@ -61,6 +65,7 @@ else
 end
 
 IS2_DATA.AT_stats = AT_stats; 
+IS2_DATA.DS_stats = DS_stats; 
 IS2_DATA.is_strong = is_strong; 
 IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
 

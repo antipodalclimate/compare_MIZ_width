@@ -18,7 +18,6 @@ fprintf('Saving to %s \n',OPTS.output_folder);
 fprintf('Filename: %s \n',savename); 
 disp('-----')
 
-
 %%
 % Location of this code. 
 OPTS.code_folder = '~/Code/compare_MIZ_width/';
