@@ -1,20 +1,24 @@
-function make_figure_MIZ_nowaves(MIZ_DATA,IS2_DATA)
+% function make_figure_MIZ_waves(MIZ_DATA,IS2_DATA)
 
 load_MIZ_waves; 
 
+%%
+% Criteria for selection
 
-usable_all = (Nvals > 100) & ~isnan(Dvals) &~isinf(SICvals) & Dvals < max(Dbins) & Dvals > min(Dbins); 
-usable_all = usable_all & (timeval > 7 & timeval < 10); 
+usable_all = (Nsegvals > 1000) & usable_all; 
+usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
 usable_all = usable_all & npoints > 1; 
 
-usable = usable_all & wavytracks < 1;
+%%
+usable = usable_all; %
+usable = usable & wavytracks ~= 0; 
 
 create_MIZ_wave_figure; 
 
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
-writematrix(used_tracks,'Track_Lists/out_somewaves.txt')
+writematrix(used_tracks,'Track_Lists/out_waves.txt')
 
-
+%%
 pos = [6.5 6]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');

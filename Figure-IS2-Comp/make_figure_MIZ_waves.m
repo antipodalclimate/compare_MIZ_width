@@ -15,7 +15,6 @@ usable = usable & wavytracks > 0;
 
 create_MIZ_wave_figure; 
 
-
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
 writematrix(used_tracks,'Track_Lists/out_waves.txt')
 

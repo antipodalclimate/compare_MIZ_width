@@ -9,7 +9,7 @@ usable_all = usable_all & npoints > 1;
 
 %%
 usable = usable_all; %
-usable = usable & wavytracks < 1; 
+usable = usable & wavytracks == 0; 
 
 create_MIZ_wave_figure; 
 
