@@ -15,11 +15,13 @@ usable = usable & wavytracks > 0;
 
 create_MIZ_wave_figure; 
 
+
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
+writematrix(used_tracks,'Track_Lists/out_waves.txt')
 
 %%
 pos = [6.5 6]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/MIZ-SIC-comp-waves','-dpdf','-r600');
+print([OS_string 'Apps/Overleaf/IS2-Waves-PM/Figures/MIZ-SIC-comp-waves'],'-dpdf','-r600');
 %%
