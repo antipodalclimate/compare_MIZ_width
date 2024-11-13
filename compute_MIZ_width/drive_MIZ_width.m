@@ -1,10 +1,12 @@
 clear
 
+OS_string = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/';
+
 % Location of the overall data
-OPTS.track_folder = '~/Dropbox (Brown)/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/'
+OPTS.track_folder = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/]'
 
 % Updatable name of input
-OPTS.output_folder = '~/Dropbox (Brown)/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/'
+OPTS.output_folder = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/'];
 
 savename = 'AT_stats_KM_v6_all'; 
 
