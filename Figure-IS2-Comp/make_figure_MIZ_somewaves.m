@@ -5,7 +5,7 @@ load_MIZ_waves;
 %%
 % Criteria for selection
 
-usable_all = (Nsegvals > 1000) & usable_all; 
+usable_all = (Nsegvals > 100) & usable_all; 
 usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
 usable_all = usable_all & npoints > 1; 
 
@@ -16,7 +16,7 @@ usable = usable & wavytracks ~= 0;
 create_MIZ_wave_figure; 
 
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
-writematrix(used_tracks,'Track_Lists/out_waves.txt')
+writematrix(used_tracks,'Track_Lists/out_somewaves.txt')
 
 %%
 pos = [6.5 6]; 
