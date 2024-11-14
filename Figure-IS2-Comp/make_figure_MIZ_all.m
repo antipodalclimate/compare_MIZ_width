@@ -1,11 +1,10 @@
 load_MIZ_waves; 
 
-usable_all = (Nsegvals > 100) & usable_all; 
+usable_all = (Nsegvals > cutoff_N) & usable_all; 
 usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
-usable_all = usable_all; %  & (timeval > 7 & timeval < 10); 
-usable_all = usable_all; %  & (isstrong == 1); 
-usable_all = usable_all; % & npoints > 1; 
-
+usable_all = usable_all; 
+usable_all = usable_all;
+usable_all = usable_all; 
 usable = usable_all;
 
 create_MIZ_wave_figure; 

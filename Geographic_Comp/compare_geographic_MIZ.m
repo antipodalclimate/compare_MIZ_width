@@ -251,18 +251,46 @@ plot_dn_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],dnval);
 overmean_del = accumarray(c,(sic_1 - sic_2)./(1-sic_2),[length(SICbins)-1 1],@nanmedian);
 overmean_del(isinf(overmean_del)) = 1; 
 
+
+% fitval = fit(Bincent(meanval_del > 0)',meanval_del(meanval_del > 0),myfit); 
+% 
+% 
+% 
+
+% Want to fit evenly over the range. 
+
+
+
+%%
 % myfit = fittype("-a*(c-d)^2 + b",...
 %             dependent = "y", ...
 %             coefficients=["a","b","d"],...
 %             independent="c");
-% 
-% fitval = fit(Bincent(meanval_del > 0)',meanval_del(meanval_del > 0),myfit); 
-% 
+% % 
 % usesic = sic_2 > 0.15 & ~(isnan(sic_2) | isnan(sic_1)); 
 % 
-% [fitval2,gof,fitinfo] = fit(sic_2(usesic),sic_1(usesic) - sic_2(usesic),myfit,'Startpoint',[1.62,.229,.6151]); 
+% [nper,~,cat] = histcounts(sic_2(usesic),[0:.05:1]);
+% weight = (sum(nper)./nper)/100;
+% 
+% % Doesn't matter since these don't appear. 
+% weight(isinf(weight)) = 1; 
+% 
+% histweights = nan(size(sic_1(usesic)));
+% 
+% for i = 1:max(cat)
+%     histweights(cat==i) = weight(i); 
+% end
+% 
+% [fitval2,gof,fitinfo] = fit(sic_2(usesic),sic_1(usesic) - sic_2(usesic),myfit,'Startpoint',[1.62,.229,.6151],'weights',histweights); 
+% 
+%%
 
-fitted = @(c) -1.604*(c-.6138).^2 + 0.229; 
+% This is fitted to data in proportion to representation in SIC_2 space. 
+fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; 
+
+% This is fitting to all data without replacing. 
+% fitted = @(c) -1.604*(c-.6138).^2 + 0.229; 
+
 
 plotter = AMSR_NT_SH - AMSR_BS_SH; 
 plotter(ICE_AMSR_NT == 0) = nan; 

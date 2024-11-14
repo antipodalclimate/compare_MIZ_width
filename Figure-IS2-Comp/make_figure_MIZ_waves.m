@@ -5,9 +5,9 @@ load_MIZ_waves;
 %%
 % Criteria for selection
 
-usable_all = (Nsegvals > 1000) & usable_all; 
+usable_all = (Nsegvals > cutoff_N) & usable_all; 
 usable_all = usable_all & SICvals > 0.1 & LIFvals > 0.1;
-usable_all = usable_all & npoints > 1; 
+usable_all = usable_all & npoints > -1; 
 
 %%
 usable = usable_all; %

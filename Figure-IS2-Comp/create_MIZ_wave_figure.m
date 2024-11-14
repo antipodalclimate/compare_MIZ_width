@@ -22,6 +22,7 @@ Hvals = Hvals(usable);
 Evals = Evals(usable); 
 WAFvals = WAFvals(usable);
 wavytracks = wavytracks(usable); 
+biasvals_LIF = biasvals_LIF(usable); 
 
 [binct,~,binval] = histcounts(Dvals,Dbins);
 
@@ -62,6 +63,11 @@ biasdn = accumarray(binval,biasvals,[length(Dbins) - 1 1],dnval);
 
 
 end
+
+bias_LIFvec = accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],@median); 
+bias_LIFup= accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],upval); 
+bias_LIFdn = accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],dnval); 
+
 
 WAFvec = accumarray(binval,WAFvals,[length(Dbins) - 1 1],@median); 
 WAFup = accumarray(binval,WAFvals,[length(Dbins) - 1 1],upval); 
@@ -120,9 +126,12 @@ p1 = plot(Bincent,SICvec,'k','linewidth',2);
 if IS2_DATA.v6
 
 p3 = plot(Bincent,SICvec_amsr,'color',[.8 .2 .2],'linewidth',2); 
-p6 = plot(Bincent,biasvec,'color',[.8 .8 .8],'linewidth',2); 
+p6 = plot(Bincent,biasvec,'--','color',[.8 .8 .8],'linewidth',2); 
 
 end
+
+p7 = plot(Bincent,bias_LIFvec,'--','color',[.2 .8 .8],'linewidth',2); 
+
 
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
@@ -130,7 +139,7 @@ p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2);
 % p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
-xlimmer = [-500 500];
+xlimmer = [-700 700];
  
 % xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 % xlimmer = min(abs(xlimmer))*[-1 1];
@@ -143,8 +152,8 @@ ylim([0 1])
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 
-
-fitted = @(c) -1.604*(c-.6138).^2 + 0.229; 
+% fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; % This is weighted fit
+fitted = @(c) -1.604*(c-.6138).^2 + 0.229; % This is naive fit. 
 
 p5 = plot(Bincent,fitted(SICvec),'--b','linewidth',1);
 
@@ -157,11 +166,11 @@ xlim(xlimmer)
 
 if IS2_DATA.v6
 
-legend([p1 p2 p3 p4 p5 p6],{'CDR','LIF','AMSR2','Number','Fit','Bias'},'location','best')
+legend([p1 p2 p3 p4 p5 p6 p7],{'CDR','LIF','AMSR2','Number','Fit','AMSR2 Bias','LIF Bias'},'location','best')
 
 else
 
-    legend([p1 p2 p4 p5],{'CDR','LIF','Number','Spec'},'location','best')
+    legend([p1 p2 p4 p5 p7],{'CDR','LIF','Number','Spec','LIF Bias'},'location','best')
 
 end
 

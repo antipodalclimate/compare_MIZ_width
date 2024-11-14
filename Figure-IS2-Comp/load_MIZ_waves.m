@@ -44,8 +44,8 @@ for i = 1:nT
 
             MIZ_width(i,j) = sum(MIZ_DATA.SIC{i,j} < 0.8 & MIZ_DATA.D_to_MIZ{i,j} <= 0);
 
-            haswaves = sum(WAF > wave_thresh & N > 10);
-            haswaves_MIZ = sum(WAF > wave_thresh & D <= 0 & N > 10);
+            haswaves = sum(WAF > wave_thresh & N > cutoff_N);
+            haswaves_MIZ = sum(WAF > wave_thresh & D <= 0 & N > cutoff_N);
 
             WAF_width(i,j) = haswaves;
 
@@ -55,7 +55,7 @@ for i = 1:nT
 
             track_nMIZ(i,j) = sum(D<=0);
 
-            track_npoints(i,j) = sum(N > 10);
+            track_npoints(i,j) = sum(N > cutoff_N);
 
             if IS2_DATA.v6
                               
@@ -122,7 +122,7 @@ SICvals = vertcat(MIZ_DATA.SIC{:});
 if IS2_DATA.v6
 
     SICvals_amsr = vertcat(MIZ_DATA.SIC_amsr{:});
-    biasvals = abs(SICvals_amsr - SICvals);
+    biasvals = (SICvals_amsr - SICvals);
 
 end
 
@@ -132,6 +132,8 @@ end
 LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
 LIF_dark_vals = vertcat(MIZ_DATA.LIF_dark{:});
+
+biasvals_LIF = LIFvals - SICvals; 
 
 
 Hvals = vertcat(MIZ_DATA.H{:});
