@@ -315,6 +315,8 @@ if do_fullsample
 
     AT_stats.timer = timer;
 
+    AT_stats.lat = lat; 
+    AT_stats.lon = lon; 
     AT_stats.use_AT = use_AT;
     AT_stats.LIF = AT_LIF;
     AT_stats.LIF_adj = AT_LIF_adj;
