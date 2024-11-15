@@ -1,6 +1,7 @@
 clear
 
-OS_string = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/';
+% OS_string = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/';
+OS_string = '/Users/chorvat/Brown Dropbox/Christopher Horvat/';
 
 % Location of the overall data
 OPTS.track_folder = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/'];

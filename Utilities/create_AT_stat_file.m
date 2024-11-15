@@ -71,4 +71,4 @@ IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
 
 % IS2_DATA.v6 = IS2_obj.v6; 
 
-save(OPTS.output_str,'OPTS','IS2_DATA');
+save(OPTS.output_str,'OPTS','IS2_DATA','-v7.3');

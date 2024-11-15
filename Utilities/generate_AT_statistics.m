@@ -23,6 +23,8 @@ is_spec = IS2_obj.is_spec;
 seg_len = IS2_obj.seg_len;
 lat = IS2_obj.lat;
 lon = IS2_obj.lon;
+
+
 timer = IS2_obj.timer;
 conc = IS2_obj.conc;
 

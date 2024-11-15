@@ -14,10 +14,13 @@ wave_thresh = 0.075;
 
 % Find out if a wavy track at some point
 iswavy = MIZ_DATA.WAF;
-timeval = MIZ_DATA.WAF;
+monthval = MIZ_DATA.WAF;
+yearval = MIZ_DATA.WAF; 
 npoints = MIZ_DATA.WAF;
 isstrong = MIZ_DATA.WAF;
 nameid = MIZ_DATA.WAF; 
+beamid = MIZ_DATA.WAF; 
+latvals = MIZ_DATA.WAF; 
 
 num_beams = size(IS2_DATA.is_strong,2);
 
@@ -38,6 +41,7 @@ for i = 1:nT
                 og_beam = num_beams;
             end
 
+            lat = MIZ_DATA.lat{i,j}; 
             WAF = MIZ_DATA.WAF{i,j};
             D = MIZ_DATA.D_to_MIZ{i,j};
             N = MIZ_DATA.Nseg{i,j};
@@ -66,7 +70,7 @@ for i = 1:nT
             end
 
 
-            if haswaves_MIZ > 1
+            if haswaves_MIZ > 0
                 iswavy{i,j} = 1 + 0*WAF;
             else
                 if haswaves > 0
@@ -78,10 +82,14 @@ for i = 1:nT
 
             isstrong{i,j} = IS2_DATA.is_strong(i,og_beam) + 0*WAF;
 
-            timeval{i,j} = month(MIZ_DATA.timer{i,j}) + 0*WAF;
+            monthval{i,j} = month(MIZ_DATA.timer{i,j}) + 0*WAF;
+            yearval{i,j} = year(MIZ_DATA.timer{i,j}) + 0*WAF;
+        
+
             npoints{i,j} = sum(D<=0) + 0*WAF;
 
             nameid{i,j} = i + 0*WAF; 
+            beamid{i,j} = j + 0*WAF;
 
         end
         %     if ~isempty(MIZ_DATA.SIC{i,j})
@@ -140,14 +148,21 @@ Hvals = vertcat(MIZ_DATA.H{:});
 Evals = vertcat(MIZ_DATA.E{:});
 WAFvals = vertcat(MIZ_DATA.WAF{:});
 wavytracks = vertcat(iswavy{:});
-timeval = vertcat(timeval{:});
+monthval = vertcat(monthval{:});
+yearval = vertcat(yearval{:});
 npoints = vertcat(npoints{:});
 isstrong = vertcat(isstrong{:});
 nameid = vertcat(nameid{:});
+beamid = vertcat(beamid{:});
+latvals = vertcat(MIZ_DATA.lat{:}); 
+lonvals = vertcat(MIZ_DATA.lon{:}); 
+
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000);
 
-Dbins = -1000+12.5:25:1000;
+spacer = 12.5;
+
+Dbins = -1000+spacer/2:spacer:1000;
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 % Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1);
 

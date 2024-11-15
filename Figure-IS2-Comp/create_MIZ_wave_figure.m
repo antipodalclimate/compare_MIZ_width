@@ -139,7 +139,7 @@ p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2);
 % p6 = plot(Bincent,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2); 
 
 
-xlimmer = [-700 700];
+xlimmer = [-500 500];
  
 % xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 % xlimmer = min(abs(xlimmer))*[-1 1];
@@ -148,7 +148,8 @@ plot(Bincent,LIFup,'--b');
 plot(Bincent,LIFdn,'--b'); 
 xlim(xlimmer)
 grid on; box on; 
-ylim([0 1])
+ylim([-.1 1])
+yline(0,'-k'); 
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 
