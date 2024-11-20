@@ -44,7 +44,7 @@ for i = 1:nT
             lat = MIZ_DATA.lat{i,j}; 
             WAF = MIZ_DATA.WAF{i,j};
             D = MIZ_DATA.D_to_MIZ{i,j};
-            N = MIZ_DATA.Nseg{i,j};
+            N = MIZ_DATA.N_strict{i,j};
 
             MIZ_width(i,j) = sum(MIZ_DATA.SIC{i,j} < 0.8 & MIZ_DATA.D_to_MIZ{i,j} <= 0);
 
@@ -120,7 +120,7 @@ for i = 1:nT
 end
 
 %%
-Nsegvals = vertcat(MIZ_DATA.Nseg{:});
+Nsegvals = vertcat(MIZ_DATA.N_strict{:});
 
 
 

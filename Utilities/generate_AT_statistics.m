@@ -7,13 +7,7 @@ AT_stats = struct();
 DS_stats = struct();
 
 
-dist = IS2_obj.dist;
-revdist = max(dist) - dist;
 
-swap_ind = find(revdist < dist,1);
-
-D_to_edge = min(dist,revdist);
-D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
 
 height = IS2_obj.height;
 is_ice = IS2_obj.is_ice;
@@ -23,6 +17,25 @@ is_spec = IS2_obj.is_spec;
 seg_len = IS2_obj.seg_len;
 lat = IS2_obj.lat;
 lon = IS2_obj.lon;
+
+% This is the distance from the first point, and from the last point in the
+% along-track distance. 
+dist = IS2_obj.dist;
+
+D_to_edge = dist; 
+
+% If the track crosses the entire Antarctic continent, we need to consider
+% that the distance from the edge switches sign. 
+if abs(max(lon) - min(lon)) > 90
+
+revdist = max(dist) - dist;
+% Minimum of difference from either side. 
+D_to_edge = min(dist,revdist);
+% At a certain point, closer to end than beginning. 
+swap_ind = find(revdist < dist,1);
+D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
+
+end
 
 
 timer = IS2_obj.timer;
@@ -198,10 +211,14 @@ close_to_positive = moving_pos >= 2;
 % Has negative points nearby - only for those values that are negative
 close_to_negative = moving_neg >= 2;
 
+% Also require that there is an interpolated ssh field. May not always be
+% true especially at endpoints. 
+is_real = ~isnan(ssh_interp);
+
 % Included points have positive points nearby, aren't too long, and are
 % identified as ice. Criteria I1-I2.
-is_included = logical(not_too_long .* is_ice .* close_to_positive);
-is_included_all = logical(not_too_long .* close_to_positive);
+is_included = logical(not_too_long .* is_ice .* close_to_positive .* is_real);
+is_included_all = logical(not_too_long .* close_to_positive .* is_real);
 % Included points have positive points nearby, and aren't too long. Criteria I1.
 % is_included_lead = logical(not_too_long .* close_to_positive);
 
@@ -230,6 +247,8 @@ is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_can
 
 %% Along-track number of points in each window. 
 
+% The number of segments that go into each moving average window. 
+% This excludes adjusted height points. 
 AT_N_all = movsum(is_included_all,AT_window,'SamplePoints',dist);
 
 % Need at least a density of 1/50 meters for us to consider including one of the variables computed on the moving average window. 
@@ -252,8 +271,6 @@ wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,AT_window,'samplep
 % wave_area_frac_both_ex = 2 * movsum(seg_len .* is_under_both_ex,window_25k,'samplepoints',dist) ./ movsum(seg_len .* is_ice,window_25k,'samplepoints',dist);
 
 AT_WAF = use_AT.*wave_area_frac_both;
-
-
 
 %% Collecting data at each segment of the IS2 track. 
 % This can be saved into AT_stats 
@@ -349,10 +366,12 @@ end
 
 if do_downsample
 
+    % Downsampling has to take raw data and bring it to a downsampled grid.
+    % It  
+
     dist_ind = floor(dist/AT_resolution/2)+1;
 
     [downscale_inds,~,ind_mapper] = unique(dist_ind);
-    ninds = length(downscale_inds);
 
     floe_mapper = ind_mapper(floeind);
 
@@ -364,51 +383,47 @@ if do_downsample
     % moving window. It can be too small and so we exclude it from other
     % computations. 
 
-    % Then we compute the number of segments that go into other products,
-    % which we call Nseg. 
-    DS_stats.Nseg = accumarray(ind_mapper,AT_N,[length(downscale_inds) 1],@mean);
-
     % The strict number that fall into each bin. Whether for non-ice or for ice. 
-    % This is for fields that are being collected into each bin,
-    % and don't involve moving average fields. 
-    DS_stats.N_strict = accumarray(ind_mapper,1,[length(downscale_inds) 1],@sum); 
-    DS_stats.N_strict_ice = accumarray(ind_mapper,is_included_all,[length(downscale_inds) 1],@sum); 
+    % This is for fields that are being collected into each bin. 
+    DS_stats.N_strict = accumarray(ind_mapper,use_AT,[length(downscale_inds) 1],@nansum); 
+    DS_stats.N_strict_ice = accumarray(ind_mapper,use_AT.*is_included_all,[length(downscale_inds) 1],@nansum); 
 
-    DS_stats.lat = accumarray(ind_mapper,lat,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
-    DS_stats.lon = accumarray(ind_mapper,lon,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
-    DS_stats.D_to_edge = accumarray(ind_mapper,D_to_edge,[length(downscale_inds) 1],@sum)./DS_stats.N_strict;
+    % Lats, lons, distance-based metrics. 
+    DS_stats.lat = accumarray(ind_mapper,use_AT.*lat,[length(downscale_inds) 1],@nanmean);
+    DS_stats.lon = accumarray(ind_mapper,use_AT.*lon,[length(downscale_inds) 1],@nanmean);
+    DS_stats.D_to_edge = accumarray(ind_mapper,use_AT.*D_to_edge,[length(downscale_inds) 1],@nanmean);
 
     % The following are of ice fields and therefore need to include the
     % number of included segments. 
-    DS_stats.H = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@sum)./DS_stats.N_strict_ice;
-    DS_stats.H_var = accumarray(ind_mapper,height_adjusted,[length(downscale_inds) 1],@std);
+    DS_stats.H = accumarray(ind_mapper,use_AT.*height_adjusted,[length(downscale_inds) 1],@nanmean);
+    DS_stats.H_var = accumarray(ind_mapper,use_AT.*height_adjusted,[length(downscale_inds) 1],@nanstd);
 
     % CH-derived statistics
     % Since these include fields derived on moving averages, we need to
-    % appropriately weight the fact that each value includes an estimate of
+    % appropriately weight the fact that each value uses an estimate of
     % a certain number.
-    DS_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.LIF_spec = accumarray(ind_mapper,AT_LIF_spec,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
-    DS_stats.LIF_dark = accumarray(ind_mapper,AT_LIF_dark,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
+    DS_stats.WAF = accumarray(ind_mapper,AT_WAF,[length(downscale_inds) 1],@nanmean);
+    DS_stats.LIF = accumarray(ind_mapper,AT_LIF,[length(downscale_inds) 1],@nanmean);
+    DS_stats.LIF_spec = accumarray(ind_mapper,AT_LIF_spec,[length(downscale_inds) 1],@nanmean);
+    DS_stats.LIF_dark = accumarray(ind_mapper,AT_LIF_dark,[length(downscale_inds) 1],@nanmean);
 
-    DS_stats.SIC = accumarray(ind_mapper,AT_SIC,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
+    DS_stats.SIC = accumarray(ind_mapper,AT_SIC,[length(downscale_inds) 1],@nanmean);
 
     if IS2_obj.v6
 
-        DS_stats.SIC_amsr = accumarray(ind_mapper,AT_SIC_amsr,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
+        DS_stats.SIC_amsr = accumarray(ind_mapper,AT_SIC_amsr,[length(downscale_inds) 1],@nanmean);
 
     end
 
     % Along-track statistics
 
-    DS_stats.E = accumarray(ind_mapper,AT_E,[length(downscale_inds) 1],@sum)./DS_stats.Nseg;
+    DS_stats.E = accumarray(ind_mapper,AT_E,[length(downscale_inds) 1],@nanmean);
 
     if ~isempty(floe_mapper)
 
-        DS_stats.Nfloe = accumarray(floe_mapper,use_AT(floeind),[length(downscale_inds) 1],@sum);
-        DS_stats.MFSD = accumarray(floe_mapper,AT_MFSD,[length(downscale_inds) 1],@sum)./DS_stats.Nfloe;
-        DS_stats.RFSD = accumarray(floe_mapper,AT_RFSD,[length(downscale_inds) 1],@sum)./DS_stats.Nfloe;
+        DS_stats.Nfloe = accumarray(floe_mapper,use_AT(floeind),[length(downscale_inds) 1],@nansum);
+        DS_stats.MFSD = accumarray(floe_mapper,AT_MFSD,[length(downscale_inds) 1],@nanmean);
+        DS_stats.RFSD = accumarray(floe_mapper,AT_RFSD,[length(downscale_inds) 1],@nanmean);
 
     else
         DS_stats.Nfloe = nan*DS_stats.H;
