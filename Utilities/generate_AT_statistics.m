@@ -249,10 +249,14 @@ close_to_negative = moving_neg >= 2;
 % true especially at endpoints.
 is_real = ~isnan(ssh_interp);
 
+is_real_conc = conc < 1e37; 
+
 % Included points have positive points nearby, aren't too long, and are
 % identified as ice. Criteria I1-I2.
 is_included = logical(not_too_long .* is_ice .* close_to_positive .* is_real);
 is_included_all = logical(not_too_long .* close_to_positive .* is_real);
+is_included_conc = is_included_all .* is_real_conc; 
+
 % Included points have positive points nearby, and aren't too long. Criteria I1.
 % is_included_lead = logical(not_too_long .* close_to_positive);
 
@@ -284,7 +288,7 @@ is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_can
 % The number of segments that go into each moving average window.
 % This excludes adjusted height points.
 AT_N_all = movsum(is_included_all,AT_window,'SamplePoints',dist);
-
+AT_N_conc = movsum(is_included_conc,AT_window,'SamplePoints',dist);
 % Need at least a density of 1/50 meters for us to consider including one of the variables computed on the moving average window.
 
 use_AT = 1*(AT_N_all > sum(AT_window) / 30);
@@ -294,6 +298,7 @@ use_AT(abs(max(dist) - dist) < AT_window(2)) = nan;
 
 % This is now the number along-track in appropriate windows.
 AT_N = use_AT.*AT_N_all;
+
 
 %% Along-track WAF
 
@@ -326,7 +331,8 @@ AT_LIF_spec = use_AT.*movsum(seg_len.*is_not_spec.*is_included_all,AT_window,'sa
 AT_LIF_dark = use_AT.* movsum(seg_len.*is_not_dark.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 % SIC is segment length weighted mean
-AT_SIC =  use_AT.* (1/100).*movsum(seg_len.*conc.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
+% because there are huge nan-like values of conc, we omit them. 
+AT_SIC =  use_AT.* (1/100).*movsum(seg_len.*conc.*is_included_conc,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_conc,AT_window,'samplepoints',dist);
 
 if IS2_obj.v6
 

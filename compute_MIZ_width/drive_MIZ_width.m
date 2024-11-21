@@ -1,17 +1,12 @@
 clear
 
 % Location of the overall data
-OPTS.track_folder = '/gpfs/data/epscor/chorvat/IS2/Data/All_Track_Data/v6/SH/'
+OPTS.track_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Test_Tracks/'
 
 % Updatable name of input
-OPTS.output_folder = '/gpfs/data/epscor/chorvat/IS2/Along_Track_Statistics/'
+OPTS.output_folder = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/'
 
-<<<<<<< HEAD
-% savename = 'AT_stats_KM_v6_all'; 
 savename = 'test'; 
-=======
-savename = 'AT_stats_SH_v6_all';
->>>>>>> refs/remotes/origin/main
 
 % Updatable name of output. 
 OPTS.output_str = [OPTS.output_folder savename];

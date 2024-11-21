@@ -23,7 +23,7 @@ do_downsample = true;
 do_fullsample = false; 
 
 
-parfor i = 1:OPTS.nfiles % for each individual track
+for i = 1:OPTS.nfiles % for each individual track
 
     if mod(i,100) == 1
             fprintf('Number %d of %d \n',i,OPTS.nfiles); 

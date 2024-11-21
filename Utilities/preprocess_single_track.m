@@ -21,6 +21,8 @@ else
     conc_amsr = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc_amsr2']);
 end
 
+conc(conc > 1e37) = nan; 
+
 
 % quality_flag = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_fit_quality_flag']);
 % quality = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_quality']);
@@ -67,7 +69,7 @@ end
 %% Preprocess The track
 
 % Now remove unusable values along-track
-unusable = find(abs(height) > 1000 | seg_len > 2000 | is_ice <= 0);
+unusable = find(abs(height) > 1000 | seg_len > 2000 | is_ice <= 0 | conc > 1e37);
 
 dist(unusable) = [];
 
