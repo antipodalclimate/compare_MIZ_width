@@ -69,7 +69,7 @@ end
 %% Preprocess The track
 
 % Now remove unusable values along-track
-unusable = find(abs(height) > 1000 | seg_len > 2000 | is_ice <= 0 | conc > 1e37);
+unusable = find(abs(height) > 1000 | seg_len > 2000 | is_ice <= 0);
 
 dist(unusable) = [];
 
