@@ -20,17 +20,25 @@ for i = 1:size(IS2_DATA.DS_stats,1)
 
             beamct = beamct + 1;
 
-            % Since the satellite passed over the edge twice - two
-            % additional measurements
+            % Since the satellite can pass over the edge twice - we
+            % actually have to measurements. One leaving the edge, one
+            % approaching the edge. 
 
-            % Front side
+            % Front side - valeus where the distance is positive to the
+            % edge. 
             side_indices{1} = IS2_DATA.DS_stats{i,j}.D_to_edge > 0;
-            % Back side
+            % Back side - where the distance is negative to the edge. 
             side_indices{2} = IS2_DATA.DS_stats{i,j}.D_to_edge < 0;
 
-            % can be an error if we are going up/down in lat but lon is
-            % swapping across 180 I think. Just need to make sure
-            side_swap = [1 sum(diff(sign(IS2_DATA.DS_stats{i,j}.lon))) > 0];
+            % Look to be sure we swap sides. If we have some increasing
+            % positive values of distance we have the pole-oriented part. 
+            % If we have some increasing negative values we have the
+            % equatorial-oriented part
+            side_swap = [nansum(side_indices{1}) > 0 nansum(side_indices{2}) > 0];
+
+            % The ascending side has the right sign, but we need to swap by
+            % multiplying by -1 for the other side when calculating some
+            % distances. 
             side_mult = [1 -1];
 
             search_dir = {'first','last'};
@@ -38,11 +46,12 @@ for i = 1:size(IS2_DATA.DS_stats,1)
 
             for side_index = 1:2
 
-                % If we are sure we actually have a side of the pole.
+                % If we are sure we actually have this side of the pole.
                 if side_swap(side_index)
 
                     indices = side_indices{side_index};
 
+                    % This is the new "beam"
                     offset = maxB * (side_index - 1);
 
                     % Geographic info
@@ -79,8 +88,6 @@ for i = 1:size(IS2_DATA.DS_stats,1)
                     % PM Sea ice concentration
                     MIZ_DATA.SIC{i,offset+beamct} =  IS2_DATA.DS_stats{i,j}.SIC(indices);
 
-                    % PM Sea ice concentration
-                    MIZ_DATA.SIC{i,offset+beamct} =  IS2_DATA.DS_stats{i,j}.SIC(indices);
 
                     if IS2_DATA.v6 == 1
 
@@ -95,7 +102,10 @@ for i = 1:size(IS2_DATA.DS_stats,1)
                     MIZ_edge = find(MIZ_DATA.SIC{i,offset+beamct} > 0.8,1,search_dir{side_index});
 
                     % If we can find the MIZ edge, then compute distance to
-                    % it
+                    % it. Negative values are in the MIZ. Positive values
+                    % are inside of the MIZ (where MIZ edge is the
+                    % first point in the direction towards the pole that
+                    % has SIC above 80%
                     if ~isempty(MIZ_edge)
                         MIZ_DATA.D_to_MIZ{i,offset+beamct} = side_mult(side_index)*(MIZ_DATA.D_to_edge{i,offset+beamct} - MIZ_DATA.D_to_edge{i,offset+beamct}(MIZ_edge));
                     else

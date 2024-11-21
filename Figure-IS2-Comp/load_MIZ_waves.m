@@ -21,11 +21,14 @@ isstrong = MIZ_DATA.WAF;
 nameid = MIZ_DATA.WAF; 
 beamid = MIZ_DATA.WAF; 
 latvals = MIZ_DATA.WAF; 
+hasMIZ = MIZ_DATA.WAF;
+hasMIZ_amsr = MIZ_DATA.WAF;
+
 
 num_beams = size(IS2_DATA.is_strong,2);
 
 
-[MIZ_width,WAF_width,track_is_strong,track_timeval,track_nMIZ] = deal(zeros(nT,nB));
+[MIZ_width,MIZ_width_amsr,WAF_width,track_is_strong,track_timeval,track_nMIZ] = deal(zeros(nT,nB));
 
 for i = 1:nT
     for j = 1:nB % Both forward and reverse tracks, all beams
@@ -44,9 +47,12 @@ for i = 1:nT
             lat = MIZ_DATA.lat{i,j}; 
             WAF = MIZ_DATA.WAF{i,j};
             D = MIZ_DATA.D_to_MIZ{i,j};
+            SIC = MIZ_DATA.SIC{i,j}; 
             N = MIZ_DATA.N_strict{i,j};
 
-            MIZ_width(i,j) = sum(MIZ_DATA.SIC{i,j} < 0.8 & MIZ_DATA.D_to_MIZ{i,j} <= 0);
+            MIZ_width(i,j) = sum(SIC < 0.8 & D <= 0);
+            track_nMIZ(i,j) = sum(SIC < 0.8);
+            track_wMIZ(i,j) = sum(D<=0); 
 
             haswaves = sum(WAF > wave_thresh & N > cutoff_N);
             haswaves_MIZ = sum(WAF > wave_thresh & D <= 0 & N > cutoff_N);
@@ -56,9 +62,7 @@ for i = 1:nT
             track_is_strong(i,j) = IS2_DATA.is_strong(i,og_beam);
 
             track_timeval(i,j) = 0 + month(MIZ_DATA.timer{i,j});
-
-            track_nMIZ(i,j) = sum(D<=0);
-
+            
             track_npoints(i,j) = sum(N > cutoff_N);
 
             if IS2_DATA.v6
@@ -67,6 +71,22 @@ for i = 1:nT
                 if ~isempty(first80)
                     MIZ_width_amsr(i,j) = sum(MIZ_DATA.SIC_amsr{i,j}(1:first80) < 0.8);
                 end
+            end
+
+            if i == 528
+                disp('oj')
+            end
+            
+            if MIZ_width(i,j) > 0
+                hasMIZ{i,j} = MIZ_width(i,j) + 0*WAF; 
+            else
+                hasMIZ{i,j} = 0 + 0*WAF; 
+            end
+
+            if MIZ_width_amsr(i,j) > 0
+                hasMIZ_amsr{i,j} = MIZ_width_amsr(i,j) + 0*WAF; 
+            else
+                hasMIZ_amsr{i,j} = 0 + 0*WAF; 
             end
 
 
@@ -157,6 +177,8 @@ beamid = vertcat(beamid{:});
 latvals = vertcat(MIZ_DATA.lat{:}); 
 lonvals = vertcat(MIZ_DATA.lon{:}); 
 
+hasMIZ = vertcat(hasMIZ{:});
+hasMIZ_amsr = vertcat(hasMIZ_amsr{:});
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000);
 
@@ -170,3 +192,14 @@ Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 
 % Don't want things outside of our bins, or infinite SIC or nan values.
 usable_all = ~isnan(Dvals) &~isinf(SICvals) & ~isnan(Hvals) & Dvals < max(Dbins) & Dvals > min(Dbins);
+
+%% Now include other requirements. 
+
+% Must have number of segments 
+usable_all = (Nsegvals > cutoff_N) & usable_all; 
+
+% Must be in SIE
+usable_all = usable_all & SICvals > 0.15 & LIFvals > 0.15;
+
+% Need to have values of 
+usable_all = usable_all & npoints > 0 & hasMIZ > 0; 

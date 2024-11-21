@@ -3,7 +3,7 @@ function [DS_stats,AT_stats] = generate_AT_statistics(IS2_obj,AT_window,AT_resol
 
 % One is simple along-track statistics
 AT_stats = struct();
-% Second is along-track statistics downsampled to a coarser grid. 
+% Second is along-track statistics downsampled to a coarser grid.
 DS_stats = struct();
 
 
@@ -18,26 +18,60 @@ seg_len = IS2_obj.seg_len;
 lat = IS2_obj.lat;
 lon = IS2_obj.lon;
 
+%%
 % This is the distance from the first point, and from the last point in the
-% along-track distance. 
+% along-track distance.
 dist = IS2_obj.dist;
-
-D_to_edge = dist; 
-
-% If the track crosses the entire Antarctic continent, we need to consider
-% that the distance from the edge switches sign. 
-if abs(max(lon) - min(lon)) > 90
-
 revdist = max(dist) - dist;
-% Minimum of difference from either side. 
-D_to_edge = min(dist,revdist);
-% At a certain point, closer to end than beginning. 
-swap_ind = find(revdist < dist,1);
-D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
+
+% Initially, we assume first track is edge. Distance is then how far from
+% that first ice point.
+D_to_edge = dist;
+
+% D_to_edge should be positive if moving inside the edge in the direction of the track.
+% It will then be negative if moving towards the edge in the direction of
+% the track.
+
+% But this doesn't have to be the outer edge. The track can be
+% ascending in lat or descending. It can also cross the continent.
+
+% If the track crosses the entire pole, we need to consider
+% that the distance from the edge switches sign. The first point will be
+% one edge, the last point will be the last edge.
+
+if length(lat) > 1
+
+    if abs(max(lon) - min(lon)) > 90
+
+        % Minimum of difference from either side.
+        D_to_edge = min(dist,revdist);
+        % At a certain point, closer to end than beginning.
+        swap_ind = find(revdist < dist,1);
+        D_to_edge(swap_ind:end) = -D_to_edge(swap_ind:end);
+
+        % If the track does not cross the entire continent, we need to check to be
+        % sure that the edge is not actually the last point.
+
+    else
+
+        if abs(lat(end)) < abs(lat(1))
+            % equatorially-going track. First latitude is actually closer to the
+            % pole
+            % This means that the final point is actually the "edge" closer to the
+            % equator
+            D_to_edge = -revdist;
+
+        else
+            % This is a pole-going track that doesn't cross substantially over
+            % the pole. First point is the most equatorward, therefore the
+            % distance in the edge should be positive increasing
+        end
+
+    end
 
 end
 
-
+%%
 timer = IS2_obj.timer;
 conc = IS2_obj.conc;
 
@@ -212,7 +246,7 @@ close_to_positive = moving_pos >= 2;
 close_to_negative = moving_neg >= 2;
 
 % Also require that there is an interpolated ssh field. May not always be
-% true especially at endpoints. 
+% true especially at endpoints.
 is_real = ~isnan(ssh_interp);
 
 % Included points have positive points nearby, aren't too long, and are
@@ -245,21 +279,21 @@ is_wave_candidate = logical(is_included .*close_to_ssh.* ...
 % is_under_both_ex = logical((height_adjusted < -both_cutoff_height).*is_single_candidate);
 is_under_both_var = logical((height_adjusted < -both_cutoff_height).*is_wave_candidate);
 
-%% Along-track number of points in each window. 
+%% Along-track number of points in each window.
 
-% The number of segments that go into each moving average window. 
-% This excludes adjusted height points. 
+% The number of segments that go into each moving average window.
+% This excludes adjusted height points.
 AT_N_all = movsum(is_included_all,AT_window,'SamplePoints',dist);
 
-% Need at least a density of 1/50 meters for us to consider including one of the variables computed on the moving average window. 
+% Need at least a density of 1/50 meters for us to consider including one of the variables computed on the moving average window.
 
 use_AT = 1*(AT_N_all > sum(AT_window) / 30);
 use_AT(use_AT == 0) = nan;
 use_AT(dist < AT_window(1)) = nan;
 use_AT(abs(max(dist) - dist) < AT_window(2)) = nan;
 
-% This is now the number along-track in appropriate windows. 
-AT_N = use_AT.*AT_N_all; 
+% This is now the number along-track in appropriate windows.
+AT_N = use_AT.*AT_N_all;
 
 %% Along-track WAF
 
@@ -272,22 +306,22 @@ wave_area_frac_both = 2 * movsum(seg_len .* is_under_both_var,AT_window,'samplep
 
 AT_WAF = use_AT.*wave_area_frac_both;
 
-%% Collecting data at each segment of the IS2 track. 
-% This can be saved into AT_stats 
-% Or it will be binned for DS_stats. 
+%% Collecting data at each segment of the IS2 track.
+% This can be saved into AT_stats
+% Or it will be binned for DS_stats.
 
 % Linear ice fraction. Ignore any along-track values where we don't have
-% enough point density. 
+% enough point density.
 AT_LIF = use_AT.*movsum(seg_len.*is_included,AT_window,'samplepoints',dist) ./ ...
     movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
-% Also an "adjusted" LIF where negative heights go to zero. 
+% Also an "adjusted" LIF where negative heights go to zero.
 AT_positive = height_adjusted > 0;
 AT_LIF_adj = use_AT.*movsum(seg_len.*is_included.*AT_positive,AT_window,'samplepoints',dist) ...
     ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 % LIF computed by setting specular returns to ocean or dark leads to ocean,
-% only. 
+% only.
 AT_LIF_spec = use_AT.*movsum(seg_len.*is_not_spec.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 AT_LIF_dark = use_AT.* movsum(seg_len.*is_not_dark.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
@@ -302,28 +336,28 @@ if IS2_obj.v6
 end
 
 % FSD is segment length ratio. Ignore floes on the boundaries that wouldn't
-% have enough points to make them. 
+% have enough points to make them.
 AT_RFSD = use_AT(floeind).*movsum(floe_length.^3,AT_window,'samplepoints',dist(floeind)) ./ movsum(floe_length.^2,AT_window,'samplepoints',dist(floeind));
 
 % FSD is mean floe length
 AT_MFSD =  use_AT(floeind).*movsum(floe_length,AT_window,'samplepoints',dist(floeind)) ./ movsum(floe_length.^0,AT_window,'samplepoints',dist(floeind));
 
 % Along-track variance. Again ignore those points without enough segments
-% in them. 
+% in them.
 AT_E =  use_AT.*movsum(seg_len.*height_adjusted.^2.*is_included_all,AT_window,'samplepoints',dist) ./ movsum(seg_len.*is_included_all,AT_window,'samplepoints',dist);
 
 %% Along-track averaged height
 % Exclude points where there isn't enough segments to make the moving
-% average work. 
+% average work.
 
 AT_height = use_AT.*movsum(height_adjusted.*seg_len.*is_included,AT_window,'omitnan','samplepoints',dist) ...
     ./ movsum(seg_len.*is_included,AT_window,'omitnan','samplepoints',dist);
 
 % Exclude locations where there's a big deviation for the purposes of
-% computing along-track variance. 
-include_variance = (height_adjusted - AT_height < 1); 
+% computing along-track variance.
+include_variance = (height_adjusted - AT_height < 1);
 
-% Along-track variance. Ditto for points. 
+% Along-track variance. Ditto for points.
 AT_var = use_AT.*movsum((height_adjusted - AT_height).^2 .* seg_len .* is_included.*include_variance,AT_window,'omitnan','samplepoints',dist) ...
     ./ movsum(seg_len.*is_included.*include_variance,AT_window,'omitnan','samplepoints',dist);
 
@@ -334,8 +368,8 @@ if do_fullsample
 
     AT_stats.timer = timer;
 
-    AT_stats.lat = lat; 
-    AT_stats.lon = lon; 
+    AT_stats.lat = lat;
+    AT_stats.lon = lon;
     AT_stats.use_AT = use_AT;
     AT_stats.LIF = AT_LIF;
     AT_stats.LIF_adj = AT_LIF_adj;
@@ -343,7 +377,7 @@ if do_fullsample
     AT_stats.SIC = AT_SIC;
     AT_stats.FSD = AT_RFSD;
 
-    AT_stats.N = AT_N; 
+    AT_stats.N = AT_N;
     AT_stats.N_all = AT_N_all;
     AT_stats.H = AT_height;
     AT_stats.H_var = AT_var;
@@ -353,7 +387,7 @@ if do_fullsample
     end
 
     % This field is not on the same moving window as the others. Therefore
-    % we don't need to remove any adjustments. 
+    % we don't need to remove any adjustments.
     AT_stats.height_adj = height_adjusted;
     % Remove outlier values
     AT_stats.height_adj(AT_stats.height_adj > 10) = nan;
@@ -367,7 +401,7 @@ end
 if do_downsample
 
     % Downsampling has to take raw data and bring it to a downsampled grid.
-    % It  
+    % It
 
     dist_ind = floor(dist/AT_resolution/2)+1;
 
@@ -381,20 +415,20 @@ if do_downsample
 
     % Have to be careful here. AT_N is the number of points used in each
     % moving window. It can be too small and so we exclude it from other
-    % computations. 
+    % computations.
 
-    % The strict number that fall into each bin. Whether for non-ice or for ice. 
-    % This is for fields that are being collected into each bin. 
-    DS_stats.N_strict = accumarray(ind_mapper,use_AT,[length(downscale_inds) 1],@nansum); 
-    DS_stats.N_strict_ice = accumarray(ind_mapper,use_AT.*is_included_all,[length(downscale_inds) 1],@nansum); 
+    % The strict number that fall into each bin. Whether for non-ice or for ice.
+    % This is for fields that are being collected into each bin.
+    DS_stats.N_strict = accumarray(ind_mapper,use_AT,[length(downscale_inds) 1],@nansum);
+    DS_stats.N_strict_ice = accumarray(ind_mapper,use_AT.*is_included_all,[length(downscale_inds) 1],@nansum);
 
-    % Lats, lons, distance-based metrics. 
+    % Lats, lons, distance-based metrics.
     DS_stats.lat = accumarray(ind_mapper,use_AT.*lat,[length(downscale_inds) 1],@nanmean);
     DS_stats.lon = accumarray(ind_mapper,use_AT.*lon,[length(downscale_inds) 1],@nanmean);
     DS_stats.D_to_edge = accumarray(ind_mapper,use_AT.*D_to_edge,[length(downscale_inds) 1],@nanmean);
 
     % The following are of ice fields and therefore need to include the
-    % number of included segments. 
+    % number of included segments.
     DS_stats.H = accumarray(ind_mapper,use_AT.*height_adjusted,[length(downscale_inds) 1],@nanmean);
     DS_stats.H_var = accumarray(ind_mapper,use_AT.*height_adjusted,[length(downscale_inds) 1],@nanstd);
 

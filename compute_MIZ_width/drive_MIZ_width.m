@@ -9,7 +9,8 @@ OPTS.track_folder = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-wi
 % Updatable name of input
 OPTS.output_folder = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/'];
 
-savename = 'AT_stats_KM_v6_all'; 
+% savename = 'AT_stats_KM_v6_all'; 
+savename = 'test'; 
 
 % Updatable name of output. 
 OPTS.output_str = [OPTS.output_folder savename];

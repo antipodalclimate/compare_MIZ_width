@@ -3,13 +3,7 @@
 load_MIZ_waves; 
 
 %%
-% Criteria for selection
 
-usable_all = (Nsegvals > cutoff_N) & usable_all; 
-usable_all = usable_all & SICvals > 0.15 & LIFvals > 0.15;
-usable_all = usable_all & npoints > 1; 
-
-%%
 usable = usable_all; %
 usable = usable & wavytracks >= -1; 
 
