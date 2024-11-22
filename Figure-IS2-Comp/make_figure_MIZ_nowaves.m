@@ -4,7 +4,7 @@ load_MIZ_waves;
 
 %%
 usable = usable_all; %
-usable = usable & wavytracks == 0; 
+usable = usable & wavytracks >= -1; 
 
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
 intersections = unique(nameid(usable) + (beamid(usable)-1)*max(nameid(usable)));
@@ -16,7 +16,7 @@ writematrix(used_tracks,'Track_Lists/out_nowaves.txt')
 create_MIZ_nowave_figure; 
 
 %%
-pos = [6.5 3.5]; 
+pos = [6 3.5]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 print([OS_string 'Apps/Overleaf/IS2-Waves-PM/Figures/MIZ-SIC-comp-nowaves'],'-dpdf','-r600');

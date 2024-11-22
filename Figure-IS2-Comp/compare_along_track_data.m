@@ -12,29 +12,29 @@ load(OPTS.output_str);
 
 %%
 
-cutoff_N = 1000; % need more than 100 segments for analysis to make sense
-cutoff_MIZ = 1; % Need more than 1 MIZ segment for analysis. 
+cutoff_N = 100; % need more than 100 segments for analysis to make sense
+% cutoff_MIZ = 1; % Need more than 1 MIZ segment for analysis. 
 
 close all
 
 addpath([OPTS.code_folder 'Utilities/Plotting'])
  
 make_figure_MIZ_all;
-
-%%
-make_figure_MIZ_waves;
-
-%%
-
-make_figure_MIZ_somewaves;
-
 make_figure_MIZ_nowaves;
 
 
-
-
 %%
-make_location_figure; 
-
+% make_figure_MIZ_waves;
+% 
+% %%
+% 
+% make_figure_MIZ_somewaves;
+% 
+% 
+% 
+% 
+% %%
+% make_location_figure; 
+% 
 
 

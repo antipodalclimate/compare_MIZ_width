@@ -13,21 +13,15 @@ wave_thresh = 0.075;
 %%
 
 % Find out if a wavy track at some point
-iswavy = MIZ_DATA.WAF;
-monthval = MIZ_DATA.WAF;
-yearval = MIZ_DATA.WAF; 
-npoints = MIZ_DATA.WAF;
-isstrong = MIZ_DATA.WAF;
-nameid = MIZ_DATA.WAF; 
-beamid = MIZ_DATA.WAF; 
-latvals = MIZ_DATA.WAF; 
-hasMIZ = MIZ_DATA.WAF;
-hasMIZ_amsr = MIZ_DATA.WAF;
+
+[iswavy,monthval,yearval,npoints,isstrong,nameid,beamid,hasMIZ,hasMIZ_amsr,int_id] ...
+    = deal(MIZ_DATA.WAF);
 
 
+%%
 num_beams = size(IS2_DATA.is_strong,2);
 
-
+search_dir = {'first','last'};
 [MIZ_width,MIZ_width_amsr,WAF_width,track_is_strong,track_timeval,track_nMIZ] = deal(zeros(nT,nB));
 
 for i = 1:nT
@@ -49,11 +43,27 @@ for i = 1:nT
             D = MIZ_DATA.D_to_MIZ{i,j};
             SIC = MIZ_DATA.SIC{i,j}; 
             N = MIZ_DATA.N_strict{i,j};
+            LIF = MIZ_DATA.LIF{i,j};
+            H = MIZ_DATA.H{i,j}; 
+
+            dummy = 0*WAF; 
+
+            keepvals = N > cutoff_N & SIC > 0.15 & LIF > 0.15 ... 
+                & ~isnan(D) & ~isinf(SIC) & ~isnan(H);
+
+            %%
+            AT_usable{i,j} = keepvals; 
+            WAF(~keepvals) = nan; 
+            SIC(~keepvals) = nan; 
+            N(~keepvals) = nan; 
+  
+            %% Now calculations abiyt the MIZ width,etc
 
             MIZ_width(i,j) = sum(SIC < 0.8 & D <= 0);
-            track_nMIZ(i,j) = sum(SIC < 0.8);
-            track_wMIZ(i,j) = sum(D<=0); 
+            MIZ_width_dist(i,j) = -min(D);
 
+            track_nMIZ(i,j) = sum(SIC < 0.8);
+            
             haswaves = sum(WAF > wave_thresh & N > cutoff_N);
             haswaves_MIZ = sum(WAF > wave_thresh & D <= 0 & N > cutoff_N);
 
@@ -63,89 +73,65 @@ for i = 1:nT
 
             track_timeval(i,j) = 0 + month(MIZ_DATA.timer{i,j});
             
+            % Number of points with sufficient values of N
             track_npoints(i,j) = sum(N > cutoff_N);
 
             if IS2_DATA.v6
                               
-                first80 = find(MIZ_DATA.SIC_amsr{i,j} > 0.8,1);
+                first80 = find(MIZ_DATA.SIC_amsr{i,j} > 0.8,1,search_dir{MIZ_DATA.is_reversed(i,j)+1});
                 if ~isempty(first80)
-                    MIZ_width_amsr(i,j) = sum(MIZ_DATA.SIC_amsr{i,j}(1:first80) < 0.8);
+                    MIZ_width_amsr(i,j) = sum(MIZ_DATA.SIC_amsr{i,j} < 0.8 & D <= 0);
+                    MIZ_width_dist_amsr(i,j) = -(min(D) - D(first80));
                 end
             end
-
-            if i == 528
-                disp('oj')
-            end
-            
+            % 
+            % if i == 528
+            %     disp('oj')
+            % end
+            % 
             if MIZ_width(i,j) > 0
-                hasMIZ{i,j} = MIZ_width(i,j) + 0*WAF; 
+                hasMIZ{i,j} = MIZ_width(i,j) + 0*dummy; 
             else
-                hasMIZ{i,j} = 0 + 0*WAF; 
+                hasMIZ{i,j} = 0 + 0*dummy; 
             end
 
             if MIZ_width_amsr(i,j) > 0
-                hasMIZ_amsr{i,j} = MIZ_width_amsr(i,j) + 0*WAF; 
+                hasMIZ_amsr{i,j} = MIZ_width_amsr(i,j) + 0*dummy; 
             else
-                hasMIZ_amsr{i,j} = 0 + 0*WAF; 
+                hasMIZ_amsr{i,j} = 0 + 0*dummy; 
             end
 
 
             if haswaves_MIZ > 0
-                iswavy{i,j} = 1 + 0*WAF;
+                iswavy{i,j} = 1 + 0*dummy;
             else
                 if haswaves > 0
-                    iswavy{i,j} = -1 + 0*WAF;
+                    iswavy{i,j} = -1 + 0*dummy;
                 else
-                    iswavy{i,j} = 0 + 0*WAF;
+                    iswavy{i,j} = 0 + 0*dummy;
                 end
             end
 
-            isstrong{i,j} = IS2_DATA.is_strong(i,og_beam) + 0*WAF;
+            isstrong{i,j} = IS2_DATA.is_strong(i,og_beam) + 0*dummy;
 
-            monthval{i,j} = month(MIZ_DATA.timer{i,j}) + 0*WAF;
-            yearval{i,j} = year(MIZ_DATA.timer{i,j}) + 0*WAF;
+            monthval{i,j} = month(MIZ_DATA.timer{i,j}) + 0*dummy;
+            yearval{i,j} = year(MIZ_DATA.timer{i,j}) + 0*dummy;
         
 
-            npoints{i,j} = sum(D<=0) + 0*WAF;
-
-            nameid{i,j} = i + 0*WAF; 
-            beamid{i,j} = j + 0*WAF;
+            npoints{i,j} = sum(D<=0) + 0*dummy;
+            nMIZ{i,j} = track_nMIZ(i,j) + 0*dummy; 
+            nameid{i,j} = i + 0*dummy; 
+            beamid{i,j} = j + 0*dummy;
+            int_id{i,j} = i + (j-1)*nT + 0*dummy; 
 
         end
-        %     if ~isempty(MIZ_DATA.SIC{i,j})
-        %
-        %         % Distance from the edge
-        %         var1 = vertcat(MIZ_DATA.D_to_edge{i,beaminds});
-        %         var2 = vertcat(MIZ_DATA.SIC{i,beaminds});
-        %
-        %         Nvals = vertcat(MIZ_DATA.N{i,beaminds});
-        %
-        %
-        %         % Usable values to do the correlation
-        %         usable = var1 < 2e5 & Nvals > 100;
-        %
-        %         if sum(usable) > 1
-        %
-        %         cmat = corrcoef(var1(usable),var2(usable));
-        %
-        %         CC(i,j) = cmat(1,2);
-        %
-        %         end
-        %
-        %     else
-        %         CC(i,j) = nan;
-        %     end
-        %
+
     end
 end
 
 %%
 Nsegvals = vertcat(MIZ_DATA.N_strict{:});
-
-
-
 SICvals = vertcat(MIZ_DATA.SIC{:});
-
 
 if IS2_DATA.v6
 
@@ -154,15 +140,11 @@ if IS2_DATA.v6
 
 end
 
-
-% namevals = vertcat(MIZ_DATA.names(:));
-
 LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
 LIF_dark_vals = vertcat(MIZ_DATA.LIF_dark{:});
 
 biasvals_LIF = LIFvals - SICvals; 
-
 
 Hvals = vertcat(MIZ_DATA.H{:});
 Evals = vertcat(MIZ_DATA.E{:});
@@ -174,9 +156,12 @@ npoints = vertcat(npoints{:});
 isstrong = vertcat(isstrong{:});
 nameid = vertcat(nameid{:});
 beamid = vertcat(beamid{:});
+int_id = vertcat(int_id{:}); 
 latvals = vertcat(MIZ_DATA.lat{:}); 
 lonvals = vertcat(MIZ_DATA.lon{:}); 
+keepvals = vertcat(AT_usable{:});
 
+num_MIZ = vertcat(nMIZ{:});
 hasMIZ = vertcat(hasMIZ{:});
 hasMIZ_amsr = vertcat(hasMIZ_amsr{:});
 
@@ -185,21 +170,56 @@ Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000);
 spacer = 12.5;
 
 Dbins = -1000+spacer/2:spacer:1000;
+
 Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 % Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1);
 
 %% Create usable vector
 
-% Don't want things outside of our bins, or infinite SIC or nan values.
-usable_all = ~isnan(Dvals) &~isinf(SICvals) & ~isnan(Hvals) & Dvals < max(Dbins) & Dvals > min(Dbins);
+% Problem is that as we eliminate tracks, we also kill of zero-centering.
+% Some stencils don't pass, which is fine, but if these stencils are D=0
+% then they mess up our counting.  
+
+all_intersections = unique(int_id);
+
+% Don't want things with infinite SIC or nan values.
+usable_all = keepvals & ~isnan(nameid); 
+used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
+
+fprintf('----- \n')
+fprintf('Total of %2.0f intersections possible from %2.0f tracks \n',length(all_intersections),length(unique(nameid)));
+fprintf('Total of %2.2f million post-processed stencils from %2.0f intersections over %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
+
+
+
+%%
+
+% Take the unique values that are NOT usable.
+% We want to remove entire intersections that have screwy values. 
+% lost_ints = unique(int_id(~usable_all));
+% lost_locs = ismember(int_id,lost_ints,'rows');
+% usable_all(lost_locs) = 0; 
+% used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
+% intersections = unique(int_id(usable_all));
 
 %% Now include other requirements. 
 
-% Must have number of segments 
-usable_all = (Nsegvals > cutoff_N) & usable_all; 
-
-% Must be in SIE
-usable_all = usable_all & SICvals > 0.15 & LIFvals > 0.15;
+usable_all = usable_all & npoints > 0;
+used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+fprintf('Has a CIZ: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
 
 % Need to have values of 
-usable_all = usable_all & npoints > 0 & hasMIZ > 0; 
+usable_all = usable_all & num_MIZ > 0;
+used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+fprintf('Has a MIZ point: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
+
+usable_all = usable_all & hasMIZ > 1; 
+used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+fprintf('Has a MIZ before CIZ: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
+
+% Remove unplottable things. 
+usable_all = usable_all & Dvals < max(Dbins) & Dvals > min(Dbins);
+% S

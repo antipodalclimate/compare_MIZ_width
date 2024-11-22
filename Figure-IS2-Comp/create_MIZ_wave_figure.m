@@ -144,8 +144,6 @@ xlimmer = [-500 500];
 % xlimmer = [Bincent(xfirst) Bincent(xlast)]; 
 % xlimmer = min(abs(xlimmer))*[-1 1];
 
-plot(Bincent,LIFup,'--b'); 
-plot(Bincent,LIFdn,'--b'); 
 xlim(xlimmer)
 grid on; box on; 
 ylim([-.1 1])
@@ -214,6 +212,7 @@ ylabel('Wave Affected Fraction','interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
 xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
+
 % legend([r1 r2],{'Wave Affected Fraction','WMIZ Threshold'})
 %% SECTION TITLE
 subplot('position',[.1 .1 .8 .2])
@@ -230,7 +229,7 @@ plot(Bincent,Hdn,'--k');
 xlim(xlimmer)
 % ylim([0 .5]); 
 set(gca,'ylim',[0 max(max(get(gca,'ylim')),0.5)])
-ylabel('Freeboard Height','interpreter','latex')
+ylabel('Sea Ice Height','interpreter','latex')
 % r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;

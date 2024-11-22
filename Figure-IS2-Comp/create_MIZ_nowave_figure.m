@@ -119,7 +119,6 @@ jbfill(Bincent,biasup',biasdn',[.8 .8 .8],[1 1 1],1,.3);
 end
 
 
-jbfill(Bincent,LIFup',LIFdn',[.2 .2 .8],[1 1 1],1,.3);
 hold on
 p1 = plot(Bincent,SICvec,'k','linewidth',2); 
 
@@ -132,6 +131,11 @@ end
 
 p7 = plot(Bincent,bias_LIFvec,'--','color',[.2 .8 .8],'linewidth',2); 
 
+jbfill(Bincent,bias_LIFup',bias_LIFdn',[.2 .8 .8],[1 1 1],1,.2);
+hold on
+jbfill(Bincent,LIFup',LIFdn',[.2 .2 .8],[1 1 1],1,.4);
+
+hold on
 
 p2 = plot(Bincent,LIFvec,'color',[.4 .4 .8],'linewidth',2); 
 
@@ -235,6 +239,12 @@ ylabel('Freeboard Height','interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
 xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
+
+xline(0,'label','CDR-defined MIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal','LabelHorizontalAlignment','left');
+xline(0,'label','CDR-defined CIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal');
+xline(-50,'--','color',[.8 .4 .4])
+xline(50,'--','color',[.8 .4 .4])
+
 %%
 allAxesInFigure = findall(gcf,'type','axes');
 letter = {'(b)','(a)','(c)','(d)','(e)','(f)','(g)','(e)','(c)'};

@@ -411,7 +411,7 @@ if do_downsample
 
     dist_ind = floor(dist/AT_resolution/2)+1;
 
-    [downscale_inds,~,ind_mapper] = unique(dist_ind);
+    [downscale_inds,dvals,ind_mapper] = unique(dist_ind);
 
     floe_mapper = ind_mapper(floeind);
 
