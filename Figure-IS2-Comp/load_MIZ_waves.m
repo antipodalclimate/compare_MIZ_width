@@ -22,7 +22,9 @@ wave_thresh = 0.075;
 num_beams = size(IS2_DATA.is_strong,2);
 
 search_dir = {'first','last'};
-[MIZ_width,MIZ_width_amsr,WAF_width,track_is_strong,track_timeval,track_nMIZ] = deal(zeros(nT,nB));
+[MIZ_width,MIZ_width_amsr,WAF_width,WAF_width_dist,MIZ_width_dist_amsr,MIZ_width_dist,MIZ_width_dist_CDR,MIZ_width_CDR] = deal(nan(nT,nB));
+[track_is_strong,track_timeval,track_nMIZ,wave_flag] = deal(zeros(nT,nB));
+
 
 for i = 1:nT
     for j = 1:nB % Both forward and reverse tracks, all beams
@@ -63,11 +65,34 @@ for i = 1:nT
             MIZ_width_dist(i,j) = -min(D);
 
             track_nMIZ(i,j) = sum(SIC < 0.8);
-            
+            track_ID(i,j) = i + (j-1)*nT;
+
+
             haswaves = sum(WAF > wave_thresh & N > cutoff_N);
             haswaves_MIZ = sum(WAF > wave_thresh & D <= 0 & N > cutoff_N);
 
-            WAF_width(i,j) = haswaves;
+            WAF_width(i,j) = haswaves_MIZ;
+
+            firstCDR = find(MIZ_DATA.SIC{i,j} > 0.8,1,search_dir{MIZ_DATA.is_reversed(i,j)+1});
+
+            if ~isempty(firstCDR)
+
+                MIZ_width_CDR(i,j) = sum(MIZ_DATA.SIC{i,j} < 0.8 & D<=0);
+                MIZ_width_dist_CDR(i,j) = -(min(D) - D(firstCDR));
+
+            end
+
+            
+            firstWAF = find(MIZ_DATA.WAF{i,j} < wave_thresh,1,search_dir{MIZ_DATA.is_reversed(i,j)+1});
+
+            if ~isempty(firstWAF) 
+          
+                WAF_width(i,j) = haswaves_MIZ;  
+                WAF_width_dist(i,j) = -(min(D) - D(firstWAF)); 
+
+        
+            end
+
 
             track_is_strong(i,j) = IS2_DATA.is_strong(i,og_beam);
 
@@ -103,12 +128,15 @@ for i = 1:nT
 
 
             if haswaves_MIZ > 0
-                iswavy{i,j} = 1 + 0*dummy;
+                iswavy{i,j} = haswaves_MIZ + 0*dummy;
+                wave_flag(i,j) = haswaves_MIZ; 
             else
                 if haswaves > 0
-                    iswavy{i,j} = -1 + 0*dummy;
+                    iswavy{i,j} = -haswaves + 0*dummy;
+                    wave_flag(i,j) = -haswaves; 
                 else
                     iswavy{i,j} = 0 + 0*dummy;
+                    wave_flag(i,j) = 0; 
                 end
             end
 
@@ -123,7 +151,7 @@ for i = 1:nT
             nameid{i,j} = i + 0*dummy; 
             beamid{i,j} = j + 0*dummy;
             int_id{i,j} = i + (j-1)*nT + 0*dummy; 
-
+            
         end
 
     end
@@ -188,7 +216,7 @@ used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
 
 fprintf('----- \n')
 fprintf('Total of %2.0f intersections possible from %2.0f tracks \n',length(all_intersections),length(unique(nameid)));
-fprintf('Total of %2.2f million post-processed stencils from %2.0f intersections over %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
+fprintf('Total of %2.2f million post-processed stencils from %2.0f intersections over %2.0f tracks \n',sum(usable_all)/1e6,length(all_intersections),length(used_tracks))
 
 
 
@@ -206,20 +234,21 @@ fprintf('Total of %2.2f million post-processed stencils from %2.0f intersections
 
 usable_all = usable_all & npoints > 0;
 used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
-intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid));
 fprintf('Has a CIZ: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
 
 % Need to have values of 
 usable_all = usable_all & num_MIZ > 0;
 used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
-intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid));
 fprintf('Has a MIZ point: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
 
-usable_all = usable_all & hasMIZ > 1; 
+usable_all = usable_all & hasMIZ > 0; 
 used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
-intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid(usable_all)));
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid));
 fprintf('Has a MIZ before CIZ: %2.2f million from %2.0f beams across %2.0f tracks \n',sum(usable_all)/1e6,length(intersections),length(used_tracks))
 
 % Remove unplottable things. 
 usable_all = usable_all & Dvals < max(Dbins) & Dvals > min(Dbins);
-% S
+intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid));
+
