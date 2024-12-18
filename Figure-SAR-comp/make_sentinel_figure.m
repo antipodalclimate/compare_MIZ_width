@@ -3,9 +3,9 @@ clear
 addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/')
 addpath('~/Dropbox (Brown)/Research Projects/Plot-Tools/NE_Coastlines/')
 
-S1_fold_AT = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/Tavri_Classified/';
+S1_fold_AT = '~/Dropbox (Brown)/Research Projects/Active/Data/SAR/Tavri_Classified/';
 
-S1_fold = '~/Dropbox (Brown)/Research Projects/Active/Data/Sentinel-1/Raw-Images/';
+S1_fold = '~/Dropbox (Brown)/Research Projects/Active/Data/SAR/Raw-Images/';
 
 S1_filenames = dir([S1_fold '*.nc']);
 S1_file = S1_filenames(2).name;

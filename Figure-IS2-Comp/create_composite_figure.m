@@ -106,7 +106,7 @@ xlast = dum(1);
 
 figure;
 
-subplot('position',[.1 .6 .8 .35])
+subplot('position',[.1 .4 .6 .55])
 
 
 jbfill(Bincent,SICup',SICdn',[.4 .4 .4],[1 1 1],1,.3);
@@ -157,7 +157,7 @@ ylim([-.1 1])
 yline(0,'-k'); 
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
-
+set(gca,'xticklabel','')
 % fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; % This is weighted fit
 fitted = @(c) -1.604*(c-.6138).^2 + 0.229; % This is naive fit. 
 
@@ -181,7 +181,7 @@ else
 end
 
 %% SECTION TITLE
-subplot('position',[.1 .35 .8 .2])
+subplot('position',[.1 .125 .6 .25])
 
 
 % jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
@@ -205,5 +205,3 @@ xline(0,'label','CDR-defined MIZ','interpreter','latex','fontsize',8,'LabelOrien
 xline(0,'label','CDR-defined CIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal');
 xline(-50,'--','color',[.8 .4 .4])
 xline(50,'--','color',[.8 .4 .4])
-
-%%
