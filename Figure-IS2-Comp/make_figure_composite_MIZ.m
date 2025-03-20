@@ -26,16 +26,30 @@ fprintf('Using %2.2f million stencils from %2.0f beams across %2.0f tracks \n',s
 writematrix(used_tracks,'Track_Lists/out_all.txt')
 
 create_composite_figure; 
-
+create_MIZ_width_panel; 
 %% 
-add_classified_panel; 
-
+%add_classified_panel; 
 
 %%
 
-pos = [6.5 4]; 
+allAxesInFigure = findall(gcf,'type','axes');
+letter = {'(c)','(b)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
+
+for i = 1:length(allAxesInFigure)
+    
+ posy = get(allAxesInFigure(i),'position');
+
+    set(allAxesInFigure(i),'fontname','times','fontsize',8,'xminortick','on','yminortick','on')
+    
+    annotation('textbox',[posy(1) - .05 posy(2)+posy(4)-.015 .025 .025], ...
+        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
+        'FontSize',8,'Tag','legtag');
+
+end
+
+pos = [6.5 4.5]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print([OS_string 'Apps/Overleaf/IS2-Waves-PM/Figures/MIZ-SIC-comp-all'],'-dpdf','-r600');
+print([OS_string 'Apps/Overleaf/IS2-PM-SIC/Figures/MIZ-SIC-comp-all'],'-dpdf','-r600');
 
 %%

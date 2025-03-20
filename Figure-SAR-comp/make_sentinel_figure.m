@@ -24,9 +24,9 @@ Int = ncread([S1_fold S1_file],'Intensity_HH');
 
 %%
 
-class_KT = load([S1_fold_AT 'S1A_EW_GRDM_1SSH_20200423T020924_20200423T021028_032248_03BAF8_088A_004_waves'],'class').class;
-lat_KT = load([S1_fold_AT 'S1A_EW_GRDM_1SSH_20200423T020924_20200423T021028_032248_03BAF8_088A_004_waves'],'lat').lat;
-lon_KT = load([S1_fold_AT 'S1A_EW_GRDM_1SSH_20200423T020924_20200423T021028_032248_03BAF8_088A_004_waves'],'lon').lon;
+class_KT = load([S1_fold_AT 'KT_Classified_SAR'],'class').class;
+lat_KT = load([S1_fold_AT 'KT_Classified_SAR'],'lat').lat;
+lon_KT = load([S1_fold_AT 'KT_Classified_SAR'],'lon').lon;
 
 
 % class_KT = load(S1_fold '
@@ -165,11 +165,11 @@ end
 close all
 addpath('Plot-Tools')
 horvat_colors; 
-Ax{1} = subplot('position',[.05 .6 .7 .35]);
+Ax{1} = subplot('position',[.1 .55 .35 .35]);
 
 latlim = sort([0.5 .25] + sort([IS2_obj.lat(1) IS2_obj.lat(end_span)]));
 
-lonlim = sort([-1.75 2.25] + sort([IS2_obj.lon(1) IS2_obj.lon(end_span)]));
+lonlim = sort([-1.75 2.5] + sort([IS2_obj.lon(1) IS2_obj.lon(end_span)]));
 
 % if lonlim(2) > max(lon_S1(:))
 %     lonlim(2) = max(lon_S1(:))
@@ -214,9 +214,16 @@ scatterm(latice(ind_S1_KT),lonice(ind_S1_KT),100,clabs(4,:),'s','linewidth',1.5)
 
 % add_coastlines; 
 %
-Ax{2} = subplot('position',[.1 .1 .8 .2],'replace');
+
 
 %%
+
+plot_window = [max(mov_window)/1000 100];
+
+
+Ax{2} = subplot('position',[.1 .1 .8 .325],'replace');
+
+
 % 
 plot(xvals,100*AT_stats.height_adj(IS2_obj.is_ice),'--','linewidth',0.05,'color',[.7 .7 .7])
 hold on
@@ -225,9 +232,9 @@ plot(xvals,100*height_smooth + 100*height_std,'--k','linewidth',1)
 plot(xvals,100*height_smooth - 100*height_std,'--k','linewidth',1)
 
 ylim([-.2 .5]*100)
-xlim([0 100]); 
+xlim(plot_window); 
 
-%%
+
 xline(X_WAF,'color',clabs(1,:),'linewidth',3)
 xline(X_AT,'color',clabs(2,:),'linewidth',3)
 xline(X_PM,'color',clabs(3,:),'linewidth',3)
@@ -238,8 +245,8 @@ grid on; box on;
 ylabel('cm','interpreter','latex');
 xlabel('Distance from 1st ice segment','interpreter','latex');
 
-%%
-Ax{3} = subplot('position',[.1 .35 .8 .2],'replace');
+
+Ax{3} = subplot('position',[.55 .55 .35 .35],'replace');
 
 
 plot(xvals,AT_stats.WAF(IS2_obj.is_ice),'linewidth',1,'color',clabs(1,:))
@@ -252,14 +259,12 @@ plot(xvals,AT_stats.SIC(IS2_obj.is_ice),'linewidth',1,'color',clabs(3,:))
 plot(xvals,S1_LIF(IS2_obj.is_ice),'linewidth',1,'color',clabs(4,:))
 
 
-xlim(track_span); 
 grid on; box on; 
 xlabel('Distance from 1st ice segment','interpreter','latex');
 
 % yyaxis right
 % set(gca,'ycolor','k')
 % plot(xvals,100*height_smooth,'k','linewidth',1)
-xlim([0 100]); 
 grid on; box on; 
 ylabel('cm','interpreter','latex');
 % plot(xvals,100*height_smooth + 100*height_std,'--k','linewidth',1)
@@ -272,6 +277,7 @@ xline(X_S1_KT,'color',clabs(4,:),'linewidth',3)
 h = legend('AT-WAF','AT-LIF','PM-SIC','SAR-SIC','location','southeast');
 set(h,'ItemTokenSize',[20 20]);
 %
+xlim(plot_window); 
 
 letter = {'(A)','(C)','(B)','(d)','(e)','(f)','(g)','(e)','(c)'};
 
@@ -286,10 +292,12 @@ for i = 1:length(Ax)
     
 end
 
+%%
 
-pos = [6.5 3.25]; 
+pos = [5.5 3.5]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/SAR-Comp','-dpdf','-r600');
-print('/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/SAR-Comp','-dpdf','-r600');
+print('~/Dropbox (Brown)/Apps/Overleaf/IS2-PM-SIC/Figures/SAR-Comp','-dpdf','-r600');
+% print('~/Dropbox (Brown)/Apps/Overleaf/2024-NASA-ROSES-PM/Proposal/Figures/SAR-Comp','-dpdf','-r600');
 
+% cd 

@@ -106,7 +106,7 @@ xlast = dum(1);
 
 figure;
 
-subplot('position',[.1 .4 .6 .55])
+subplot('position',[.1 .575 .8 .4])
 
 
 jbfill(Bincent,SICup',SICdn',[.4 .4 .4],[1 1 1],1,.3);
@@ -181,8 +181,7 @@ else
 end
 
 %% SECTION TITLE
-subplot('position',[.1 .125 .6 .25])
-
+subplot('position',[.1 .375 .8 .175])
 
 % jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
 
@@ -195,7 +194,7 @@ plot(Bincent,Hdn,'--k');
 xlim(xlimmer)
 % ylim([0 .5]); 
 set(gca,'ylim',[0 max(max(get(gca,'ylim')),0.5)])
-ylabel('Freeboard Height','interpreter','latex')
+ylabel('Ice Height','interpreter','latex')
 % r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
