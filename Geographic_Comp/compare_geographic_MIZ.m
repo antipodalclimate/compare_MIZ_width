@@ -2,8 +2,8 @@
 clear
 close all
 
-AMSR_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-NT/AMSR2_SIC_daily.mat'; 
-SSMI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/NSIDC-CDR/Daily/NSIDC-CDR_daily.mat'; 
+AMSR_loc = '/Users/chorvat/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-NT/AMSR2_SIC_daily.mat'; 
+SSMI_loc = '/Users/chorvat/Dropbox-Brown/Christopher Horvat/Research Projects/Active/Data/SIC-Data/NSIDC-CDR/Daily/NSIDC-CDR_daily.mat'; 
 % ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat'; 
 
 load(AMSR_loc,'AMSR_datenum','AMSR_NT_SH','AMSR_BS_SH');
