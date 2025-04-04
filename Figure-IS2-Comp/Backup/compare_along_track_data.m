@@ -20,8 +20,8 @@ close all
 addpath([OPTS.code_folder 'Utilities/Plotting'])
  
 make_figure_MIZ_all;
+make_figure_MIZ_waves;
 make_figure_MIZ_nowaves;
-
 
 %%
 % make_figure_MIZ_waves;

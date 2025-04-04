@@ -124,7 +124,7 @@ close all
 xlimmer = [-5 5];
 bins = -5:.2:5; 
 
-subplot('position',[.075 .65 .65 .225])
+Ax{1} = subplot('position',[.075 .65 .65 .225]);
 plot(xax,SIE_CDR,'k','linewidth',1); 
 hold on
 plot(xax,SIE_AMSR_NT,'r','linewidth',1)
@@ -141,7 +141,7 @@ set(gca,'xticklabel','')
 
 legend('CDR','AMSR2','AMSR2-BS','location',[.3 .95 .4 .025],'orientation','horizontal')
 
-subplot('position',[.8 .65 .125 .225])
+Ax{2} = subplot('position',[.8 .65 .125 .225]);
 
 histogram(SIE_AMSR_NT-SIE_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
@@ -155,7 +155,7 @@ set(gca,'yticklabel','')
 
 % 
 
-subplot('position',[.075 .3625 .65 .225])
+Ax{3} = subplot('position',[.075 .3625 .65 .225]);
 plot(xax,SIA_CDR,'k','linewidth',1); 
 hold on
 plot(xax,SIA_AMSR_NT,'r','linewidth',1)
@@ -171,7 +171,7 @@ set(gca,'xticklabel','')
 
 % legend('CDR','AMSR2','AMSR2-BS','location',[.875 .8 .075 .1])
 
-subplot('position',[.8 .3625 .125 .225])
+Ax{4} = subplot('position',[.8 .3625 .125 .225]);
 
 histogram(SIA_AMSR_NT - SIA_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
@@ -188,7 +188,8 @@ view(90,-90)
 title('$\Delta$ from CDR','interpreter','latex')
 set(gca,'yticklabel','')
 
-subplot('position',[.075 .075 .65 .225])
+
+Ax{5} = subplot('position',[.075 .075 .65 .225]);
 plot(xax,AMIZ_CDR,'k','linewidth',1); 
 hold on
 plot(xax,AMIZ_AMSR_NT,'r','linewidth',1)
@@ -204,7 +205,7 @@ ylabel('Million km$^2$','interpreter','latex')
 
 % legend('CDR','AMSR2','AMSR2-BS','location',[.875 .8 .075 .1])
 
-subplot('position',[.8 .075 .125 .225])
+Ax{6} = subplot('position',[.8 .075 .125 .225]);
 
 histogram(AMIZ_AMSR_NT-AMIZ_CDR,bins,'FaceColor','r','Normalization','pdf')
 hold on
@@ -217,13 +218,29 @@ grid on; box on;
 title('$\Delta$ from CDR','interpreter','latex')
 set(gca,'yticklabel','')
 
+letter = {'(A)','(B)','(C)','(D)','(E)','(F)','(g)','(e)','(c)'};
 
-pos = [6.5 3.75]; 
+delete(findall(gcf,'Tag','legtag'))
+
+for i = 1:length(Ax)
+    set(Ax{i},'fontname','helvetica','fontsize',9,'xminortick','on','yminortick','on')
+    posy = get(Ax{i},'position');
+    annotation('textbox',[posy(1)-.04 posy(2)+posy(4)+.04 .025 .025], ...
+        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
+        'FontSize',8,'Tag','legtag');
+    
+end
+
+
+pos = [6.5 3.5]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/SIE-SIA-comp','-dpdf','-r600');
+print('~/Dropbox (Brown)/Apps/Overleaf/IS2-PM-SIC/Figures/SIE-SIA-comp','-dpdf','-r600');
 
 %%
+
+clear Ax
+
 climmer = [-.1 .3];
 
 SICbins = linspace(0,1,51);
@@ -311,7 +328,7 @@ close
 figure(1); 
 clf; 
 
-subplot('position',[0 .5 .25 .45]); 
+Ax{1} = subplot('position',[0 .5 .25 .45]);
 
 worldmap([-90 -55],[-180 180]); 
 pcolorm(lat_SH,lon_SH,median(plotter,3,'omitnan'))
@@ -321,7 +338,7 @@ set(gca,'clim',climmer)
 colorbar('position',[.55 .55 .025 .35]); 
 title('Bias: All','interpreter','latex')
 
-subplot('position',[.275 .5 .25 .45]); 
+Ax{2} = subplot('position',[.275 .5 .25 .45]); 
 
 worldmap([-90 -55],[-180 180]); 
 pcolorm(lat_SH,lon_SH,median(plotter_MIZ,3,'omitnan'))
@@ -336,7 +353,7 @@ cmapper = brewermap(nc,'PuOr');
 cmapper(1:11,:) = [];
 colormap(cmapper); 
 
-subplot('position',[.625 .5 .25 .45]); 
+Ax{3} = subplot('position',[.625 .5 .25 .45]); 
 worldmap([-90 -55],[-180 180]); 
 
 pcolorm(lat_SH,lon_SH,iqr(plotter_MIZ,3)./median(plotter_MIZ,3,'omitnan'))
@@ -348,7 +365,7 @@ title('IQR/Bias','interpreter','latex')
 colormap(gca,brewermap(11,'paired'));
 %
 
-subplot('position',[.075 .1 .375 .35])
+Ax{4} =subplot('position',[.075 .1 .375 .35]);
 
 jbfill(Bincent,plot_up',plot_dn',[.4 .4 .4],[1 1 1],1,.3);
 hold on
@@ -372,7 +389,7 @@ bar(Bincent,a/sum(a),1,'FaceColor',[.4 .4 .8],'FaceAlpha',.5,'EdgeColor','none')
 xlim([.15 1]);
 % ylim([.15 1]);
 
-subplot('position',[.575 .1 .375 .35])
+Ax{5} = subplot('position',[.575 .1 .375 .35]);
 cla
 
 jbfill(Bincent,plot_up_del',plot_dn_del',[.4 .4 .4],[1 1 1],1,.3);
@@ -397,9 +414,23 @@ xlabel('AMSR2-BS SIC','interpreter','latex')
 title('Algorithmic Bias','interpreter','latex');
 grid on; box on; 
 %%
+
+letter = {'(A)','(B)','(C)','(D)','(E)','(F)','(g)','(e)','(c)'};
+
+delete(findall(gcf,'Tag','legtag'))
+
+for i = 1:length(Ax)
+    set(Ax{i},'fontname','helvetica','fontsize',9,'xminortick','on','yminortick','on')
+    posy = get(Ax{i},'position');
+    annotation('textbox',[posy(1) posy(2)+posy(4)-.025 .025 .025], ...
+        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
+        'FontSize',8,'Tag','legtag');
+    
+end
+
 pos = [6.5 3.75]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print('/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/IS2-Waves-PM/Figures/Bias-BS','-dpdf','-r600');
+print('~/Dropbox (Brown)/Apps/Overleaf/IS2-PM-SIC/Figures/Bias-BS','-dpdf','-r600');
 
 % 

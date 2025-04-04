@@ -106,7 +106,8 @@ xlast = dum(1);
 
 figure;
 
-subplot('position',[.1 .5 .8 .45])
+subplot('position',[.1 .575 .8 .4])
+
 
 jbfill(Bincent,SICup',SICdn',[.4 .4 .4],[1 1 1],1,.3);
 hold on
@@ -156,7 +157,7 @@ ylim([-.1 1])
 yline(0,'-k'); 
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
-
+set(gca,'xticklabel','')
 % fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; % This is weighted fit
 fitted = @(c) -1.604*(c-.6138).^2 + 0.229; % This is naive fit. 
 
@@ -179,49 +180,8 @@ else
 
 end
 
-
-%%
-% subplot('position',[.1 .1 .8 .25])
-% 
-% jbfill(Bincent,WAFup',WAFdn',[.4 .4 .4],[1 1 1],1,.3)
-% hold on
-% r1 = plot(Bincent,WAFvec,'k','linewidth',2); 
-% 
-% plot(Bincent,WAFup,'--k'); 
-% plot(Bincent,WAFdn,'--k'); 
-% xlim(xlimmer)
-% ylim([0 .5]); 
-% ylabel('Wave Affected Fraction','interpreter','latex')
-% r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
-% xline(0,'color',[.2 .2 .2],'linewidth',1)
-% grid on; box on;
-% xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
-% legend([r1 r2],{'Wave Affected Fraction','WMIZ Threshold'})
-
-%% 
-% subplot('position',[.1 .35 .8 .2])
-% 
-% 
-% % jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
-% 
-% jbfill(Bincent,WAFup',WAFdn',[.4 .4 .4],[1 1 1],1,.3);
-% hold on
-% r1 = plot(Bincent,WAFvec,'k','linewidth',2); 
-% 
-% plot(Bincent,WAFup,'--k'); 
-% plot(Bincent,WAFdn,'--k'); 
-% xlim(xlimmer)
-% % ylim([0 .5]); 
-% set(gca,'ylim',[0 max(max(get(gca,'ylim')),0.25)])
-% ylabel('Wave Affected Fraction','interpreter','latex')
-% % r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
-% xline(0,'color',[.2 .2 .2],'linewidth',1)
-% grid on; box on;
-% xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
-% % legend([r1 r2],{'Wave Affected Fraction','WMIZ Threshold'})
 %% SECTION TITLE
-subplot('position',[.1 .1 .8 .3])
-
+subplot('position',[.1 .375 .8 .175])
 
 % jbfill(Bincent,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
 
@@ -234,7 +194,7 @@ plot(Bincent,Hdn,'--k');
 xlim(xlimmer)
 % ylim([0 .5]); 
 set(gca,'ylim',[0 max(max(get(gca,'ylim')),0.5)])
-ylabel('Freeboard Height','interpreter','latex')
+ylabel('Ice Height','interpreter','latex')
 % r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
@@ -244,19 +204,3 @@ xline(0,'label','CDR-defined MIZ','interpreter','latex','fontsize',8,'LabelOrien
 xline(0,'label','CDR-defined CIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal');
 xline(-50,'--','color',[.8 .4 .4])
 xline(50,'--','color',[.8 .4 .4])
-
-%%
-allAxesInFigure = findall(gcf,'type','axes');
-letter = {'(b)','(a)','(c)','(d)','(e)','(f)','(g)','(e)','(c)'};
-
-for i = 1:length(allAxesInFigure)
-    
- posy = get(allAxesInFigure(i),'position');
-
-    set(allAxesInFigure(i),'fontname','times','fontsize',8,'xminortick','on','yminortick','on')
-    
-    annotation('textbox',[posy(1) - .025 posy(2)+posy(4) + .035 .025 .025], ...
-        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
-        'FontSize',8,'Tag','legtag');
-
-end
