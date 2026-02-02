@@ -16,9 +16,6 @@ load('dist_to_coast');
 coastmask = 1*(dist_to_coast > 25); 
 coastmask(coastmask == 0) = nan; 
 
-% coastmask_ASI = 1*(dist_to_coast_ASI > 25); 
-% coastmask_ASI(coastmask_ASI == 0) = nan; 
-% 
 %%
 
 % Same dates in the IS2 period. 
