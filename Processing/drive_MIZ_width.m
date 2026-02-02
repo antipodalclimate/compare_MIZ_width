@@ -33,7 +33,7 @@ disp('-----')
 % Location of the analysis code.
 OPTS.code_folder = '~/Code/compare_MIZ_width/';
 % Location of utility functions.
-OPTS.utils_folder = [OPTS.code_folder 'Utilities'];
+OPTS.utils_folder = [OPTS.code_folder 'Utilities/Processing/'];
 
 % Analysis options.
 OPTS.do_weak = 1; % Flag to include weak beams in the analysis (1 = yes, 0 = no).
