@@ -17,9 +17,6 @@ load('dist_to_coast');
 coastmask = 1*(dist_to_coast > 25); 
 coastmask(coastmask == 0) = nan; 
 
-% coastmask_ASI = 1*(dist_to_coast_ASI > 25); 
-% coastmask_ASI(coastmask_ASI == 0) = nan; 
-% 
 %%
 
 % Same dates in the IS2 period. 
@@ -267,16 +264,6 @@ plot_dn_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],dnval);
 
 overmean_del = accumarray(c,(sic_1 - sic_2)./(1-sic_2),[length(SICbins)-1 1],@nanmedian);
 overmean_del(isinf(overmean_del)) = 1; 
-
-
-% fitval = fit(Bincent(meanval_del > 0)',meanval_del(meanval_del > 0),myfit); 
-% 
-% 
-% 
-
-% Want to fit evenly over the range. 
-
-
 
 %%
 % myfit = fittype("-a*(c-d)^2 + b",...

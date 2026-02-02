@@ -7,10 +7,15 @@ OS_string = '/Users/chorvat/Brown Dropbox/Christopher Horvat/';
 addpath([OS_string 'Research Projects/Plot-Tools/'])
 addpath([OS_string 'Research Projects/Plot-Tools/NE_Coastlines/'])
 
-S1_fold = [OS_string 'Research Projects/Active/Data/Sentinel-1/Tavri_Classified/'];
+S1_fold = [OS_string 'Research Projects/Active/Data/SAR/Tavri_Classified/'];
 S1_file_list = dir([S1_fold '*.mat']);
 
+
 IS2_fold = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Kimia_Tracks/'];
+
+% This is the overlaps of SAR data with ICESat-2 tracks from Kimia
+% Mohammednezhad
+Overlap_list = [OS_string 'Research Projects/Active/Data/SAR/2018-2023-overlaps-B1.txt']; 
 
 % Location of this code.
 OPTS.code_folder = '~/Code/compare_MIZ_width/';
@@ -36,7 +41,7 @@ for sarind = 1:length(S1_file_list)
 
     opts = delimitedTextImportOptions("NumVariables", 1);
     opts.Delimiter = ",";
-    overlapping = readtable([OS_string 'Research Projects/Active/Data/Sentinel-1/2018-2023-overlaps-B1.txt'],opts);
+    overlapping = readtable(Overlap_list,opts);
 
     Sarnames = overlapping(:,1).Var1(1:2:end);
     Sarnames = cell2mat(Sarnames);

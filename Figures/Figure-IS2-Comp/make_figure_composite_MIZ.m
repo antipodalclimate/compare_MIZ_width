@@ -1,7 +1,7 @@
 % OS_string = '/Users/chorvat/Dropbox-Brown/Christopher Horvat/';
 OS_string = '/Users/chorvat/Brown Dropbox/Christopher Horvat/';
 
-OPTS.output_str = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/AT_stats_SH_v6_all']; 
+OPTS.output_str = [OS_string OPTS.output_folder OPTS.savename]; 
 % OPTS.output_str = [OS_string 'Research Projects/Active/Data/ICESat-2/PM-SIC-width/Along_Track_Statistics/AT_stats_KM_v6_all']; 
 
 load(OPTS.output_str);
