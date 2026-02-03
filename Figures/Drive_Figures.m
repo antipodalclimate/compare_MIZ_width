@@ -26,8 +26,33 @@ load(load_str)
 % Location of the analysis code.
 OPTS.code_folder = '~/Code/compare_MIZ_width/';
 % Location of utility functions.
-OPTS.plot_folder = [OPTS.code_folder 'Figures'];
+OPTS.plot_folder = [OPTS.code_folder 'Figures/'];
 OPTS.plot_utils_folder = [OPTS.code_folder 'Utilities/Figures/'];
 
 addpath(OPTS.plot_folder);
 addpath(OPTS.plot_utils_folder);
+
+OPTS.plot_save_str = '~/Dropbox (Brown)/Apps/Overleaf/PM-SIC-JOG/Figures/';
+
+%% Now start with figures
+
+
+%% ----------- Passive Microwave Related Figures ---------------
+% 
+addpath([OPTS.plot_folder 'Figures_PM_Comp'])
+
+calc_PM_stats; 
+
+%% 
+% Figure 1 is the base comparison of PM data
+plot_PM_global_stats;
+
+%%
+
+
+%% ----------- SAR Related Figures ---------------
+%% Figure 2 is the localized SAR comparison with a single IS2 track
+
+addpath([OPTS.plot_folder 'Figure_SAR_Comp'])
+
+%% ----------- IS2 Related Figures ---------------
