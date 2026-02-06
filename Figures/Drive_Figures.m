@@ -39,8 +39,9 @@ OPTS.plot_save_str = '~/Dropbox (Brown)/Apps/Overleaf/PM-SIC-JOG/Figures/';
 
 %% ----------- Passive Microwave Related Figures ---------------
 % 
-addpath([OPTS.plot_folder 'Figures_PM_Comp'])
+addpath([OPTS.plot_folder 'Figure_1_PM_Comp'])
 
+disp('Calculating Statistics of PM-SIC Products');
 calc_PM_stats; 
 
 %% 
@@ -49,10 +50,31 @@ plot_PM_global_stats;
 
 %%
 
-
-%% ----------- SAR Related Figures ---------------
-%% Figure 2 is the localized SAR comparison with a single IS2 track
-
-addpath([OPTS.plot_folder 'Figure_SAR_Comp'])
+plot_PM_bias_map; 
 
 %% ----------- IS2 Related Figures ---------------
+
+addpath([OPTS.plot_folder 'Figures_IS2'])
+
+load_MIZ_waves; 
+
+
+
+%% Figure on bias between AMSR2-NT2 and CDR
+
+create_composite_figure; 
+
+%% Examine differences in MIZ width 
+
+create_MIZ_width_panel; 
+
+%% Parameteric figure of LIF offset, AMSR2 offset
+
+create_parametric_plots; 
+
+
+%% ----------- SAR Related Figures ---------------
+
+%% The localized SAR comparison with a single IS2 track
+
+addpath([OPTS.plot_folder 'Figure_SAR_Comp'])

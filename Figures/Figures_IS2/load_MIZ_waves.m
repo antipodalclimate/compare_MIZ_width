@@ -9,6 +9,7 @@ nT = size(MIZ_DATA.timer,1);
 nB = size(MIZ_DATA.timer,2);
 
 wave_thresh = 0.075;
+cutoff_N = 100; 
 
 %%
 
@@ -199,7 +200,7 @@ spacer = 12.5;
 
 Dbins = -1000+spacer/2:spacer:1000;
 
-Bincent = 0.5*(Dbins(1:end-1) + Dbins(2:end));
+Bincent_D = 0.5*(Dbins(1:end-1) + Dbins(2:end));
 % Bincent(end+1) = Bincent(end) + Bincent(2) - Bincent(1);
 
 %% Create usable vector
@@ -252,3 +253,57 @@ fprintf('Has a MIZ before CIZ: %2.2f million from %2.0f beams across %2.0f track
 usable_all = usable_all & Dvals < max(Dbins) & Dvals > min(Dbins);
 intersections = unique(nameid(usable_all) + (beamid(usable_all)-1)*max(nameid));
 
+%% Housekeeping
+
+% Usable_all is the set of usable data. We remap to usable because the
+% figure and analysis might overwrite. 
+usable = usable_all; %
+
+% If there are waves in the MIZ, wavytracks >= 1
+% If there are waves but not in the PM-SIC MIZ, wavytracks <= -1
+% If there are no waves, wavytracks = 0; 
+
+usable = usable & wavytracks >= 0; 
+
+used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
+intersections = unique(nameid(usable) + (beamid(usable)-1)*max(nameid(usable)));
+fprintf('Using %2.2f million stencils from %2.0f beams across %2.0f tracks \n',sum(usable)/1e6,length(intersections),length(used_tracks))
+writematrix(used_tracks,'Figures_IS2/Track_Lists/out_all.txt')
+
+nusable = sum(usable_all);
+nusable_segmented = sum(usable);
+
+
+if IS2_DATA.v6
+
+    usable = usable & ~isnan(SICvals_amsr);
+
+    SICvals_amsr = SICvals_amsr(usable);
+    biasvals = biasvals(usable);
+
+end
+
+Nsegvals = Nsegvals(usable);
+SICvals = SICvals(usable);
+LIFvals = LIFvals(usable);
+LIF_spec_vals = LIF_spec_vals(usable);
+LIF_dark_vals = LIF_dark_vals(usable);
+Dvals = Dvals(usable);
+Hvals = Hvals(usable);
+Evals = Evals(usable);
+WAFvals = WAFvals(usable);
+wavytracks = wavytracks(usable);
+biasvals_LIF = biasvals_LIF(usable);
+
+%%
+% Now pulling beam-specific data
+
+usable_beams = track_ID(intersections);
+
+usable_waves = wave_flag(intersections) > 0 & WAF_width_dist(intersections) > 0 & MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
+
+usable_nowaves = MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
+
+beams_all = usable_beams(usable_waves | usable_nowaves);
+beams_waves = usable_beams(usable_waves);
+beams_nowaves = usable_beams(usable_nowaves);

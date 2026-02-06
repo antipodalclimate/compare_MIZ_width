@@ -1,15 +1,7 @@
 % create_MIZ_width_panel
 
-usable_beams = track_ID(intersections);
+close
 
-
-usable_waves = wave_flag(intersections) > 0 & WAF_width_dist(intersections) > 0 & MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
-
-usable_nowaves = MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
-
-beams_all = usable_beams(usable_waves | usable_nowaves);
-beams_waves = usable_beams(usable_waves);
-beams_nowaves = usable_beams(usable_nowaves);
 
 %%
 
@@ -33,7 +25,7 @@ wAMSR_nowav = MIZ_width_dist_amsr(beams_nowaves)/1000;
 wWAF_nowav = WAF_width_dist(beams_nowaves)/1000; 
 
 
-subplot('position',[.1 .1 .8 .15])
+% subplot('position',[.1 .1 .8 .15])
 
 histogram(wCDR_wav,Wbins,'FaceColor',[.8 .2 .2],'FaceAlpha',0.5);
 hold on
@@ -65,3 +57,23 @@ title('MIZ Width','interpreter','latex')
 
 
 %%
+
+allAxesInFigure = findall(gcf,'type','axes');
+letter = {'(a)','(a)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
+
+for i = 1:length(allAxesInFigure)
+    
+ posy = get(allAxesInFigure(i),'position');
+
+    set(allAxesInFigure(i),'fontname','times','fontsize',8,'xminortick','on','yminortick','on')
+    
+    annotation('textbox',[posy(1) - .05 posy(2)+posy(4)-.015 .025 .025], ...
+        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
+        'FontSize',8,'Tag','legtag');
+
+end
+
+pos = [6.5 2]; 
+set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
+set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
+print([OPTS.plot_save_str 'MIZ-width-comp'],'-dpdf','-r600');
