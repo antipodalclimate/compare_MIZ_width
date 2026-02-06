@@ -1,80 +1,122 @@
 % Main driver script for plotting based on analysis of ICESat-2 data.
-% This script sets up default paths
+% This script sets up default paths and generates figures for the manuscript.
 
 clear
+close all
 
-% Define the base path for data access. Update this to your local machine.
-% OS_string = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/';
+%% Setup Paths
+% Get the location of this script to determine relative paths
+[current_path, ~, ~] = fileparts(mfilename('fullpath'));
+% Assuming structure:
+%   repo_root/
+%     Figures/Drive_Figures.m
+%     Processing/
+%     Data/
+root_path = fileparts(current_path);
 
-
-load_str = '~/Code/compare_MIZ_width/Processing/Data/AT_stats_SH_v6_all';
-
+% Define Data Input Path
+% Pointing to the output of drive_MIZ_width.m
+data_input_folder = fullfile(root_path, 'Data', 'Output');
+load_str = fullfile(data_input_folder, 'AT_stats_SH_v6_all.mat');
 
 % Display the configuration settings.
 disp('-----')
 disp('Loading MIZ-referenced IS2 data')
-fprintf('Using IS2 data located at: %s \n',load_str);
+fprintf('Using IS2 data located at: %s \n', load_str);
 disp('-----')
 
-load(load_str)
+% Check if data file exists
+if exist(load_str, 'file')
+    load(load_str);
+else
+    warning('Data file not found: %s. Please run Processing/drive_MIZ_width.m first.', load_str);
+    % In a real scenario we might stop here, but for now we continue setup
+end
 
-
-%% Setup analysis options and paths. This will overwrite the pre-existing
-% Things that are in OPTS from the load data. Reset these with your local
-% paths if you didn't create the data, or moved machines, etc. 
+%% Setup analysis options and paths.
+% This will overwrite the pre-existing OPTS from the loaded data (if any).
+% Reset these with local paths.
 
 % Location of the analysis code.
-OPTS.code_folder = '~/Code/compare_MIZ_width/';
-% Location of utility functions.
-OPTS.plot_folder = [OPTS.code_folder 'Figures/'];
-OPTS.plot_utils_folder = [OPTS.code_folder 'Utilities/Figures/'];
+OPTS.code_folder = root_path;
 
+% Location of figure scripts and utilities.
+OPTS.plot_folder = fullfile(root_path, 'Figures');
+OPTS.plot_utils_folder = fullfile(root_path, 'Utilities', 'Figures');
+
+% Add necessary paths
 addpath(OPTS.plot_folder);
-addpath(OPTS.plot_utils_folder);
+% Also add subfolders for figures
+addpath(fullfile(OPTS.plot_folder, 'Figure_1_PM_Comp'));
+addpath(fullfile(OPTS.plot_folder, 'Figures_IS2'));
+addpath(fullfile(OPTS.plot_folder, 'Figure_SAR_Comp'));
 
-OPTS.plot_save_str = '~/Dropbox (Brown)/Apps/Overleaf/PM-SIC-JOG/Figures/';
+% Add Utilities path if needed (might be needed for some utility functions)
+addpath(fullfile(root_path, 'Utilities', 'Processing'));
+addpath(fullfile(root_path, 'Utilities', 'Analysis'));
+
+% Output folder for figures
+OPTS.plot_save_str = fullfile(root_path, 'Figures', 'Output');
+if ~exist(OPTS.plot_save_str, 'dir')
+    mkdir(OPTS.plot_save_str);
+end
+fprintf('Saving figures to: %s \n', OPTS.plot_save_str);
 
 %% Now start with figures
 
+if exist('MIZ_DATA', 'var') && exist('IS2_DATA', 'var')
 
-%% ----------- Passive Microwave Related Figures ---------------
-% 
-addpath([OPTS.plot_folder 'Figure_1_PM_Comp'])
+    %% ----------- Passive Microwave Related Figures ---------------
 
-disp('Calculating Statistics of PM-SIC Products');
-calc_PM_stats; 
+    disp('Calculating Statistics of PM-SIC Products');
+    if exist('calc_PM_stats', 'file')
+        calc_PM_stats;
+    else
+        warning('calc_PM_stats.m not found on path.');
+    end
 
-%% 
-% Figure 1 is the base comparison of PM data
-plot_PM_global_stats;
+    %%
+    % Figure 1 is the base comparison of PM data
+    if exist('plot_PM_global_stats', 'file')
+        plot_PM_global_stats;
+    end
 
-%%
+    %%
 
-plot_PM_bias_map; 
+    if exist('plot_PM_bias_map', 'file')
+        plot_PM_bias_map;
+    end
 
-%% ----------- IS2 Related Figures ---------------
+    %% ----------- IS2 Related Figures ---------------
 
-addpath([OPTS.plot_folder 'Figures_IS2'])
+    if exist('load_MIZ_waves', 'file')
+        load_MIZ_waves;
+    end
 
-load_MIZ_waves; 
+    %% Figure on bias between AMSR2-NT2 and CDR
 
+    if exist('create_composite_figure', 'file')
+        create_composite_figure;
+    end
 
+    %% Examine differences in MIZ width
 
-%% Figure on bias between AMSR2-NT2 and CDR
+    if exist('create_MIZ_width_panel', 'file')
+        create_MIZ_width_panel;
+    end
 
-create_composite_figure; 
+    %% Parameteric figure of LIF offset, AMSR2 offset
 
-%% Examine differences in MIZ width 
+    if exist('create_parametric_plots', 'file')
+        create_parametric_plots;
+    end
 
-create_MIZ_width_panel; 
-
-%% Parameteric figure of LIF offset, AMSR2 offset
-
-create_parametric_plots; 
-
+else
+    disp('Skipping figure generation steps because data was not loaded.');
+end
 
 %% ----------- SAR Related Figures ---------------
 
 %% The localized SAR comparison with a single IS2 track
-
-addpath([OPTS.plot_folder 'Figure_SAR_Comp'])
+% This seems to be standalone or requires separate data?
+% Keeping the path add for now.

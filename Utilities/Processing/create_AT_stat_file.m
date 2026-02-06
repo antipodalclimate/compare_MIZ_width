@@ -17,9 +17,6 @@ function create_AT_stat_file(OPTS)
 %     .nfiles         - Number of track files.
 %     .code_folder    - Path to the main code directory.
 
-% Add the code folder to the MATLAB path.
-addpath(OPTS.code_folder);
-
 % Initialize cell arrays to store statistics for each file and beam.
 DS_stats = cell(OPTS.nfiles, 6);
 AT_stats = DS_stats;
