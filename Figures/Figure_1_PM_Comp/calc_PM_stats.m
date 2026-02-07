@@ -25,68 +25,69 @@ IS2_datenum = datenum('01-Oct-2018'):datenum('31-Dec-2024');
 [IS2_mutual,ic,~] = intersect(mutual_datenum,IS2_datenum);
 % [ASI_mutual,id,ie] = intersect(IS2_mutual,ASI_time_SH);
 
-% NASATEAM2 AMSR value
-AMSR_NT_SH = bsxfun(@times,AMSR_NT_SH(:,:,ia(ic)),coastmask);
-% CDR values
-CDR_daily_SH = bsxfun(@times,CDR_daily_SH(:,:,ib(ic)),coastmask);
-SSMI_BS_SH = bsxfun(@times,BS_daily_SH(:,:,ib(ic)),coastmask);
-SSMI_NT_SH = bsxfun(@times,NT_daily_SH(:,:,ib(ic)),coastmask);
-
-% AMSR_ASI_SH = bsxfun(@times,AMSR_ASI_SH(:,:,ie),coastmask_ASI');
-
-clear BS_daily_SH NT_daily_SH
-
-% BOOTSTRAP AMSR values
-AMSR_BS_SH =  bsxfun(@times,AMSR_BS_SH(:,:,ia(ic)),coastmask);
-
-AMSR_NT_SH(AMSR_NT_SH > 1) = nan;
-AMSR_BS_SH(AMSR_BS_SH > 1) = nan;
-
 datenum_coincedent = AMSR_datenum(ia(ic));
 
+%% Structure Data into SIC_Data
 
-%% Now build more fields from the gridded data
+% Define products to process
+% Format: {Name, Data Variable, Time Indices, Is_AMSR (for >1 check)}
+products = {
+    'AMSR_NT', AMSR_NT_SH, ia(ic), true;
+    'AMSR_BS', AMSR_BS_SH, ia(ic), true;
+    'CDR',     CDR_daily_SH, ib(ic), false;
+    'SSMI_NT', NT_daily_SH,  ib(ic), false;
+    'SSMI_BS', BS_daily_SH,  ib(ic), false;
+    'CDR_std', CDR_std_daily_SH, ib(ic), false;
+};
 
-MIZ_AMSR_NT = AMSR_NT_SH > 0.15 & AMSR_NT_SH < 0.8;
-MIZ_AMSR_BS = AMSR_BS_SH > 0.15 & AMSR_BS_SH < 0.8;
-MIZ_CDR = CDR_daily_SH > 0.15 & CDR_daily_SH < 0.8;
-MIZ_SSMI_NT = SSMI_NT_SH > 0.15 & SSMI_NT_SH < 0.8;
-MIZ_SSMI_BS = SSMI_BS_SH > 0.15 & SSMI_BS_SH < 0.8;
-% MIZ_ASI = AMSR_ASI_SH > 0.15 & AMSR_ASI_SH < 0.8;
+SIC_Data = struct();
 
-ICE_AMSR_NT = AMSR_NT_SH > 0.15;
-ICE_AMSR_BS = AMSR_BS_SH > 0.15;
-ICE_CDR = CDR_daily_SH > 0.15;
-ICE_SSMI_NT = SSMI_NT_SH > 0.15;
-ICE_SSMI_BS = SSMI_BS_SH > 0.15;
-% ICE_ASI = AMSR_ASI_SH > 0.15;
+% Loop through products to process and store in structure
+for i = 1:size(products, 1)
+    name = products{i, 1};
+    raw_data = products{i, 2};
+    indices = products{i, 3};
+    is_amsr = products{i, 4};
 
+    % Apply time indexing and coast mask
+    processed_data = bsxfun(@times, raw_data(:,:,indices), coastmask);
+
+    % Apply specific AMSR threshold logic
+    if is_amsr
+        processed_data(processed_data > 1) = nan;
+    end
+
+    SIC_Data.(name) = processed_data;
+end
+
+% Clear original large variables to free memory
+clear AMSR_NT_SH AMSR_BS_SH CDR_daily_SH NT_daily_SH BS_daily_SH CDR_std_daily_SH products
+
+%% Calculate Statistics (PM_Stats)
+
+PM_Stats = struct();
 prefac = 1/1e6;
 
-AMIZ_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_AMSR_BS),[1 2],'omitnan'));
-AMIZ_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_AMSR_NT),[1 2],'omitnan'));
-AMIZ_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_CDR),[1 2],'omitnan'));
-AMIZ_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_NT),[1 2],'omitnan'));
-AMIZ_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_BS),[1 2],'omitnan'));
-% AMIZ_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,MIZ_ASI),[1 2],'omitnan'));
+fields = fieldnames(SIC_Data);
+% We only want to calculate stats for the main SIC products, not CDR_std
+stats_fields = setdiff(fields, {'CDR_std'});
+
+for i = 1:numel(stats_fields)
+    name = stats_fields{i};
+    data = SIC_Data.(name);
+
+    % Masks
+    mask_MIZ = data > 0.15 & data < 0.8;
+    mask_ICE = data > 0.15;
+
+    % Calculate Areas
+    PM_Stats.AMIZ.(name) = prefac * squeeze(sum(bsxfun(@times, area_SH, mask_MIZ), [1 2], 'omitnan'));
+    PM_Stats.SIA.(name)  = prefac * squeeze(sum(bsxfun(@times, area_SH, data), [1 2], 'omitnan'));
+    PM_Stats.SIE.(name)  = prefac * squeeze(sum(bsxfun(@times, area_SH, mask_ICE), [1 2], 'omitnan'));
+end
 
 
-SIA_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_NT_SH),[1 2],'omitnan'));
-SIA_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_BS_SH),[1 2],'omitnan'));
-SIA_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,CDR_daily_SH),[1 2],'omitnan'));
-SIA_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_NT_SH),[1 2],'omitnan'));
-SIA_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_BS_SH),[1 2],'omitnan'));
-% SIA_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,AMSR_ASI_SH),[1 2],'omitnan'));
-
-SIE_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_NT),[1 2],'omitnan'));
-SIE_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_BS),[1 2],'omitnan'));
-SIE_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_CDR),[1 2],'omitnan'));
-SIE_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_NT),[1 2],'omitnan'));
-SIE_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_BS),[1 2],'omitnan'));
-% SIE_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,ICE_ASI),[1 2],'omitnan'));
-
-
-%%
+%% Calculate Differences
 % Six products
 % AMSR2 - NT
 % AMSR2 - BS
@@ -97,33 +98,36 @@ SIE_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_BS),[1 2],'omitn
 
 % Interesected in official product differences
 % AMSR2 - SSMI-CDR
-dAMIZ = AMIZ_AMSR_NT - AMIZ_CDR;
+dAMIZ = PM_Stats.AMIZ.AMSR_NT - PM_Stats.AMIZ.CDR;
 
 % Then interested in same algorithms, different sensors
-dAMIZ_BS = AMIZ_AMSR_BS - AMIZ_SSMI_BS;
-dAMIZ_NT = AMIZ_AMSR_NT - AMIZ_SSMI_NT;
+dAMIZ_BS = PM_Stats.AMIZ.AMSR_BS - PM_Stats.AMIZ.SSMI_BS;
+dAMIZ_NT = PM_Stats.AMIZ.AMSR_NT - PM_Stats.AMIZ.SSMI_NT;
 
 % Then interested in same sensor, different algorithms
-dAMIZ_AMSR = AMIZ_AMSR_NT - AMIZ_AMSR_BS;
-dAMIZ_SSMI = AMIZ_SSMI_NT - AMIZ_SSMI_BS;
+dAMIZ_AMSR = PM_Stats.AMIZ.AMSR_NT - PM_Stats.AMIZ.AMSR_BS;
+dAMIZ_SSMI = PM_Stats.AMIZ.SSMI_NT - PM_Stats.AMIZ.SSMI_BS;
 
 % Now for shits, different sensor, different algos
 dAMIZ_cross = dAMIZ_NT + dAMIZ_SSMI;
 
-dSIE = SIE_AMSR_NT - SIE_CDR;
+dSIE = PM_Stats.SIE.AMSR_NT - PM_Stats.SIE.CDR;
 
 % Now SIA differences
-dSIA = SIA_AMSR_NT - SIA_CDR;
-dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
+dSIA = PM_Stats.SIA.AMSR_NT - PM_Stats.SIA.CDR;
+dSIA_NT = PM_Stats.SIA.AMSR_NT - PM_Stats.SIA.SSMI_NT;
 
 %% Now examine the bias offset between NT2 and BS. 
 
 SICbins = linspace(0,1,51);
 Bincent_SIC = 0.5*(SICbins(1:end-1) + SICbins(2:end));
 
+% Use masks consistent with original logic: ICE_AMSR_BS > 0.15
+% Note: ICE_AMSR_BS corresponds to SIC_Data.AMSR_BS > 0.15
+mask_ICE_AMSR_BS = SIC_Data.AMSR_BS > 0.15;
 
-sic_1 = AMSR_NT_SH(ICE_AMSR_BS);
-sic_2 = AMSR_BS_SH(ICE_AMSR_BS);
+sic_1 = SIC_Data.AMSR_NT(mask_ICE_AMSR_BS);
+sic_2 = SIC_Data.AMSR_BS(mask_ICE_AMSR_BS);
 
 [a,b,c] = histcounts(sic_2,SICbins);
 
@@ -145,7 +149,8 @@ overmean_del(isinf(overmean_del)) = 1;
 
 %% Look at the uncertainty from the CDR
 
-cdr_std = CDR_std_daily_SH(ICE_AMSR_BS); 
+% Using the processed CDR_std from SIC_Data
+cdr_std = SIC_Data.CDR_std(mask_ICE_AMSR_BS);
 
 meanval_std= accumarray(c,cdr_std,[length(SICbins)-1 1],@nanmedian);
 plot_up_std = accumarray(c,cdr_std,[length(SICbins)-1 1],upval);
@@ -180,7 +185,3 @@ fitted = @(c) -1.639*(c-.6122).^2 + 0.2316;
 
 % This is fitting to all data without replacing.
 % fitted = @(c) -1.604*(c-.6138).^2 + 0.229;
-
-
-
-
