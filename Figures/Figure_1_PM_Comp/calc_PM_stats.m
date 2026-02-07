@@ -1,10 +1,10 @@
-AMSR_loc = '/Users/chorvat/Dropbox (Brown)/Research Projects/Active/Data/SIC-Data/AMSR2-NT/AMSR2_SIC_daily.mat';
-SSMI_loc = '/Users/chorvat/Dropbox (Brown)/Research Projects/Active/Data/SIC-Data/NSIDC-CDR/CDR_daily_SH.mat';
+AMSR_str = fullfile(SIC_data_folder,'AMSR2-NT','AMSR2_SIC_daily.mat');
+SSMI_str = fullfile(SIC_data_folder,'NSIDC-CDR','CDR_daily_SH.mat');
 
 % ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat';
 
-load(AMSR_loc,'AMSR_datenum','AMSR_NT_SH','AMSR_BS_SH');
-load(SSMI_loc,'CDR_daily_SH','lat_SH','lon_SH','CDR_time_SH','BS_daily_SH','NT_daily_SH','area_SH','CDR_std_daily_SH');
+load(AMSR_str,'AMSR_datenum','AMSR_NT_SH','AMSR_BS_SH');
+load(SSMI_str,'CDR_daily_SH','lat_SH','lon_SH','CDR_time_SH','BS_daily_SH','NT_daily_SH','area_SH','CDR_std_daily_SH');
 % load(ASI_loc,'AMSR_ASI_SH','ASI_time_SH','lat_ASI_SH','lon_ASI_SH','area_ASI_SH');
 
 load('dist_to_coast');
