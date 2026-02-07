@@ -1,10 +1,8 @@
 
-clear
+function create_coast_dist_data(SSMI_str)
 
-SSMI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/NSIDC-CDR/Daily/NSIDC-CDR_daily.mat'; 
-ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat'; 
 
-load(SSMI_loc,'lat_SH','lon_SH');
+load(SSMI_str,'lat_SH','lon_SH');
 
 %% Do with KNN
 
@@ -27,8 +25,11 @@ dist_to_coast = reshape(dist_to_coast,size(lat_SH));
 save('dist_to_coast','dist_to_coast'); 
 
 %% Now with ASI 
+% ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat'; 
+% 
+% load(ASI_loc,"lat_ASI_SH",'lon_ASI_SH');
+% [ID,dist_to_coast_ASI] = knnsearch(M,[lat_ASI_SH(:),lon_ASI_SH(:)],'K',1,'Distance',lldist);
+% dist_to_coast_ASI = reshape(dist_to_coast_ASI,size(lat_ASI_SH)); 
+% save('dist_to_coast','dist_to_coast_ASI','-append'); 
 
-load(ASI_loc,"lat_ASI_SH",'lon_ASI_SH');
-[ID,dist_to_coast_ASI] = knnsearch(M,[lat_ASI_SH(:),lon_ASI_SH(:)],'K',1,'Distance',lldist);
-dist_to_coast_ASI = reshape(dist_to_coast_ASI,size(lat_ASI_SH)); 
-save('dist_to_coast','dist_to_coast_ASI','-append'); 
+end
