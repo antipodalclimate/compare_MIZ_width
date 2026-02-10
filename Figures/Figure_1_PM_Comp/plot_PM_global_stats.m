@@ -13,7 +13,7 @@ plotcolors = [27,158,119
 %%
 close all
 xlimmer = [-3.5 3.5];
-bins = -5:.2:5;
+bins = -5:.1:5;
 
 Ax{1} = subplot('position',[.075 .65 .65 .225]);
 plot(xax,SIE_CDR,'k','linewidth',1);

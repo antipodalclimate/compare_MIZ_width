@@ -1,5 +1,5 @@
 AMSR_str = fullfile(SIC_data_folder,'AMSR2-NT','AMSR2_SIC_daily.mat');
-SSMI_str = fullfile(SIC_data_folder,'NSIDC-CDR','CDR_daily_SH.mat');
+SSMI_str = fullfile(SIC_data_folder,'NSIDC-CDR','CDR_daily_SH_v4.mat');
 
 % ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat';
 
@@ -118,38 +118,7 @@ dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
 
 %% Now examine the bias offset between NT2 and BS. 
 
-SICbins = linspace(0,1,51);
-Bincent_SIC = 0.5*(SICbins(1:end-1) + SICbins(2:end));
 
-
-sic_1 = AMSR_NT_SH(ICE_AMSR_BS);
-sic_2 = AMSR_BS_SH(ICE_AMSR_BS);
-
-[a,b,c] = histcounts(sic_2,SICbins);
-
-upval = @(x) prctile(x,75);
-dnval = @(x) prctile(x,25);
-
-meanval = accumarray(c,sic_1,[length(SICbins)-1 1],@nanmedian);
-plot_up = accumarray(c,sic_1,[length(SICbins)-1 1],upval);
-plot_dn = accumarray(c,sic_1,[length(SICbins)-1 1],dnval);
-
-
-meanval_del= accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],@nanmedian);
-plot_up_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],upval);
-plot_dn_del = accumarray(c,sic_1 - sic_2,[length(SICbins)-1 1],dnval);
-
-overmean_del = accumarray(c,(sic_1 - sic_2)./(1-sic_2),[length(SICbins)-1 1],@nanmedian);
-overmean_del(isinf(overmean_del)) = 1;
-
-
-%% Look at the uncertainty from the CDR
-
-cdr_std = CDR_std_daily_SH(ICE_AMSR_BS); 
-
-meanval_std= accumarray(c,cdr_std,[length(SICbins)-1 1],@nanmedian);
-plot_up_std = accumarray(c,cdr_std,[length(SICbins)-1 1],upval);
-plot_dn_std = accumarray(c,cdr_std,[length(SICbins)-1 1],dnval);
 
 %%
 % myfit = fittype("-a*(c-d)^2 + b",...
