@@ -34,6 +34,9 @@ OPTS.plot_utils_folder = fullfile(OPTS.code_folder, 'Utilities', 'Figures');
 
 % Add necessary paths
 addpath(OPTS.plot_folder);
+addpath(OPTS.plot_utils_folder);
+addpath(genpath(OPTS.plot_utils_folder));
+
 % Also add subfolders for figures
 addpath(fullfile(OPTS.plot_folder, 'Figure_1_PM_Comp'));
 addpath(fullfile(OPTS.plot_folder, 'Figures_IS2'));
@@ -45,9 +48,13 @@ addpath(fullfile(OPTS.code_folder, 'Utilities', 'Analysis'));
 
 % Output folder for figures
 OPTS.plot_save_str = fullfile(OPTS.code_folder, 'Figures', 'Output');
+
 if ~exist(OPTS.plot_save_str, 'dir')
     mkdir(OPTS.plot_save_str);
 end
+
+OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'; 
+
 fprintf('Saving figures to: %s \n', OPTS.plot_save_str);
 
 

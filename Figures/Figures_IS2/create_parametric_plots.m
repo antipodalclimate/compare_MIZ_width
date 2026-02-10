@@ -5,7 +5,7 @@ close all
 
 
 
-param_use = SICvals <= 1 & Hvals >= 0; 
+param_use = SICvals < .95 & Hvals >= 0; 
 
 nbins = 100*floor(round(sqrt(sum(param_use)))/250) + 1;
 
@@ -31,7 +31,7 @@ mapper_C(SICvals(param_use) > 1) = length(Cbins)-1;
 ncutoff = nbins;
 
 
-xlimmer_C = [Cbins(find(nC>ncutoff,1)) 1];
+xlimmer_C = [Cbins(find(nC>ncutoff,1)) Cbins(find(nC>ncutoff,1,'last'))];
 xlimmer_H = [Hbins(find(nH>ncutoff,1)) Hbins(find(nH>ncutoff,1,'last'))];
 xlimmer_W = [Wbins(find(nW>ncutoff,1)) Wbins(find(nW>ncutoff,1,'last'))];
 
@@ -143,7 +143,7 @@ grid on; box on;
 
 yyaxis right
 set(gca,'ycolor','k','yticklabel','')
-bar(Bincent_C,nC/sum(nC),1,'FaceColor',[.8 .8 .8],'FaceAlpha',.5,'EdgeColor','none');
+jbfill(Bincent_C,nC/sum(nC),0*nC/sum(nC),[.8 .8 .8],[0 0 0],1,.8);
 xlim(xlimmer_C);
 
 xlabel('CDR SIC')
@@ -208,7 +208,7 @@ grid on; box on;
 
 yyaxis right
 set(gca,'ycolor','k','yticklabel','')
-bar(Bincent_H,nH/sum(nH),1,'FaceColor',[.8 .8 .8],'FaceAlpha',.5,'EdgeColor','none');
+jbfill(Bincent_H,nH/sum(nH),0*nH/sum(nH),[.8 .8 .8],[0 0 0],1,.8);
 xlim(xlimmer_H);
 xlabel('IS2 Surface Height')
 
@@ -244,7 +244,7 @@ grid on; box on;
 
 yyaxis right
 set(gca,'ycolor','k','yticklabel','')
-bar(Bincent_W,nW/sum(nW),1,'FaceColor',[.8 .8 .8],'FaceAlpha',.5,'EdgeColor','none');
+jbfill(Bincent_W,nW/sum(nW),0*nW/sum(nW),[.8 .8 .8],[0 0 0],1,.8);
 xlim(xlimmer_W);
 xlabel('IS2 WAF')
 ylim([0 .05])

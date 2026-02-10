@@ -11,25 +11,24 @@ disp(fitted)
 
 %% Here's the fields we compare
 
-
-sic_1 = AMSR_NT_SH(ICE_AMSR_NT & ICE_AMSR_BS);
-sic_2 = AMSR_BS_SH(ICE_AMSR_NT & ICE_AMSR_BS);
-cdr_std = CDR_std_daily_SH(ICE_AMSR_NT & ICE_AMSR_BS); 
+sic_1 = SSMI_BS_SH(ICE_SSMI_BS & ICE_AMSR_BS);
+sic_2 = AMSR_BS_SH(ICE_SSMI_BS & ICE_AMSR_BS);
+cdr_std = CDR_std_daily_SH(ICE_SSMI_BS & ICE_AMSR_BS); 
 
 % In this case we compare just NT2 and BS from the AMSR2 data. 
 
-plotter = AMSR_NT_SH - AMSR_BS_SH;
-plotter(ICE_AMSR_NT == 0) = nan;
+plotter = SSMI_BS_SH - AMSR_BS_SH;
+plotter(ICE_SSMI_BS == 0) = nan;
 plotter(ICE_AMSR_BS == 0) = nan;
 
-plotter_MIZ = AMSR_NT_SH - AMSR_BS_SH;
+plotter_MIZ = SSMI_BS_SH - AMSR_BS_SH;
 
 % filter by some threshold
 
 MIZfilt = AMSR_BS_SH >= 0.8;
 
 plotter_MIZ(MIZfilt) = nan;
-plotter_MIZ(ICE_AMSR_NT == 0) = nan;
+plotter_MIZ(ICE_SSMI_BS == 0) = nan;
 plotter_MIZ(ICE_AMSR_BS == 0) = nan;
 
 plotter_MIZ(repmat(sum(MIZfilt,3) < 6,[1 1 size(ICE_AMSR_BS,3)])) = nan;
@@ -179,4 +178,4 @@ end
 pos = [6.5 3.75];
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print([OPTS.plot_save_str 'bias-BS-BS'],'-dpdf','-r600');
+print([OPTS.plot_save_str 'S1-bias-BS-BS'],'-dpdf','-r600');
