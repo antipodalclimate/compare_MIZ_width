@@ -1,7 +1,8 @@
 %% We want to analyse the location of each of the points we are comparing. 
+clear Ax
+close 
 
 load(fullfile(OPTS.code_folder,'Data','KDTrees','KDTree_100km.mat'),'lat_SH','lon_SH','KDTree','area_SH');
-
 
 %%
 
@@ -31,43 +32,44 @@ num_stencils_usable = reshape(num_stencils_usable(end-numel(lat_SH(:))+1:end),si
 %%
 close all
 
-clim_num = [1 5]
+clim_max = [0 10000];
+clim_sma = [0 2000];
+
+cmapper_max = brewermap(25,'-RdYlBu');
+cmapper_sma = brewermap(25,'Reds');
+
 
 Ax{1} = subplot('position',[0 .05 .25 .85]);
 
 worldmap([-90 -55],[-180 180]);
-pcolorm(lat_SH,lon_SH,log10(num_stencils_all))
+pcolorm(lat_SH,lon_SH,(num_stencils_all))
 make_HR_coastlines([.6 .6 .6]);
 % set(gca,'clim',climmer)
 % set(gca,'clim',[-.2 .2])
 % colorbar('position',[.55 .55 .025 .35]);
 title('All Stencils','interpreter','latex')
-set(gca,'clim',clim_num)
+set(gca,'clim',clim_max)
+colormap(Ax{1},cmapper_max)
 
-Ax{2} = subplot('position',[.3 .05 .25 .85]);
+Ax{2} = subplot('position',[.275 .05 .25 .85]);
 worldmap([-90 -55],[-180 180]);
-pcolorm(lat_SH,lon_SH,log10(num_stencils_MIZ))
+pcolorm(lat_SH,lon_SH,(num_stencils_MIZ))
 make_HR_coastlines([.6 .6 .6]);
 % set(gca,'clim',climmer)
 % set(gca,'clim',[-.2 .2])
-% colorbar('position',[.575 .15 .025 .7]);
+colorbar('position',[.55 .15 .025 .7]);
 title('With an MIZ point','interpreter','latex')
-set(gca,'clim',clim_num)
+set(gca,'clim',clim_max)
+colormap(Ax{2},cmapper_max)
 
 
-Ax{3} = subplot('position',[.6 .05 .25 .85]);
+Ax{3} = subplot('position',[.65 .05 .25 .85]);
 worldmap([-90 -55],[-180 180]);
-pcolorm(lat_SH,lon_SH,log10(num_stencils_usable))
+pcolorm(lat_SH,lon_SH,(num_stencils_usable))
 make_HR_coastlines([.6 .6 .6]);
-set(gca,'clim',clim_num)
-
+set(gca,'clim',clim_sma)
 title('Crossing the MIZ','interpreter','latex')
-
-cmapper = brewermap(5,'Dark2');
-colormap(cmapper);
-
-
-
+colormap(Ax{3},cmapper_sma);
 colorbar('position',[.925 .15 .025 .7]);
 
 letter = {'(a)','(b)','(c)','(d)','(e)','(F)','(g)','(e)','(c)'};

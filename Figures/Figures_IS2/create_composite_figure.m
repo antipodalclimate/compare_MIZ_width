@@ -81,7 +81,7 @@ xlast = dum(1);
 
 figure;
 
-subplot('position',[.1 .45 .8 .5])
+subplot('position',[.1 .55 .8 .4])
 
 
 jbfill(Bincent_D,SICup',SICdn',[.4 .4 .4],[1 1 1],1,.3);
@@ -145,9 +145,14 @@ set(gca,'ycolor','k')
 ylabel('Number of Samples','interpreter','latex')
 xlim(xlimmer)
 
+
+xline(-50,'--','color',[.8 .4 .4])
+xline(50,'--','color',[.8 .4 .4])
+
+
 if IS2_DATA.v6
 
-    legend([p1 p2 p3 p4 p5 p6 p7],{'CDR','LIF','NT2','Number','Fit','NT2-CDR','LIF Bias'},'location','best')
+    legend([p1 p2 p3 p4 p5 p6 p7],{'CDR','LIF','AMSR2-NT2','Stencil #','Fit','NT2-CDR','LIF-CDR'},'location','best')
 
 else
 
@@ -155,8 +160,10 @@ else
 
 end
 
+
+
 %% 
-subplot('position',[.1 .1 .8 .275])
+subplot('position',[.1 .325 .8 .2])
 
 % jbfill(Bincent_D,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
 
@@ -173,6 +180,35 @@ ylabel('Ice Height','interpreter','latex')
 % r2 = yline(.075,'--','color',[.8 .4 .4],'linewidth',1)
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 grid on; box on;
+% xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
+
+xline(0,'label','CDR-defined MIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal','LabelHorizontalAlignment','left');
+xline(0,'label','CDR-defined CIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal');
+xline(-50,'--','color',[.8 .4 .4])
+xline(50,'--','color',[.8 .4 .4])
+set(gca,'xticklabel','')
+
+%%
+
+subplot('position',[.1 .1 .8 .2])
+
+% jbfill(Bincent_D,Hup',Hdn',[.4 .4 .4],[1 1 1],1,.3)
+
+jbfill(Bincent_D,WAFup',WAFdn',[.4 .4 .4],[1 1 1],1,.3);
+hold on
+r1 = plot(Bincent_D,WAFvec,'k','linewidth',2);
+
+plot(Bincent_D,WAFup,'--k');
+plot(Bincent_D,WAFdn,'--k');
+xlim(xlimmer)
+% ylim([0 .5]);
+set(gca,'ylim',[0 max(max(get(gca,'ylim')),0.5)])
+ylabel('WAF','interpreter','latex')
+
+yline(.075,'label','Horvat et al (2020) WMIZ','color',[.4 .4 .8],'linewidth',1,'interpreter','latex','fontsize',8,'LabelOrientation','horizontal');
+
+xline(0,'color',[.2 .2 .2],'linewidth',1)
+grid on; box on;
 xlabel('Kilometers Relative to PM-MIZ','interpreter','latex')
 
 xline(0,'label','CDR-defined MIZ','interpreter','latex','fontsize',8,'LabelOrientation','horizontal','LabelHorizontalAlignment','left');
@@ -180,11 +216,10 @@ xline(0,'label','CDR-defined CIZ','interpreter','latex','fontsize',8,'LabelOrien
 xline(-50,'--','color',[.8 .4 .4])
 xline(50,'--','color',[.8 .4 .4])
 
-
 %%
 
 allAxesInFigure = findall(gcf,'type','axes');
-letter = {'(b)','(a)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
+letter = {'(c)','(b)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
 
 for i = 1:length(allAxesInFigure)
     

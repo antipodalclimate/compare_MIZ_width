@@ -4,13 +4,6 @@ close all
 % Want to plot the parametric mapping between things. 
 
 
-
-param_use = SICvals < .95 & Hvals >= 0; 
-
-nbins = 100*floor(round(sqrt(sum(param_use)))/250) + 1;
-
-
-
 Hbins = linspace(-6,6,nbins);
 Bincent_H = 0.5*(Hbins(1:end-1) + Hbins(2:end));
 
@@ -37,6 +30,8 @@ xlimmer_W = [Wbins(find(nW>ncutoff,1)) Wbins(find(nW>ncutoff,1,'last'))];
 
 
 ylimmer = [-.15 .4];
+
+ylimmer_C = [0.15 1];
 %%
 
 LIF_by_C = accumarray(mapper_C,LIFvals(param_use),[length(Cbins)-1 1],@nanmedian);
@@ -112,39 +107,30 @@ bias_LIF_by_W = accumarray(mapper_W,biasvals_LIF(param_use),[length(Wbins)-1 1],
 bias_LIF_by_W_up = accumarray(mapper_W,biasvals_LIF(param_use),[length(Wbins)-1 1],upval);
 bias_LIF_by_W_dn = accumarray(mapper_W,biasvals_LIF(param_use),[length(Wbins)-1 1],dnval);
 
+%% Here we want to examine the biases using all SIC values3
+
+param_use; = SICvals < 1; % & Hvals >= 0; 
+
+
+
+nbins = 100*floor(round(sqrt(sum(param_use)))/250) + 1;
+
+
+% Biases as a function of CDR SIC 
+subplot(2,3,1)
+
+param_plot(Bincent_C,nC,LIF_by_C,LIF_by_C_up,LIF_by_C_dn,AMSR_by_C,AMSR_by_C_up,AMSR_by_C_dn, ...
+    xlimmer_C,ylimmer_C)
+hold on
+
+
 %%
-
-subplot(1,3,1)
-
-
-jbfill(Bincent_C,bias_LIF_by_C_up',bias_LIF_by_C_dn',[.4 .4 .8],[1 1 1],1,.2);
+yyaxis left 
 hold on
-jbfill(Bincent_C,bias_by_C_up',bias_by_C_dn',[.8 .2 .2],[1 1 1],1,.3);
-hold on
-plot(Bincent_C,bias_by_C,'color',[.8 .2 .2],'linewidth',2)
-hold on
-plot(Bincent_C,bias_LIF_by_C,'color',[.4 .4 .8],'linewidth',2)
 xline(.8,'linewidth',1,'label','MIZ')
-% yline(.8,'linewidth',1,'label','MIZ')
-% line([0 1],[0 1],'Color',[.3 .3 .3],'linestyle','--')
-% title('SIC Comparison','interpreter','latex');
-
-xlim(xlimmer_C);
-ylim(ylimmer)
-% ylim([.15 1]);
-
 plot(Bincent_C(Bincent_C > 0.15),fitted(Bincent_C(Bincent_C > 0.15)),'--b','linewidth',1);
 plot(Bincent_C,1 - Bincent_C,'--r','linewidth',1)
 plot(Bincent_C,-Bincent_C,'--r','linewidth',1)
-yline(0,'k','linewidth',1')
-ylabel('$\Delta$ from CDR','interpreter','latex')
-
-grid on; box on;
-
-yyaxis right
-set(gca,'ycolor','k','yticklabel','')
-jbfill(Bincent_C,nC/sum(nC),0*nC/sum(nC),[.8 .8 .8],[0 0 0],1,.8);
-xlim(xlimmer_C);
 
 xlabel('CDR SIC')
 

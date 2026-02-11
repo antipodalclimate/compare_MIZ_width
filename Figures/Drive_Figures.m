@@ -98,6 +98,10 @@ load(IS2_load_str);
 
 load_MIZ_waves;
 
+%% Location fo all tracks
+
+create_location_data;
+
 %% Figure on bias between AMSR2-NT2 and CDR
 
 create_composite_figure;
@@ -109,6 +113,7 @@ create_MIZ_width_panel;
 %% Parameteric figure of LIF offset, AMSR2 offset
 
 create_parametric_plots;
+
 
 
 %% ----------- SAR Related Figures ---------------
