@@ -5,17 +5,24 @@
 % beams because we count Northward and Southward halves of a single track
 % the same way
 
+
+
 nT = size(MIZ_DATA.timer,1);
 nB = size(MIZ_DATA.timer,2);
 
 wave_thresh = 0.075;
 cutoff_N = 100; 
 
+% Function definitions
+upval = @(x) prctile(x,75);
+dnval = @(x) prctile(x,25);
+% fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; % This is weighted fit
+fitted = @(c) -1.604*(c-.6138).^2 + 0.229; % This is naive fit.
 %%
 
 % Find out if a wavy track at some point
 
-[iswavy,monthval,yearval,npoints,isstrong,nameid,beamid,hasMIZ,hasMIZ_amsr,int_id] ...
+[iswavy,monthval,yearval,npoints,isstrong,nameid,beamid,hasMIZ,hasMIZ_AMSR,int_id] ...
     = deal(MIZ_DATA.WAF);
 
 
@@ -23,7 +30,7 @@ cutoff_N = 100;
 num_beams = size(IS2_DATA.is_strong,2);
 
 search_dir = {'first','last'};
-[MIZ_width,MIZ_width_amsr,WAF_width,WAF_width_dist,MIZ_width_dist_amsr,MIZ_width_dist,MIZ_width_dist_CDR,MIZ_width_CDR] = deal(nan(nT,nB));
+[MIZ_width,MIZ_width_AMSR,WAF_width,WAF_width_dist,MIZ_width_dist_AMSR,MIZ_width_dist,MIZ_width_dist_CDR,MIZ_width_CDR] = deal(nan(nT,nB));
 [track_is_strong,track_timeval,track_nMIZ,wave_flag] = deal(zeros(nT,nB));
 
 
@@ -106,8 +113,8 @@ for i = 1:nT
                               
                 first80 = find(MIZ_DATA.SIC_amsr{i,j} > 0.8,1,search_dir{MIZ_DATA.is_reversed(i,j)+1});
                 if ~isempty(first80)
-                    MIZ_width_amsr(i,j) = sum(MIZ_DATA.SIC_amsr{i,j} < 0.8 & D <= 0);
-                    MIZ_width_dist_amsr(i,j) = -(min(D) - D(first80));
+                    MIZ_width_AMSR(i,j) = sum(MIZ_DATA.SIC_amsr{i,j} < 0.8 & D <= 0);
+                    MIZ_width_dist_AMSR(i,j) = -(min(D) - D(first80));
                 end
             end
             % 
@@ -121,10 +128,10 @@ for i = 1:nT
                 hasMIZ{i,j} = 0 + 0*dummy; 
             end
 
-            if MIZ_width_amsr(i,j) > 0
-                hasMIZ_amsr{i,j} = MIZ_width_amsr(i,j) + 0*dummy; 
+            if MIZ_width_AMSR(i,j) > 0
+                hasMIZ_AMSR{i,j} = MIZ_width_AMSR(i,j) + 0*dummy; 
             else
-                hasMIZ_amsr{i,j} = 0 + 0*dummy; 
+                hasMIZ_AMSR{i,j} = 0 + 0*dummy; 
             end
 
 
@@ -160,12 +167,12 @@ end
 
 %%
 Nsegvals = vertcat(MIZ_DATA.N_strict{:});
-SICvals = vertcat(MIZ_DATA.SIC{:});
+SICvals_CDR= vertcat(MIZ_DATA.SIC{:});
 
 if IS2_DATA.v6
 
-    SICvals_amsr = vertcat(MIZ_DATA.SIC_amsr{:});
-    biasvals = (SICvals_amsr - SICvals);
+    SICvals_AMSR = vertcat(MIZ_DATA.SIC_amsr{:});
+    biasvals_AMSR = (SICvals_AMSR - SICvals_CDR);
 
 end
 
@@ -173,7 +180,7 @@ LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
 LIF_dark_vals = vertcat(MIZ_DATA.LIF_dark{:});
 
-biasvals_LIF = LIFvals - SICvals; 
+biasvals_LIF = LIFvals - SICvals_CDR; 
 
 Hvals = vertcat(MIZ_DATA.H{:});
 Evals = vertcat(MIZ_DATA.E{:});
@@ -192,11 +199,11 @@ keepvals = vertcat(AT_usable{:});
 
 num_MIZ = vertcat(nMIZ{:});
 hasMIZ = vertcat(hasMIZ{:});
-hasMIZ_amsr = vertcat(hasMIZ_amsr{:});
+hasMIZ_AMSR = vertcat(hasMIZ_AMSR{:});
 
 Dvals = (vertcat(MIZ_DATA.D_to_MIZ{:})/1000);
 
-spacer = 12.5;
+spacer = 25;
 
 Dbins = -1000+spacer/2:spacer:1000;
 
@@ -263,7 +270,7 @@ usable = usable_all; %
 % If there are waves but not in the PM-SIC MIZ, wavytracks <= -1
 % If there are no waves, wavytracks = 0; 
 
-usable = usable & wavytracks >= 0; 
+usable = usable & wavytracks >= -1; 
 
 used_tracks = IS2_DATA.namearray(unique(nameid(usable)));
 intersections = unique(nameid(usable) + (beamid(usable)-1)*max(nameid(usable)));
@@ -276,15 +283,15 @@ nusable_segmented = sum(usable);
 
 if IS2_DATA.v6
 
-    usable = usable & ~isnan(SICvals_amsr);
+    usable = usable & ~isnan(SICvals_AMSR);
 
-    SICvals_amsr = SICvals_amsr(usable);
-    biasvals = biasvals(usable);
+    SICvals_AMSR = SICvals_AMSR(usable);
+    biasvals_AMSR = biasvals_AMSR(usable);
 
 end
 
 Nsegvals = Nsegvals(usable);
-SICvals = SICvals(usable);
+SICvals_CDR= SICvals_CDR(usable);
 LIFvals = LIFvals(usable);
 LIF_spec_vals = LIF_spec_vals(usable);
 LIF_dark_vals = LIF_dark_vals(usable);
@@ -300,9 +307,9 @@ biasvals_LIF = biasvals_LIF(usable);
 
 usable_beams = track_ID(intersections);
 
-usable_waves = wave_flag(intersections) > 0 & WAF_width_dist(intersections) > 0 & MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
+usable_waves = wave_flag(intersections) > 0 & WAF_width_dist(intersections) > 0 & MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_AMSR(intersections) > 0; 
 
-usable_nowaves = MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_amsr(intersections) > 0; 
+usable_nowaves = MIZ_width_dist_CDR(intersections) > 0 & MIZ_width_dist_AMSR(intersections) > 0; 
 
 beams_all = usable_beams(usable_waves | usable_nowaves);
 beams_waves = usable_beams(usable_waves);

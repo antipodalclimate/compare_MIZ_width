@@ -2,7 +2,7 @@
 clear Ax
 close 
 
-load(fullfile(OPTS.code_folder,'Data','KDTrees','KDTree_100km.mat'),'lat_SH','lon_SH','KDTree','area_SH');
+load(fullfile(OPTS.code_folder,'Data','KDTrees','KDTree_200km.mat'),'lat_SH','lon_SH','KDTree','area_SH');
 
 %%
 
@@ -32,8 +32,8 @@ num_stencils_usable = reshape(num_stencils_usable(end-numel(lat_SH(:))+1:end),si
 %%
 close all
 
-clim_max = [0 10000];
-clim_sma = [0 2000];
+clim_max = [0 40000];
+clim_sma = [0 7500];
 
 cmapper_max = brewermap(25,'-RdYlBu');
 cmapper_sma = brewermap(25,'Reds');

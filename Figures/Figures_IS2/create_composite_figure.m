@@ -12,8 +12,7 @@ fprintf('Fraction of those that have bias is %2.2f \n',100*sum(WAFvals > wave_th
 
 % binval(binval == 0) = length(Dbins);
 
-upval = @(x) prctile(x,75);
-dnval = @(x) prctile(x,25);
+
 
 Nvec = accumarray(binval,1,[length(Dbins)-1 1],@sum);
 %%
@@ -21,21 +20,21 @@ Nvec = accumarray(binval,1,[length(Dbins)-1 1],@sum);
 Nsegvec = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@mean);
 Nsegvar = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@std);
 
-SICvec = accumarray(binval,SICvals,[length(Dbins)-1 1],@median);
+SICvec = accumarray(binval,SICvals_CDR,[length(Dbins)-1 1],@median);
 
-SICup = accumarray(binval,SICvals,[length(Dbins) - 1 1],upval);
+SICup = accumarray(binval,SICvals_CDR,[length(Dbins) - 1 1],upval);
 SICup(isinf(SICup)) = 1;
-SICdn = accumarray(binval,SICvals,[length(Dbins) - 1 1],dnval);
+SICdn = accumarray(binval,SICvals_CDR,[length(Dbins) - 1 1],dnval);
 
 if IS2_DATA.v6
 
-    SICvec_amsr = accumarray(binval,SICvals_amsr,[length(Dbins) - 1 1],@median);
-    SICup_amsr= accumarray(binval,SICvals_amsr,[length(Dbins) - 1 1],upval);
-    SICdn_amsr = accumarray(binval,SICvals_amsr,[length(Dbins) - 1 1],dnval);
+    SICvec_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],@median);
+    SICup_amsr= accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],upval);
+    SICdn_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],dnval);
 
-    biasvec = accumarray(binval,biasvals,[length(Dbins) - 1 1],@median);
-    biasup= accumarray(binval,biasvals,[length(Dbins) - 1 1],upval);
-    biasdn = accumarray(binval,biasvals,[length(Dbins) - 1 1],dnval);
+    biasvec = accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],@median);
+    biasup= accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],upval);
+    biasdn = accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],dnval);
 
 
 end
@@ -133,8 +132,7 @@ yline(0,'-k');
 ylabel('Ice Fraction','Interpreter','latex')
 xline(0,'color',[.2 .2 .2],'linewidth',1)
 set(gca,'xticklabel','')
-% fitted = @(c) -1.639*(c-.6122).^2 + 0.2316; % This is weighted fit
-fitted = @(c) -1.604*(c-.6138).^2 + 0.229; % This is naive fit.
+
 
 p5 = plot(Bincent_D,fitted(SICvec),'--b','linewidth',1);
 
