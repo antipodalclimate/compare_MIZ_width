@@ -1,1 +1,1 @@
-/Users/chorvat/Dropbox (Brown)/Research Projects/Plot-Tools/tightfig.m
+/Users/chorvat/Dropbox-Brown/Christopher Horvat/Research Projects/Plot-Tools/tightfig.m

@@ -13,14 +13,13 @@ fprintf('Fraction of those that have bias is %2.2f \n',100*sum(WAFvals > wave_th
 % binval(binval == 0) = length(Dbins);
 
 
-
 Nvec = accumarray(binval,1,[length(Dbins)-1 1],@sum);
 %%
 
 Nsegvec = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@mean);
 Nsegvar = accumarray(binval,Nsegvals,[length(Dbins)-1 1],@std);
 
-SICvec = accumarray(binval,SICvals_CDR,[length(Dbins)-1 1],@median);
+SICvec = accumarray(binval,SICvals_CDR,[length(Dbins)-1 1],@mean);
 
 SICup = accumarray(binval,SICvals_CDR,[length(Dbins) - 1 1],upval);
 SICup(isinf(SICup)) = 1;
@@ -28,39 +27,39 @@ SICdn = accumarray(binval,SICvals_CDR,[length(Dbins) - 1 1],dnval);
 
 if IS2_DATA.v6
 
-    SICvec_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],@median);
+    SICvec_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],@mean);
     SICup_amsr= accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],upval);
     SICdn_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],dnval);
 
-    biasvec = accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],@median);
+    biasvec = accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],@mean);
     biasup= accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],upval);
     biasdn = accumarray(binval,biasvals_AMSR,[length(Dbins) - 1 1],dnval);
 
 
 end
 
-bias_LIFvec = accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],@median);
+bias_LIFvec = accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],@mean);
 bias_LIFup= accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],upval);
 bias_LIFdn = accumarray(binval,biasvals_LIF,[length(Dbins) - 1 1],dnval);
 
 
-WAFvec = accumarray(binval,WAFvals,[length(Dbins) - 1 1],@median);
+WAFvec = accumarray(binval,WAFvals,[length(Dbins) - 1 1],@mean);
 WAFup = accumarray(binval,WAFvals,[length(Dbins) - 1 1],upval);
 WAFdn = accumarray(binval,WAFvals,[length(Dbins) - 1 1],dnval);
 
-Hvec = accumarray(binval,Hvals,[length(Dbins) - 1 1],@median);
+Hvec = accumarray(binval,Hvals,[length(Dbins) - 1 1],@mean);
 Hup = accumarray(binval,Hvals,[length(Dbins) - 1 1],upval);
 Hdn = accumarray(binval,Hvals,[length(Dbins) - 1 1],dnval);
 
-LIFvec = accumarray(binval,LIFvals,[length(Dbins) - 1 1],@median);
+LIFvec = accumarray(binval,LIFvals,[length(Dbins) - 1 1],@mean);
 LIFup = accumarray(binval,LIFvals,[length(Dbins) - 1 1],upval);
 LIFdn = accumarray(binval,LIFvals,[length(Dbins) - 1 1],dnval);
 
-LIF_spec_vec = accumarray(binval,LIF_spec_vals,[length(Dbins) - 1 1],@median);
+LIF_spec_vec = accumarray(binval,LIF_spec_vals,[length(Dbins) - 1 1],@mean);
 LIF_spec_up = accumarray(binval,LIF_spec_vals,[length(Dbins) - 1 1],upval);
 LIF_spec_dn = accumarray(binval,LIF_spec_vals,[length(Dbins) - 1 1],dnval);
 
-LIF_dark_vec = accumarray(binval,LIF_dark_vals,[length(Dbins) - 1 1],@median);
+LIF_dark_vec = accumarray(binval,LIF_dark_vals,[length(Dbins) - 1 1],@mean);
 LIF_dark_up = accumarray(binval,LIF_dark_vals,[length(Dbins) - 1 1],upval);
 LIF_dark_dn = accumarray(binval,LIF_dark_vals,[length(Dbins) - 1 1],dnval);
 
@@ -114,8 +113,8 @@ hold on
 
 p2 = plot(Bincent_D,LIFvec,'color',[.4 .4 .8],'linewidth',2);
 
-% p5 = plot(Bincent_D,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2);
-% p6 = plot(Bincent_D,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2);
+% p8 = plot(Bincent_D,LIF_spec_vec,'--','color',[.8 .4 .2],'linewidth',2);
+% p9 = plot(Bincent_D,LIF_dark_vec,'--','color',[.2 .4 .8],'linewidth',2);
 
 
 xlimmer = [-500 500];

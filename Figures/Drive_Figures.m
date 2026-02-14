@@ -53,7 +53,9 @@ if ~exist(OPTS.plot_save_str, 'dir')
     mkdir(OPTS.plot_save_str);
 end
 
-OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'; 
+OPTS.plot_save_str = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'
+
+% OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'; 
 
 fprintf('Saving figures to: %s \n', OPTS.plot_save_str);
 
@@ -78,9 +80,8 @@ plot_PM_global_stats;
 
 %%
 
-if exist('plot_PM_bias_map', 'file')
-    plot_PM_bias_map;
-end
+plot_PM_bias_map;
+
 
 
 %% Loading IS2 Data
@@ -113,8 +114,6 @@ create_MIZ_width_panel;
 %% Parameteric figure of LIF offset, AMSR2 offset
 
 create_parametric_plots;
-
-
 
 %% ----------- SAR Related Figures ---------------
 
