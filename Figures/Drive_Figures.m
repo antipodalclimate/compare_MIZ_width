@@ -30,12 +30,11 @@ OPTS.code_folder = OPTS.code_folder;
 
 % Location of figure scripts and utilities.
 OPTS.plot_folder = fullfile(OPTS.code_folder, 'Figures');
-OPTS.plot_utils_folder = fullfile(OPTS.code_folder, 'Utilities', 'Figures');
+addpath('/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Plot-Tools');
+addpath('/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Plot-Tools/NE_Coastlines'); 
 
 % Add necessary paths
 addpath(OPTS.plot_folder);
-addpath(OPTS.plot_utils_folder);
-addpath(genpath(OPTS.plot_utils_folder));
 
 % Also add subfolders for figures
 addpath(fullfile(OPTS.plot_folder, 'Figure_1_PM_Comp'));
@@ -78,10 +77,7 @@ plot_PM_global_stats;
 
 %%
 
-if exist('plot_PM_bias_map', 'file')
-    plot_PM_bias_map;
-end
-
+plot_PM_bias_map;
 
 %% Loading IS2 Data
 
@@ -90,7 +86,6 @@ disp('-----')
 disp('Loading MIZ-referenced IS2 data')
 fprintf('Using IS2 data located at: %s \n', IS2_data_folder);
 disp('-----')
-
 
 load(IS2_load_str);
 

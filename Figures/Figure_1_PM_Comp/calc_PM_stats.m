@@ -44,6 +44,18 @@ AMSR_BS_SH(AMSR_BS_SH > 1) = nan;
 
 datenum_coincedent = AMSR_datenum(ia(ic));
 
+%% Remove days with known sensor issues
+
+AMSR_badday = find(IS2_mutual == datenum('04-Sep-2024')); 
+CDR_badday = find(IS2_mutual == datenum('18-Sep-2024')); 
+
+AMSR_BS_SH(:,:,AMSR_badday) = nan; 
+AMSR_NT_SH(:,:,AMSR_badday) = nan; 
+
+CDR_daily_SH(:,:,CDR_badday) = nan; 
+SSMI_BS_SH(:,:,CDR_badday) = nan; 
+SSMI_NT_SH(:,:,CDR_badday) = nan; 
+
 
 %% Now build more fields from the gridded data
 
@@ -64,25 +76,56 @@ ICE_SSMI_BS = SSMI_BS_SH > 0.15;
 prefac = 1/1e6;
 
 AMIZ_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_AMSR_BS),[1 2],'omitnan'));
+AMIZ_AMSR_BS(AMIZ_AMSR_BS==0) = nan; 
+
 AMIZ_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_AMSR_NT),[1 2],'omitnan'));
+AMIZ_AMSR_NT(AMIZ_AMSR_NT==0) = nan; 
+
 AMIZ_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_CDR),[1 2],'omitnan'));
+AMIZ_CDR(AMIZ_CDR==0) = nan; 
+
 AMIZ_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_NT),[1 2],'omitnan'));
+AMIZ_SSMI_NT(AMIZ_SSMI_NT==0) = nan; 
+
 AMIZ_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_BS),[1 2],'omitnan'));
+AMIZ_SSMI_BS(AMIZ_SSMI_BS==0) = nan; 
+
 % AMIZ_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,MIZ_ASI),[1 2],'omitnan'));
 
 
 SIA_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_NT_SH),[1 2],'omitnan'));
+SIA_AMSR_NT(SIA_AMSR_NT == 0) = nan; 
+
 SIA_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,AMSR_BS_SH),[1 2],'omitnan'));
+SIA_AMSR_BS(SIA_AMSR_BS == 0) = nan; 
+
 SIA_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,CDR_daily_SH),[1 2],'omitnan'));
+SIA_CDR(SIA_CDR == 0) = nan; 
+
 SIA_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_NT_SH),[1 2],'omitnan'));
+SIA_SSMI_NT(SIA_SSMI_NT == 0) = nan; 
+
 SIA_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_BS_SH),[1 2],'omitnan'));
+SIA_SSMI_BS(SIA_SSMI_BS == 0) = nan; 
+
 % SIA_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,AMSR_ASI_SH),[1 2],'omitnan'));
 
+
 SIE_AMSR_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_NT),[1 2],'omitnan'));
+SIE_AMSR_NT(SIE_AMSR_NT == 0) = nan; 
+
 SIE_AMSR_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_AMSR_BS),[1 2],'omitnan'));
+SIE_AMSR_BS(SIE_AMSR_BS == 0) = nan; 
+
 SIE_CDR = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_CDR),[1 2],'omitnan'));
+SIE_CDR(SIE_CDR == 0) = nan; 
+
 SIE_SSMI_NT = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_NT),[1 2],'omitnan'));
+SIE_SSMI_NT(SIE_SSMI_NT == 0) = nan; 
+
 SIE_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_BS),[1 2],'omitnan'));
+SIE_SSMI_BS(SIE_SSMI_BS == 0) = nan; 
+
 % SIE_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,ICE_ASI),[1 2],'omitnan'));
 
 
