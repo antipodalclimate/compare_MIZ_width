@@ -19,7 +19,7 @@ OPTS.code_folder = '/Users/chorvat/Code/compare_MIZ_width';
 IS2_data_folder = fullfile(OPTS.code_folder,'Data','IS2_Data');
 SIC_data_folder = fullfile(OPTS.code_folder,'Data','SIC_Data');
 
-IS2_load_str = fullfile(IS2_data_folder, 'AT_stats_SH_v6_all.mat');
+IS2_load_str = fullfile(IS2_data_folder, 'AT_stats_SH_v6+7_all.mat');
 
 %% Setup analysis options and paths.
 % This will overwrite the pre-existing OPTS from the loaded data (if any).
@@ -52,7 +52,7 @@ if ~exist(OPTS.plot_save_str, 'dir')
     mkdir(OPTS.plot_save_str);
 end
 
-OPTS.plot_save_str = '/Users/chorvat/Library/CloudStorage/Dropbox-Brown/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'
+OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'
 
 % OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'; 
 
@@ -80,11 +80,6 @@ plot_PM_global_stats;
 %%
 
 plot_PM_bias_map;
-<<<<<<< HEAD
-=======
-
-
->>>>>>> refs/remotes/origin/main
 
 %% Loading IS2 Data
 
