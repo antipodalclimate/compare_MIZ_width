@@ -82,7 +82,7 @@ try
 	namearray = string({OPTS.filenames.name}).';
 
 
-	IS2_DATA.namearray = extract(names,regexpPattern("ATL07-02_\d{14}_\d{8}_\d{3}_\d{2}"));
+	IS2_DATA.namearray = extract(namearray,regexpPattern("ATL07-02_\d{14}_\d{8}_\d{3}_\d{2}"));
 
 catch errread
 	
