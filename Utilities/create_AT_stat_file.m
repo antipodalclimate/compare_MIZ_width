@@ -23,7 +23,7 @@ do_downsample = true;
 do_fullsample = false; 
 
 
-for i = 1:OPTS.nfiles % for each individual track
+parfor i = 1:OPTS.nfiles % for each individual track
 
     if mod(i,100) == 1
             fprintf('Number %d of %d \n',i,OPTS.nfiles); 
@@ -33,7 +33,9 @@ for i = 1:OPTS.nfiles % for each individual track
 
         trackname = [OPTS.filenames(i).folder '/' OPTS.filenames(i).name];
 
-        % Is this strong or weak beam
+	try 
+
+	% Is this strong or weak beam
         beamtype = char(h5readatt(trackname,OPTS.beamnames{j},'atlas_beam_type'));
         is_strong(i,j) = strcmp(beamtype(1:3),'str');
 
@@ -52,13 +54,19 @@ for i = 1:OPTS.nfiles % for each individual track
 
         end
 
+	catch errread
+	
+		disp(trackname)
+	
+	end
+
     end
 
 end
 
 fieldname = [OPTS.filenames(1).folder '/' OPTS.filenames(1).name];
 
-if ~contains(fieldname,'_006_')
+if contains(fieldname,'_004_')
     IS2_DATA.v6 = 0; 
 else
     IS2_DATA.v6 = 1;
@@ -67,7 +75,23 @@ end
 IS2_DATA.AT_stats = AT_stats; 
 IS2_DATA.DS_stats = DS_stats; 
 IS2_DATA.is_strong = is_strong; 
-IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
+
+
+try
+
+	namearray = string({OPTS.filenames.name}).';
+
+
+	IS2_DATA.namearray = extract(names,regexpPattern("ATL07-02_\d{14}_\d{8}_\d{3}_\d{2}"));
+
+catch errread
+	
+	disp('Name array is messed up!')
+	IS2_DATA.namearray = []
+
+end
+
+% IS2_DATA.namearray = string(vertcat(OPTS.filenames(:).name));
 
 % IS2_DATA.v6 = IS2_obj.v6; 
 

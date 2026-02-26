@@ -12,7 +12,7 @@ ssh_flag = h5read(fieldname,[beamname '/sea_ice_segments/heights/height_segment_
 % seg_time = h5read(fieldname,[beamname '/sea_ice_segments/delta_time']); 
 % seg_time = datetime('01-Jan-2018 00:00:00') + seg_time/86400; 
 
-if ~contains(fieldname,'_006_')
+if contains(fieldname,'_004_')
     v6 = 0; 
     conc = h5read(fieldname,[beamname '/sea_ice_segments/stats/ice_conc']);
 else
