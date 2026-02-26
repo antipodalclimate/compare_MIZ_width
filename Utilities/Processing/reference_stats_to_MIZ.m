@@ -58,6 +58,7 @@ for i = 1:size(IS2_DATA.DS_stats, 1)
                     MIZ_DATA.LIF{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.LIF(indices);
                     MIZ_DATA.LIF_spec{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.LIF_spec(indices);
                     MIZ_DATA.LIF_dark{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.LIF_dark(indices);
+                    MIZ_DATA.LIF_nodark{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.LIF_nodark(indices);
                     MIZ_DATA.WAF{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.WAF(indices);
                     MIZ_DATA.SIC{i, offset + beamct} = IS2_DATA.DS_stats{i, j}.SIC(indices);
 

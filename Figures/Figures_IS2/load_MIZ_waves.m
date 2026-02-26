@@ -176,11 +176,17 @@ if IS2_DATA.v6
 
 end
 
+%% Here we are going to try using the specular only
 LIFvals = vertcat(MIZ_DATA.LIF{:});
 LIF_spec_vals = vertcat(MIZ_DATA.LIF_spec{:});
 LIF_dark_vals = vertcat(MIZ_DATA.LIF_dark{:});
 
+
 biasvals_LIF = LIFvals - SICvals_CDR; 
+biasvals_LIF_spec = LIF_dark_vals - SICvals_CDR; 
+biasvals_LIF_dark = LIF_spec_vals - SICvals_CDR; 
+
+%%
 
 Hvals = vertcat(MIZ_DATA.H{:});
 Evals = vertcat(MIZ_DATA.E{:});
@@ -225,8 +231,6 @@ used_tracks = IS2_DATA.namearray(unique(nameid(usable_all)));
 fprintf('----- \n')
 fprintf('Total of %2.0f intersections possible from %2.0f tracks \n',length(all_intersections),length(unique(nameid)));
 fprintf('Total of %2.2f million post-processed stencils from %2.0f intersections over %2.0f tracks \n',sum(usable_all)/1e6,length(all_intersections),length(used_tracks))
-
-
 
 %%
 
@@ -301,6 +305,8 @@ Evals = Evals(usable);
 WAFvals = WAFvals(usable);
 wavytracks = wavytracks(usable);
 biasvals_LIF = biasvals_LIF(usable);
+biasvals_LIF_spec = biasvals_LIF_spec(usable);
+biasvals_LIF_dark = biasvals_LIF_dark(usable);
 
 %%
 % Now pulling beam-specific data

@@ -149,6 +149,10 @@ AT_LIF = use_AT .* movsum(seg_len .* is_included, AT_window, 'samplepoints', dis
 AT_LIF_spec = use_AT .* movsum(seg_len .* is_not_spec .* is_included_all, AT_window, 'samplepoints', dist) ./ movsum(seg_len .* is_included_all, AT_window, 'samplepoints', dist);
 AT_LIF_dark = use_AT .* movsum(seg_len .* is_not_dark .* is_included_all, AT_window, 'samplepoints', dist) ./ movsum(seg_len .* is_included_all, AT_window, 'samplepoints', dist);
 
+% Here we want to create a LIF that excludes dark leads entirely. 
+AT_LIF_nodark = use_AT .* movsum(seg_len .* is_not_spec .* is_included_all, AT_window, 'samplepoints', dist) ./ movsum(seg_len .* is_not_dark .* is_included_all, AT_window, 'samplepoints', dist);
+
+
 % Sea Ice Concentration (SIC) from passive microwave data
 AT_SIC = use_AT .* (1/100) .* movsum(seg_len .* conc .* is_included_conc, AT_window, 'samplepoints', dist) ./ movsum(seg_len .* is_included_conc, AT_window, 'samplepoints', dist);
 if IS2_obj.v6
@@ -204,6 +208,7 @@ if do_downsample
     DS_stats.LIF = accumarray(ind_mapper, AT_LIF, [], @nanmean);
     DS_stats.LIF_spec = accumarray(ind_mapper, AT_LIF_spec, [], @nanmean);
     DS_stats.LIF_dark = accumarray(ind_mapper, AT_LIF_dark, [], @nanmean);
+    DS_stats.LIF_nodark = accumarray(ind_mapper, AT_LIF_nodark, [], @nanmean);
     DS_stats.SIC = accumarray(ind_mapper, AT_SIC, [], @nanmean);
     if IS2_obj.v6
         DS_stats.SIC_amsr = accumarray(ind_mapper, AT_SIC_amsr, [], @nanmean);
