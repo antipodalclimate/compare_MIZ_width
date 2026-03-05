@@ -13,7 +13,7 @@ load('dist_to_coast');
 
 %% Ignore close-to-coast
 
-coastmask = 1*(dist_to_coast > 25);
+coastmask = 1*(dist_to_coast > 50);
 coastmask(coastmask == 0) = nan;
 
 %%

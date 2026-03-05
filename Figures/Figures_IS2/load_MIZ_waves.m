@@ -288,7 +288,6 @@ nusable_segmented = sum(usable);
 if IS2_DATA.v6
 
     usable = usable & ~isnan(SICvals_AMSR);
-
     SICvals_AMSR = SICvals_AMSR(usable);
     biasvals_AMSR = biasvals_AMSR(usable);
 
@@ -307,6 +306,7 @@ wavytracks = wavytracks(usable);
 biasvals_LIF = biasvals_LIF(usable);
 biasvals_LIF_spec = biasvals_LIF_spec(usable);
 biasvals_LIF_dark = biasvals_LIF_dark(usable);
+yearval = yearval(usable); 
 
 %%
 % Now pulling beam-specific data

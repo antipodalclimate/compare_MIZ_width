@@ -27,7 +27,7 @@ SICdn = accumarray(binval,SICvals_CDR,[length(Dbins) - 1 1],dnval);
 
 if IS2_DATA.v6
 
-    SICvec_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],@mean);
+    SICvec_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],@nanmean);
     SICup_amsr= accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],upval);
     SICdn_amsr = accumarray(binval,SICvals_AMSR,[length(Dbins) - 1 1],dnval);
 

@@ -9,19 +9,19 @@ Wbins = linspace(0,250,25);
 ratbins = logspace(-2,1,20);
 
 wCDR = MIZ_width_CDR(usable_beams);
-wAMSR = MIZ_width_amsr(usable_beams);
+wAMSR = MIZ_width_AMSR(usable_beams);
 wWAF = WAF_width(usable_beams); 
 
 wCDR_all = MIZ_width_dist_CDR(beams_all)/1000;
-wAMSR_all = MIZ_width_dist_amsr(beams_all)/1000;
+wAMSR_all = MIZ_width_dist_AMSR(beams_all)/1000;
 wWAF_all = WAF_width_dist(beams_all)/1000; 
 
 wCDR_wav = MIZ_width_dist_CDR(beams_waves)/1000;
-wAMSR_wav = MIZ_width_dist_amsr(beams_waves)/1000;
+wAMSR_wav = MIZ_width_dist_AMSR(beams_waves)/1000;
 wWAF_wav = WAF_width_dist(beams_waves)/1000; 
 
 wCDR_nowav = MIZ_width_dist_CDR(beams_nowaves)/1000;
-wAMSR_nowav = MIZ_width_dist_amsr(beams_nowaves)/1000;
+wAMSR_nowav = MIZ_width_dist_AMSR(beams_nowaves)/1000;
 wWAF_nowav = WAF_width_dist(beams_nowaves)/1000; 
 
 

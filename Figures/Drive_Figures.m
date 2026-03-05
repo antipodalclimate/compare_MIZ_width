@@ -19,7 +19,7 @@ OPTS.code_folder = '/Users/chorvat/Code/compare_MIZ_width';
 IS2_data_folder = fullfile(OPTS.code_folder,'Data','IS2_Data');
 SIC_data_folder = fullfile(OPTS.code_folder,'Data','SIC_Data');
 
-IS2_load_str = fullfile(IS2_data_folder, 'AT_stats_SH_v6+7_all.mat');
+IS2_load_str = fullfile(IS2_data_folder, 'AT_stats_SH_v6_all.mat');
 
 %% Setup analysis options and paths.
 % This will overwrite the pre-existing OPTS from the loaded data (if any).
