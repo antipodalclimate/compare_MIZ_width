@@ -61,14 +61,12 @@ compare_MIZ_width/
 
 ## Input Data
 
-| Dataset | Description | Path (default) |
+| Dataset | Description | Location |
 |---|---|---|
-| ICESat-2 ATL07 | HDF5 sea ice segment files (v6+7) | `/gpfs/data/epscor/chorvat/IS2/Data/All_Track_Data/v6+7/SH/` |
-| AMSR2-NT | AMSR2 NASA Team SIC grids | `/Data/SIC_Data/AMSR2-NT/` |
-| AMSR2-Bootstrap | AMSR2 Bootstrap SIC grids | `/Data/SIC_Data/AMSR2-Bootstrap/` |
-| NSIDC-CDR | CDR daily SIC (SSMI/SSMIS) | `/Data/SIC_Data/NSIDC-CDR/` |
-| Sentinel-1 SAR | Classified SAR images with IS2 overlap list | — |
-| Coastal mask | Distance-to-coast grid (50 km cutoff) | Bundled reference file |
+| ICESat-2 ATL07 | HDF5 sea ice segment files (v6+7) | NASA Earthdata |
+| AMSR2-NT | AMSR2 NASA Team SIC grids | NSIDC |
+| AMSR2-Bootstrap | AMSR2 Bootstrap SIC grids | NSIDC |
+| NSIDC-CDR | CDR daily SIC (SSMI/SSMIS) | NSIDC |
 
 All paths are configurable via `OPTS` in the driver scripts.
 
