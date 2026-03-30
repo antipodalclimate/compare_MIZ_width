@@ -115,7 +115,7 @@ grid on; box on;
 title('$\Delta$ from CDR','interpreter','latex')
 set(gca,'yticklabel','')
 
-letter = {'(a)','(c)','(b)','(d)','(c)','(e)','(g)','(e)','(c)'};
+letter = {'(a)','(b)','(c)','(d)','(e)','(f)','(g)','(e)','(c)'};
 
 delete(findall(gcf,'Tag','legtag'))
 

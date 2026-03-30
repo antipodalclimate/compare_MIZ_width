@@ -52,7 +52,7 @@ if ~exist(OPTS.plot_save_str, 'dir')
     mkdir(OPTS.plot_save_str);
 end
 
-OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'
+OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-IS2 paper - prepared for RSE submission/Figures/'
 
 % OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'; 
 
@@ -90,6 +90,8 @@ fprintf('Using IS2 data located at: %s \n', IS2_data_folder);
 disp('-----')
 
 load(IS2_load_str);
+OPTS.plot_save_str = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Apps/Overleaf/PM-SIC-JOG/Figures/'
+
 
 %% ----------- IS2 Related Figures ---------------
 

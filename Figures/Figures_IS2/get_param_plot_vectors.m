@@ -2,9 +2,11 @@
 nbins = 100*floor(round(sqrt(sum(param_use)))/250) + 1;
 nbins = max(nbins,50);
 
-nbins_H = nbins+1; 
+nbins_H = 2*nbins+1; 
 nbins_C = min(nbins,100)+1;
 nbins_W = nbins; 
+nbins_DF = nbins; 
+
 
 Hbins = linspace(-4,8,nbins_H);
 Bincent_H = 0.5*(Hbins(1:end-1) + Hbins(2:end));
@@ -18,10 +20,15 @@ dC = Cbins(2) - Cbins(1);
 Cbins = Cbins + dC/2; 
 Bincent_C = 0.5*(Cbins(1:end-1) + Cbins(2:end));
 
+DFbins = linspace(0,1,nbins_DF);
+dDF = DFbins(2) - DFbins(1); 
+Bincent_DF = 0.5*(DFbins(1:end-1) + DFbins(2:end));
+
 
 [nH,~,mapper_H] = histcounts(Hvals(param_use),Hbins);
 [nW,~,mapper_W] = histcounts(WAFvals(param_use),Wbins);
 [nC,~,mapper_C] = histcounts(SICvals_CDR(param_use),Cbins);
+[nDF,~,mapper_DF] = histcounts(1-LIF_dark_vals(param_use),DFbins);
 
 mapper_C(SICvals_CDR(param_use) > 1) = length(Cbins)-1;
 
@@ -64,6 +71,21 @@ bias_LIF_spec_by_C = accumarray(mapper_C,biasvals_LIF_spec(param_use),[length(Cb
 bias_LIF_spec_by_C_up = accumarray(mapper_C,biasvals_LIF_spec(param_use),[length(Cbins)-1 1],upval);
 bias_LIF_spec_by_C_dn = accumarray(mapper_C,biasvals_LIF_spec(param_use),[length(Cbins)-1 1],dnval);
 
+dark_frac_by_C = accumarray(mapper_C,1-LIF_dark_vals(param_use),[length(Cbins)-1 1],@nanmean);
+dark_frac_by_C_up = accumarray(mapper_C,1-LIF_dark_vals(param_use),[length(Cbins)-1 1],upval);
+dark_frac_by_C_dn = accumarray(mapper_C,1-LIF_dark_vals(param_use),[length(Cbins)-1 1],dnval);
+
+spec_frac_by_C = accumarray(mapper_C,1-LIF_spec_vals(param_use),[length(Cbins)-1 1],@nanmean);
+spec_frac_by_C_up = accumarray(mapper_C,1-LIF_spec_vals(param_use),[length(Cbins)-1 1],upval);
+spec_frac_by_C_dn = accumarray(mapper_C,1-LIF_spec_vals(param_use),[length(Cbins)-1 1],dnval);
+
+
+
+%%
+bias_LIF_by_DF = accumarray(mapper_DF,biasvals_LIF(param_use),[length(DFbins)-1 1],@nanmean);
+bias_LIF_by_DF_up = accumarray(mapper_DF,biasvals_LIF(param_use),[length(DFbins)-1 1],upval);
+bias_LIF_by_DF_dn = accumarray(mapper_DF,biasvals_LIF(param_use),[length(DFbins)-1 1],dnval);
+
 
 %%
 
@@ -88,6 +110,15 @@ bias_AMSR_by_H_dn = accumarray(mapper_H,biasvals_AMSR(param_use),[length(Hbins)-
 bias_LIF_by_H = accumarray(mapper_H,biasvals_LIF(param_use),[length(Hbins)-1 1],@nanmean);
 bias_LIF_by_H_up = accumarray(mapper_H,biasvals_LIF(param_use),[length(Hbins)-1 1],upval);
 bias_LIF_by_H_dn = accumarray(mapper_H,biasvals_LIF(param_use),[length(Hbins)-1 1],dnval);
+
+dark_frac_by_H = accumarray(mapper_H,1-LIF_dark_vals(param_use),[length(Hbins)-1 1],@nanmean);
+dark_frac_by_H_up = accumarray(mapper_H,1-LIF_dark_vals(param_use),[length(Hbins)-1 1],upval);
+dark_frac_by_H_dn = accumarray(mapper_H,1-LIF_dark_vals(param_use),[length(Hbins)-1 1],dnval);
+
+spec_frac_by_H = accumarray(mapper_H,1-LIF_spec_vals(param_use),[length(Hbins)-1 1],@nanmean);
+spec_frac_by_H_up = accumarray(mapper_H,1-LIF_spec_vals(param_use),[length(Hbins)-1 1],upval);
+spec_frac_by_H_dn = accumarray(mapper_H,1-LIF_spec_vals(param_use),[length(Hbins)-1 1],dnval);
+
 
 %%
 LIF_by_W = accumarray(mapper_W,LIFvals(param_use),[length(Wbins)-1 1],@nanmean);
@@ -120,6 +151,8 @@ bias_LIF_by_W_dn = accumarray(mapper_W,biasvals_LIF(param_use),[length(Wbins)-1 
 nseg_sub = Nsegvals(param_use); 
 bias_sub_LIF = biasvals_LIF(param_use); 
 bias_sub_AMSR = biasvals_AMSR(param_use); 
+LIF_spec_sub = LIF_spec_vals(param_use); 
+LIF_dark_sub = LIF_dark_vals(param_use); 
 
 [nWH,~,~,iW,iH] = histcounts2(WAFvals(param_use), Hvals(param_use), Wbins, Hbins);
 
@@ -163,6 +196,14 @@ bias_AMSR_by_WC = reshape(bias_AMSR_by_WC, [nbins_C-1, nbins_W-1]);  % rows=H, c
 % apply count cutoff
 bias_AMSR_by_WC(nWC < sqrt(ncutoff)) = NaN;
 
+spec_by_WC = accumarray(lindex, 1-LIF_spec_sub(good_indices),[(nbins_W-1)*(nbins_C-1) 1], @nanmean);
+spec_by_WC = reshape(spec_by_WC, [nbins_C-1, nbins_W-1]);  % rows=H, cols=W
+spec_by_WC(nWC < sqrt(ncutoff)) = NaN;
+
+dark_by_WC = accumarray(lindex, 1-LIF_dark_sub(good_indices),[(nbins_W-1)*(nbins_C-1) 1], @nanmean);
+dark_by_WC = reshape(dark_by_WC, [nbins_C-1, nbins_W-1]);  % rows=H, cols=W
+dark_by_WC(nWC < sqrt(ncutoff)) = NaN;
+
 %% Now H and C
 
 [nHC,~,~,iH,iC] = histcounts2(Hvals(param_use), SICvals_CDR(param_use), Hbins, Cbins);
@@ -188,6 +229,13 @@ nseg_by_HC = accumarray(lindex, nseg_sub(good_indices),[(nbins_H-1)*(nbins_C-1) 
 nseg_by_HC = reshape(nseg_by_HC, [nbins_C-1, nbins_H-1]);  % rows=H, cols=W
 nseg_by_HC(nHC < sqrt(ncutoff)) = NaN;
 
+spec_by_HC = accumarray(lindex, 1-LIF_spec_sub(good_indices),[(nbins_H-1)*(nbins_C-1) 1], @nanmean);
+spec_by_HC = reshape(spec_by_HC, [nbins_C-1, nbins_H-1]);  % rows=H, cols=W
+spec_by_HC(nHC < sqrt(ncutoff)) = NaN;
+
+dark_by_HC = accumarray(lindex, 1-LIF_dark_sub(good_indices),[(nbins_H-1)*(nbins_C-1) 1], @nanmean);
+dark_by_HC = reshape(dark_by_HC, [nbins_C-1, nbins_H-1]);  % rows=H, cols=W
+dark_by_HC(nHC < sqrt(ncutoff)) = NaN;
 
 %% Let's pull out the positive biased values
 

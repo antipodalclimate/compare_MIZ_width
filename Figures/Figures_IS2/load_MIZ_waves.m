@@ -307,6 +307,10 @@ biasvals_LIF = biasvals_LIF(usable);
 biasvals_LIF_spec = biasvals_LIF_spec(usable);
 biasvals_LIF_dark = biasvals_LIF_dark(usable);
 yearval = yearval(usable); 
+namevals = nameid(usable);
+beamvals = beamid(usable);
+monthvals = monthval(usable); 
+
 
 %%
 % Now pulling beam-specific data

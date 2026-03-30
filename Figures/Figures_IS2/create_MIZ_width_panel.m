@@ -5,8 +5,10 @@ close
 
 %%
 
-Wbins = linspace(0,250,25);
-ratbins = logspace(-2,1,20);
+nbins = 100;
+
+Wbins = 0:12.5:250;
+ratbins = logspace(-2,1,nbins);
 
 wCDR = MIZ_width_CDR(usable_beams);
 wAMSR = MIZ_width_AMSR(usable_beams);
@@ -58,20 +60,20 @@ title('MIZ Width','interpreter','latex')
 
 %%
 
-allAxesInFigure = findall(gcf,'type','axes');
-letter = {'(a)','(a)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
-
-for i = 1:length(allAxesInFigure)
-    
- posy = get(allAxesInFigure(i),'position');
-
-    set(allAxesInFigure(i),'fontname','times','fontsize',8,'xminortick','on','yminortick','on')
-    
-    annotation('textbox',[posy(1) - .05 posy(2)+posy(4)-.015 .025 .025], ...
-        'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
-        'FontSize',8,'Tag','legtag');
-
-end
+% allAxesInFigure = findall(gcf,'type','axes');
+% letter = {'(a)','(a)','(a)','(d)','(e)','(f)','(g)','(e)','(c)'};
+% 
+% for i = 1:length(allAxesInFigure)
+% 
+%  posy = get(allAxesInFigure(i),'position');
+% 
+%     set(allAxesInFigure(i),'fontname','times','fontsize',8,'xminortick','on','yminortick','on')
+% 
+%     annotation('textbox',[posy(1) - .05 posy(2)+posy(4)-.015 .025 .025], ...
+%         'String',letter{i},'LineStyle','none','FontName','Helvetica', ...
+%         'FontSize',8,'Tag','legtag');
+% 
+% end
 
 pos = [6.5 2]; 
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
