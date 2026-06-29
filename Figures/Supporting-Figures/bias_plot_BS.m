@@ -79,7 +79,7 @@ make_HR_coastlines([.6 .6 .6]);
 set(gca,'clim',climmer)
 % set(gca,'clim',[-.2 .2])
 colorbar('position',[.55 .55 .025 .35]);
-title('Bias: All Days','interpreter','latex')
+title('All Days','interpreter','latex')
 
 Ax{2} = subplot('position',[.275 .5 .25 .45]);
 
@@ -89,7 +89,7 @@ make_HR_coastlines([.6 .6 .6]);
 set(gca,'clim',climmer)
 % set(gca,'clim',[-.2 .2])
 % colorbar
-title('Bias: Non-compact Days','interpreter','latex')
+title('Non-compact Days','interpreter','latex')
 
 nc = 33;
 cmapper = brewermap(nc,'PuOr');
@@ -106,7 +106,7 @@ make_HR_coastlines([.6 .6 .6]);
 
 set(gca,'clim',[0 2])
 colorbar('position',[.9 .55 .025 .35]);
-title('IQR/Bias','interpreter','latex')
+title('Range/Offset','interpreter','latex')
 colormap(gca,brewermap(11,'paired'));
 %
 %%
@@ -123,7 +123,7 @@ title('SIC Comparison','interpreter','latex');
 xlim([.15 1]);
 ylim([.15 1]);
 
-ylabel('AMSR2-NT2 SIC','interpreter','latex');
+ylabel('CDR-BS SIC','interpreter','latex');
 xlabel('AMSR2-BS SIC','interpreter','latex')
 grid on; box on;
 
@@ -157,8 +157,8 @@ plot(Bincent_SIC,-Bincent_SIC,'--r','linewidth',1)
 
 ylabel('$\Delta$ SIC','interpreter','latex');
 
-xlabel('AMSR2-BS SIC','interpreter','latex')
-title('Algorithmic Bias','interpreter','latex');
+xlabel('AMSR2-BT SIC','interpreter','latex')
+title('CDR-BT - AMSR2-BT','interpreter','latex');
 grid on; box on;
 %%
 

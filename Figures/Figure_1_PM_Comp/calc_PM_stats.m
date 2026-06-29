@@ -1,10 +1,11 @@
 AMSR_str = fullfile(SIC_data_folder,'AMSR2-NT','AMSR2_SIC_daily.mat');
 SSMI_str = fullfile(SIC_data_folder,'NSIDC-CDR','CDR_daily_SH_v4.mat');
-
+OSI_str = fullfile(SIC_data_folder,'OSI-450','OSISAF_daily.mat');
 % ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat';
 
 load(AMSR_str,'AMSR_datenum','AMSR_NT_SH','AMSR_BS_SH');
 load(SSMI_str,'CDR_daily_SH','lat_SH','lon_SH','CDR_time_SH','BS_daily_SH','NT_daily_SH','area_SH','CDR_std_daily_SH');
+load(OSI_str,'OSI_SIC_SH','lat_OSI_SH','lon_OSI_SH','OSI_datenum_SH','OSI_area_SH');
 % load(ASI_loc,'AMSR_ASI_SH','ASI_time_SH','lat_ASI_SH','lon_ASI_SH','area_ASI_SH');
 
 
@@ -16,38 +17,51 @@ load('dist_to_coast');
 coastmask = 1*(dist_to_coast > 50);
 coastmask(coastmask == 0) = nan;
 
+coastmask_OSI = 1*(dist_to_coast_OSI > 50);
+coastmask_OSI(coastmask_OSI == 0) = nan;
+
 %%
 
 % Same dates in the IS2 period.
 IS2_datenum = datenum('01-Oct-2018'):datenum('31-Dec-2024');
 
 [mutual_datenum,ia,ib] = intersect(AMSR_datenum,CDR_time_SH);
-[IS2_mutual,ic,~] = intersect(mutual_datenum,IS2_datenum);
-% [ASI_mutual,id,ie] = intersect(IS2_mutual,ASI_time_SH);
+[IS2_mutual,ic,ie] = intersect(mutual_datenum,IS2_datenum);
+[OSI_mutual,ig,ih] = intersect(IS2_mutual,OSI_datenum_SH);
 
 % NASATEAM2 AMSR value
-AMSR_NT_SH = bsxfun(@times,AMSR_NT_SH(:,:,ia(ic)),coastmask);
+AMSR_NT_SH = bsxfun(@times,AMSR_NT_SH(:,:,ia(ic(ig))),coastmask);
 % CDR values
-CDR_daily_SH = bsxfun(@times,CDR_daily_SH(:,:,ib(ic)),coastmask);
-SSMI_BS_SH = bsxfun(@times,BS_daily_SH(:,:,ib(ic)),coastmask);
-SSMI_NT_SH = bsxfun(@times,NT_daily_SH(:,:,ib(ic)),coastmask);
+CDR_daily_SH = bsxfun(@times,CDR_daily_SH(:,:,ib(ic(ig))),coastmask);
+SSMI_BS_SH = bsxfun(@times,BS_daily_SH(:,:,ib(ic(ig))),coastmask);
+SSMI_NT_SH = bsxfun(@times,NT_daily_SH(:,:,ib(ic(ig))),coastmask);
+
 
 % AMSR_ASI_SH = bsxfun(@times,AMSR_ASI_SH(:,:,ie),coastmask_ASI');
 
 clear BS_daily_SH NT_daily_SH
 
 % BOOTSTRAP AMSR values
-AMSR_BS_SH =  bsxfun(@times,AMSR_BS_SH(:,:,ia(ic)),coastmask);
-
+AMSR_BS_SH =  bsxfun(@times,AMSR_BS_SH(:,:,ia(ic(ig))),coastmask);
 AMSR_NT_SH(AMSR_NT_SH > 1) = nan;
 AMSR_BS_SH(AMSR_BS_SH > 1) = nan;
 
-datenum_coincedent = AMSR_datenum(ia(ic));
+datenum_coincedent = AMSR_datenum(ia(ic(ig)));
+
+% OSISAF Values
+
+OSI_SH = bsxfun(@times,OSI_SIC_SH(:,:,ih),coastmask_OSI);
+
+clear OSI_SIC_SH
+
+
+
+
 
 %% Remove days with known sensor issues
 
-AMSR_badday = find(IS2_mutual == datenum('04-Sep-2024')); 
-CDR_badday = find(IS2_mutual == datenum('18-Sep-2024')); 
+AMSR_badday = find(OSI_mutual == datenum('04-Sep-2024')); 
+CDR_badday = find(OSI_mutual == datenum('18-Sep-2024')); 
 
 AMSR_BS_SH(:,:,AMSR_badday) = nan; 
 AMSR_NT_SH(:,:,AMSR_badday) = nan; 
@@ -55,6 +69,8 @@ AMSR_NT_SH(:,:,AMSR_badday) = nan;
 CDR_daily_SH(:,:,CDR_badday) = nan; 
 SSMI_BS_SH(:,:,CDR_badday) = nan; 
 SSMI_NT_SH(:,:,CDR_badday) = nan; 
+
+OSI_SH(:,:,CDR_badday) = nan; 
 
 
 %% Now build more fields from the gridded data
@@ -64,6 +80,8 @@ MIZ_AMSR_BS = AMSR_BS_SH > 0.15 & AMSR_BS_SH < 0.8;
 MIZ_CDR = CDR_daily_SH > 0.15 & CDR_daily_SH < 0.8;
 MIZ_SSMI_NT = SSMI_NT_SH > 0.15 & SSMI_NT_SH < 0.8;
 MIZ_SSMI_BS = SSMI_BS_SH > 0.15 & SSMI_BS_SH < 0.8;
+MIZ_OSI = OSI_SH > 0.15 & OSI_SH < 0.8; 
+
 % MIZ_ASI = AMSR_ASI_SH > 0.15 & AMSR_ASI_SH < 0.8;
 
 ICE_AMSR_NT = AMSR_NT_SH > 0.15;
@@ -71,6 +89,7 @@ ICE_AMSR_BS = AMSR_BS_SH > 0.15;
 ICE_CDR = CDR_daily_SH > 0.15;
 ICE_SSMI_NT = SSMI_NT_SH > 0.15;
 ICE_SSMI_BS = SSMI_BS_SH > 0.15;
+ICE_OSI = OSI_SH > 0.15; 
 % ICE_ASI = AMSR_ASI_SH > 0.15;
 
 prefac = 1/1e6;
@@ -90,6 +109,10 @@ AMIZ_SSMI_NT(AMIZ_SSMI_NT==0) = nan;
 AMIZ_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,MIZ_SSMI_BS),[1 2],'omitnan'));
 AMIZ_SSMI_BS(AMIZ_SSMI_BS==0) = nan; 
 
+AMIZ_OSI = prefac*squeeze(sum(bsxfun(@times,OSI_area_SH,MIZ_OSI),[1 2],'omitnan'));
+AMIZ_OSI(AMIZ_OSI==0) = nan; 
+
+
 % AMIZ_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,MIZ_ASI),[1 2],'omitnan'));
 
 
@@ -108,6 +131,9 @@ SIA_SSMI_NT(SIA_SSMI_NT == 0) = nan;
 SIA_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,SSMI_BS_SH),[1 2],'omitnan'));
 SIA_SSMI_BS(SIA_SSMI_BS == 0) = nan; 
 
+SIA_OSI = prefac*squeeze(sum(bsxfun(@times,OSI_area_SH,OSI_SH),[1 2],'omitnan'));
+SIA_OSI(SIA_OSI == 0) = nan; 
+
 % SIA_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,AMSR_ASI_SH),[1 2],'omitnan'));
 
 
@@ -125,6 +151,9 @@ SIE_SSMI_NT(SIE_SSMI_NT == 0) = nan;
 
 SIE_SSMI_BS = prefac*squeeze(sum(bsxfun(@times,area_SH,ICE_SSMI_BS),[1 2],'omitnan'));
 SIE_SSMI_BS(SIE_SSMI_BS == 0) = nan; 
+
+SIE_OSI = prefac*squeeze(sum(bsxfun(@times,OSI_area_SH,ICE_OSI),[1 2],'omitnan'));
+SIE_OSI(SIE_OSI == 0) = nan; 
 
 % SIE_ASI = prefac*squeeze(sum(bsxfun(@times,area_ASI_SH,ICE_ASI),[1 2],'omitnan'));
 
@@ -153,11 +182,16 @@ dAMIZ_SSMI = AMIZ_SSMI_NT - AMIZ_SSMI_BS;
 % Now for shits, different sensor, different algos
 dAMIZ_cross = dAMIZ_NT + dAMIZ_SSMI;
 
+% Differing NT vs OSI algos. 
+dAMIZ_OSI = AMIZ_CDR - AMIZ_OSI; 
+
 dSIE = SIE_AMSR_NT - SIE_CDR;
 
 % Now SIA differences
 dSIA = SIA_AMSR_NT - SIA_CDR;
 dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
+
+
 
 %% Now examine the bias offset between NT2 and BS. 
 
@@ -170,25 +204,25 @@ dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
 %             independent="c");
 % %
 % usesic = sic_2 > 0.15 & ~(isnan(sic_2) | isnan(sic_1));
-%
+% 
 % [nper,~,cat] = histcounts(sic_2(usesic),[0:.05:1]);
 % weight = (sum(nper)./nper)/100;
-%
+% 
 % % Doesn't matter since these don't appear.
 % weight(isinf(weight)) = 1;
-%
+% 
 % histweights = nan(size(sic_1(usesic)));
-%
+% 
 % for i = 1:max(cat)
 %     histweights(cat==i) = weight(i);
 % end
-%
+% 
 % [fitval2,gof,fitinfo] = fit(sic_2(usesic),sic_1(usesic) - sic_2(usesic),myfit,'Startpoint',[1.62,.229,.6151],'weights',histweights);
-%
+
 %%
 
 % This is fitted to data in proportion to representation in SIC_2 space.
-fitted = @(c) -1.639*(c-.6122).^2 + 0.2316;
+fitted = @(c) -1.449*(c-.5976).^2 + 0.2266;
 
 % This is fitting to all data without replacing.
 % fitted = @(c) -1.604*(c-.6138).^2 + 0.229;

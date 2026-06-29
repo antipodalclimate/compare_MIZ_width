@@ -4,7 +4,7 @@ close all
 clear Ax
 
 % This is the fit function
-fitted = @(c) -1.639*(c-.6122).^2 + 0.2316;
+fitted = @(c) -1.449*(c-.5976).^2 + 0.2266;
 
 disp('We are using the following fit')
 disp(fitted)
@@ -105,10 +105,10 @@ worldmap([-90 -55],[-180 180]);
 pcolorm(lat_SH,lon_SH,iqr(plotter_MIZ,3)./median(plotter_MIZ,3,'omitnan'))
 make_HR_coastlines([.6 .6 .6]);
 
-set(gca,'clim',[0 2])
+set(gca,'clim',[0 1.25])
 colorbar('position',[.9 .55 .025 .35]);
 title('IQR/Bias','interpreter','latex')
-colormap(gca,brewermap(11,'paired'));
+colormap(gca,brewermap(11,'Spectral'));
 %
 %%
 Ax{4} =subplot('position',[.075 .1 .375 .35]);
@@ -179,4 +179,4 @@ end
 pos = [6.5 3.75];
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
 set(gcf,'windowstyle','normal','position',[0 0 pos],'paperposition',[0 0 pos],'papersize',pos,'units','inches','paperunits','inches');
-print([OPTS.plot_save_str 'bias-BS-BS'],'-dpdf','-r600');
+print([OPTS.plot_save_str 'bias-NT-BS'],'-dpdf','-r600');

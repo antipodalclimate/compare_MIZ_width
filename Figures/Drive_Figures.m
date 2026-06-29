@@ -77,9 +77,15 @@ calc_PM_stats;
 % Figure 1 is the base comparison of PM data
 plot_PM_global_stats;
 
-%%
+%% 
 
 plot_PM_bias_map;
+
+%%
+
+addpath('Supporting-Figures/');
+
+plot_BT_NT_comp_SI; 
 
 %% Loading IS2 Data
 

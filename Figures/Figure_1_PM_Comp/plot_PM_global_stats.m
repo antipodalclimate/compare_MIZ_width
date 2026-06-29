@@ -4,11 +4,13 @@
 close all
 
 
-xax = datetime(datestr(IS2_mutual));
+xax = datetime(datestr(OSI_mutual));
 
 plotcolors = [27,158,119
 217,95,2
-117,112,179]/256; 
+117,112,179
+152,78,163
+]/256; 
 
 %%
 close all
@@ -22,7 +24,7 @@ plot(xax,SIE_AMSR_NT,'color',plotcolors(1,:),'linewidth',1)
 % plot(xax,SIE_SSMI_BS,'--b','linewidth',1);
 plot(xax,SIE_AMSR_BS,'color',plotcolors(2,:),'linewidth',1);
 plot(xax,SIE_SSMI_BS,'color',plotcolors(3,:),'linewidth',1);
-% plot(xax,SIE_ASI,'m','linewidth',1);
+plot(xax,SIE_OSI,'color',plotcolors(4,:),'linewidth',1);
 
 grid on; box on;
 title('Antarctic Sea Ice Extent','interpreter','latex')
@@ -31,15 +33,15 @@ set(gca,'xticklabel','')
 
 % yline(median(AMIZ_CDR-AMIZ_AMSR_NT),'--r','linewidth',1,'label',sprintf('%2.2f',median(AMIZ_CDR - AMIZ_AMSR_NT)),'fontsize',12)
 
-legend('NSIDC-CDR','AMSR-NT2','AMSR2-BS','SSMI-BS','location',[.3 .95 .4 .025],'orientation','horizontal')
+legend('NSIDC-CDR','AMSR-NT2','AMSR2-BT','SSMI-BT','OSI-450','location',[.3 .95 .4 .025],'orientation','horizontal')
 
 Ax{2} = subplot('position',[.8 .65 .125 .225]);
 
 histogram(SIE_AMSR_NT-SIE_CDR,bins,'FaceColor',plotcolors(1,:),'Normalization','pdf')
 hold on
-% histogram(SIE_ASI - SIE_CDR,bins,'FaceColor','m','Normalization','pdf')
 histogram(SIE_AMSR_BS - SIE_CDR,bins,'Facecolor',plotcolors(2,:),'Normalization','pdf')
 histogram(SIE_SSMI_BS - SIE_CDR,bins,'Facecolor',plotcolors(3,:),'Normalization','pdf')
+histogram(SIE_OSI - SIE_CDR,bins,'FaceColor',plotcolors(4,:),'Normalization','pdf')
 xlim(xlimmer)
 grid on; box on;
 view(90,-90)
@@ -54,7 +56,7 @@ hold on
 plot(xax,SIA_AMSR_NT,'color',plotcolors(1,:),'linewidth',1)
 plot(xax,SIA_AMSR_BS,'color',plotcolors(2,:),'linewidth',1);
 plot(xax,SIA_SSMI_BS,'color',plotcolors(3,:),'linewidth',1);
-% plot(xax,SIA_ASI,'-m','linewidth',1);
+plot(xax,SIA_OSI,'-m','linewidth',1);
 
 
 hold off
@@ -71,7 +73,7 @@ histogram(SIA_AMSR_NT - SIA_CDR,bins,'FaceColor',plotcolors(1,:),'Normalization'
 hold on
 histogram(SIA_AMSR_BS - SIA_CDR,bins,'Facecolor',plotcolors(2,:),'Normalization','pdf')
 histogram(SIA_SSMI_BS - SIA_CDR,bins,'Facecolor',plotcolors(3,:),'Normalization','pdf')
-% histogram(SIA_ASI - SIA_CDR,bins,'Facecolor','m','Normalization','pdf')
+histogram(SIA_OSI - SIA_CDR,bins,'Facecolor',plotcolors(4,:),'Normalization','pdf')
 xlim(xlimmer)
 %
 % xline(median(SIA_AMSR_NT - SIA_CDR),plotcolors(1,:),'linewidth',2)
@@ -90,7 +92,7 @@ hold on
 plot(xax,AMIZ_AMSR_NT,'color',plotcolors(1,:),'linewidth',1)
 plot(xax,AMIZ_AMSR_BS,'color',plotcolors(2,:),'linewidth',1);
 plot(xax,AMIZ_SSMI_BS,'color',plotcolors(3,:),'linewidth',1);
-% plot(xax,AMIZ_ASI,'--m','linewidth',1);
+plot(xax,AMIZ_OSI,'color',plotcolors(4,:),'linewidth',1);
 hold off
 grid on; box on;
 title('Antarctic MIZ Extent','interpreter','latex')
@@ -107,7 +109,7 @@ histogram(AMIZ_AMSR_NT-AMIZ_CDR,bins,'FaceColor',plotcolors(1,:),'Normalization'
 hold on
 histogram(AMIZ_AMSR_BS-AMIZ_CDR,bins,'Facecolor',plotcolors(2,:),'Normalization','pdf')
 histogram(AMIZ_SSMI_BS-AMIZ_CDR,bins,'Facecolor',plotcolors(3,:),'Normalization','pdf')
-% histogram(AMIZ_ASI-AMIZ_CDR,bins,'Facecolor','m','Normalization','pdf')
+histogram(AMIZ_OSI-AMIZ_CDR,bins,'Facecolor',plotcolors(4,:),'Normalization','pdf')
 xlim(xlimmer)
 view(90,-90)
 hold off
