@@ -118,9 +118,3 @@ create_MIZ_width_panel;
 %% Parameteric figure of LIF offset, AMSR2 offset
 
 create_parametric_plots;
-
-%% ----------- SAR Related Figures ---------------
-
-%% The localized SAR comparison with a single IS2 track
-% This seems to be standalone or requires separate data?
-% Keeping the path add for now.

@@ -1,4 +1,4 @@
-AMSR_str = fullfile(SIC_data_folder,'AMSR2-NT','AMSR2_SIC_daily.mat');
+AMSR_str = fullfile(SIC_data_folder,'AMSR2-NT-25','AMSR2_SIC_daily.mat');
 SSMI_str = fullfile(SIC_data_folder,'NSIDC-CDR','CDR_daily_SH_v4.mat');
 OSI_str = fullfile(SIC_data_folder,'OSI-450','OSISAF_daily.mat');
 % ASI_loc = '/Users/chorvat/Brown Dropbox/Christopher Horvat/Research Projects/Active/Data/SIC-Data/AMSR2-ASI/AMSR2_ASI_daily.mat';
@@ -55,13 +55,11 @@ OSI_SH = bsxfun(@times,OSI_SIC_SH(:,:,ih),coastmask_OSI);
 clear OSI_SIC_SH
 
 
-
-
-
 %% Remove days with known sensor issues
 
 AMSR_badday = find(OSI_mutual == datenum('04-Sep-2024')); 
 CDR_badday = find(OSI_mutual == datenum('18-Sep-2024')); 
+OSI_badday = find(OSI_mutual == datenum('22-Aug-2022')); 
 
 AMSR_BS_SH(:,:,AMSR_badday) = nan; 
 AMSR_NT_SH(:,:,AMSR_badday) = nan; 
@@ -71,6 +69,7 @@ SSMI_BS_SH(:,:,CDR_badday) = nan;
 SSMI_NT_SH(:,:,CDR_badday) = nan; 
 
 OSI_SH(:,:,CDR_badday) = nan; 
+OSI_SH(:,:,OSI_badday) = nan; 
 
 
 %% Now build more fields from the gridded data
@@ -160,36 +159,70 @@ SIE_OSI(SIE_OSI == 0) = nan;
 
 %%
 % Six products
-% AMSR2 - NT
+% AMSR2 - NT2
 % AMSR2 - BS
 % AMSR2 - ASI
 % SSMI - CDR
 % SSMI - BS
 % SSMI - NT
 
-% Interesected in official product differences
-% AMSR2 - SSMI-CDR
-dAMIZ = AMIZ_AMSR_NT - AMIZ_CDR;
+prodnames = {'CDR','CDR-BT','CDR-NT','AMSR-BT','AMSR-NT2','OSI-CDR'};
 
-% Then interested in same algorithms, different sensors
-dAMIZ_BS = AMIZ_AMSR_BS - AMIZ_SSMI_BS;
-dAMIZ_NT = AMIZ_AMSR_NT - AMIZ_SSMI_NT;
 
-% Then interested in same sensor, different algorithms
-dAMIZ_AMSR = AMIZ_AMSR_NT - AMIZ_AMSR_BS;
-dAMIZ_SSMI = AMIZ_SSMI_NT - AMIZ_SSMI_BS;
+SIEmat = [SIE_CDR SIE_SSMI_BS SIE_SSMI_NT SIE_AMSR_BS SIE_AMSR_NT SIE_OSI];
+SIAmat = [SIA_CDR SIA_SSMI_BS SIA_SSMI_NT SIA_AMSR_BS SIA_AMSR_NT SIA_OSI];
+MIZmat = [AMIZ_CDR AMIZ_SSMI_BS AMIZ_SSMI_NT AMIZ_AMSR_BS AMIZ_AMSR_NT AMIZ_OSI];
+MIZFmat = MIZmat./SIEmat; 
 
-% Now for shits, different sensor, different algos
-dAMIZ_cross = dAMIZ_NT + dAMIZ_SSMI;
+dSIE = bsxfun(@minus,SIEmat,SIEmat(:,1));
+dSIA = bsxfun(@minus,SIAmat,SIAmat(:,1));
+dAMIZ = bsxfun(@minus,MIZmat,MIZmat(:,1));
 
-% Differing NT vs OSI algos. 
-dAMIZ_OSI = AMIZ_CDR - AMIZ_OSI; 
 
-dSIE = SIE_AMSR_NT - SIE_CDR;
+fprintf('----- Product Comparison \n \n' )
 
-% Now SIA differences
-dSIA = SIA_AMSR_NT - SIA_CDR;
-dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
+for i = 1:length(prodnames)
+
+    fprintf('%s ',prodnames{i});
+    fprintf('SIE: %.1f (%.1f--%.1f) ', mean(SIEmat(:,i),'omitnan'), min(SIEmat(:,i),[],'omitnan'), max(SIEmat(:,i),[],'omitnan'));
+    fprintf('SIA: %.1f (%.1f--%.1f) ', mean(SIAmat(:,i),'omitnan'), min(SIAmat(:,i),[],'omitnan'), max(SIAmat(:,i),[],'omitnan'));
+    fprintf('MIZE: %.1f (%.1f--%.1f) ', mean(MIZmat(:,i),'omitnan'), min(MIZmat(:,i),[],'omitnan'), max(MIZmat(:,i),[],'omitnan'));
+    fprintf('MIZF: %.3f (%.3f--%.3f) \n', mean(MIZFmat(:,i),'omitnan'), min(MIZFmat(:,i),[],'omitnan'), max(MIZFmat(:,i),[],'omitnan'));
+
+    fprintf('dSIE: %.3f std: %.3f max: %.3f mean frac %.3f max abs frac: %.3f \n', mean(dSIE(:,i),'omitnan'), std(dSIE(:,i),'omitnan'),max(dSIE(:,i)),mean(dSIE(:,i)./SIEmat(:,1),'omitnan'),max(dSIE(:,i)./SIEmat(:,1)));
+    fprintf('dSIA: %.3f std: %.3f max: %.3f min: %.3f mean frac %.3f max abs frac: %.3f \n', mean(dSIA(:,i),'omitnan'), std(dSIA(:,i),'omitnan'),max((dSIA(:,i))),min((dSIA(:,i))),mean(dSIA(:,i)./SIAmat(:,1),'omitnan'),max(abs(dSIA(:,i)./SIAmat(:,1))));
+    fprintf('dMIZE: %.3f std: %.3f max: %.3f min: %.3f mean frac %.3f max abs frac: %.3f \n', mean(dAMIZ(:,i),'omitnan'), std(dAMIZ(:,i),'omitnan'),max(dAMIZ(:,i)),min((dAMIZ(:,i))),mean(abs(dAMIZ(:,i))./MIZmat(:,1),'omitnan'),max(abs(MIZmat(:,i))./dAMIZ(:,1),[],1,'omitnan'));
+   
+
+    fprintf('\n')
+    fprintf('\n')
+
+
+end
+
+% % Interesected in official product differences
+% % AMSR2 - SSMI-CDR
+% dAMIZ = AMIZ_AMSR_NT - AMIZ_CDR;
+% 
+% % Then interested in same algorithms, different sensors
+% dAMIZ_BS = AMIZ_AMSR_BS - AMIZ_SSMI_BS;
+% dAMIZ_NT = AMIZ_AMSR_NT - AMIZ_SSMI_NT;
+% 
+% % Then interested in same sensor, different algorithms
+% dAMIZ_AMSR = AMIZ_AMSR_NT - AMIZ_AMSR_BS;
+% dAMIZ_SSMI = AMIZ_SSMI_NT - AMIZ_SSMI_BS;
+% 
+% % Now for shits, different sensor, different algos
+% dAMIZ_cross = dAMIZ_NT + dAMIZ_SSMI;
+% 
+% % Differing NT vs OSI algos. 
+% dAMIZ_OSI = AMIZ_CDR - AMIZ_OSI; 
+% 
+% dSIE = SIE_AMSR_NT - SIE_CDR;
+% 
+% % Now SIA differences
+% dSIA = SIA_AMSR_NT - SIA_CDR;
+% dSIA_NT = SIA_AMSR_NT - SIA_SSMI_NT;
 
 
 
@@ -229,4 +262,9 @@ fitted = @(c) -1.449*(c-.5976).^2 + 0.2266;
 
 
 
+%% Surface some bias statistics.
 
+
+
+
+%%
